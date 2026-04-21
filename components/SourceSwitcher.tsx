@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function SourceSwitcher() {
+export default function SourceSwitcher({ className = "" }: { className?: string }) {
   const pathname = usePathname();
   const isOtakudesu = pathname.startsWith("/otakudesu");
 
   return (
-    <div className="flex bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10 ml-4 hidden sm:flex">
+    <div className={`flex bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10 ${className}`}>
       <Link
         href="/"
         prefetch={false}

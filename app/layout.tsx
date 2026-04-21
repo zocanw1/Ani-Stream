@@ -24,10 +24,10 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-50 glass border-b border-white/[0.06]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           <Link href="/" prefetch={false} className="flex items-center gap-3 group flex-shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#6c5ce7] to-[#a29bfe] flex items-center justify-center shadow-lg shadow-[#6c5ce7]/20 group-hover:shadow-[#6c5ce7]/40 transition-shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br from-[#6c5ce7] to-[#a29bfe] flex items-center justify-center shadow-lg shadow-[#6c5ce7]/20 group-hover:shadow-[#6c5ce7]/40 transition-shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>
             </div>
@@ -37,13 +37,21 @@ function Navbar() {
             </span>
           </Link>
 
-          <SourceSwitcher />
+          <SourceSwitcher className="hidden lg:flex" />
 
           <div className="flex-1 flex justify-center max-w-md">
             <NavbarSearch />
           </div>
 
-          <NavbarLinks />
+          <NavbarLinks className="hidden md:flex" />
+        </div>
+      </div>
+      
+      {/* Mobile Sub-Navbar */}
+      <div className="md:hidden border-t border-white/5 bg-black/20 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4 min-w-max">
+          <SourceSwitcher className="lg:hidden" />
+          <NavbarLinks className="md:hidden" />
         </div>
       </div>
     </nav>
