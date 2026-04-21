@@ -13,6 +13,7 @@ interface AnimeCardProps {
   subText?: string;
   source: "samehadaku" | "otakudesu";
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export default function AnimeCard({
@@ -25,7 +26,8 @@ export default function AnimeCard({
   episodes,
   subText,
   source,
-  className = ""
+  className = "",
+  style
 }: AnimeCardProps) {
   const accentColor = source === "otakudesu" ? "#ff7675" : "#6c5ce7";
   const hoverText = source === "otakudesu" ? "group-hover:text-[#ff7675]" : "group-hover:text-[#a29bfe]";
@@ -36,6 +38,7 @@ export default function AnimeCard({
       href={href} 
       prefetch={true} 
       className={`group block animate-fade-in-up ${className}`}
+      style={style}
     >
       <div className="poster-card aspect-[3/4] rounded-xl overflow-hidden ring-1 ring-white/5 bg-white/5">
         <Image 

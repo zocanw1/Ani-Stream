@@ -89,7 +89,7 @@ export default async function OtakudesuCompletedPage(props: { searchParams: Prom
                   score={anime.score}
                   subText={`${anime.episodes} EPISODES • ${anime.lastReleaseDate}`}
                   className="animate-fade-in"
-                  style={{ animationDelay: `${(idx % 10) * 0.05}s` } as any}
+                  style={{ animationDelay: `${(idx % 10) * 0.05}s` }}
                 />
               ))}
             </div>
