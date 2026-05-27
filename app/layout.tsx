@@ -19,6 +19,7 @@ import NavbarSearch from "@/components/NavbarSearch";
 import SourceSwitcher from "@/components/SourceSwitcher";
 import NavbarLinks from "@/components/NavbarLinks";
 import SourceInitializer from "@/components/SourceInitializer";
+import AuthMenu from "@/components/AuthMenu";
 
 function Navbar() {
   return (
@@ -43,7 +44,9 @@ function Navbar() {
             <NavbarSearch />
           </div>
 
+          <AuthMenu className="md:hidden" />
           <NavbarLinks className="hidden md:flex" />
+          <AuthMenu className="hidden md:block" />
         </div>
       </div>
       

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import WatchRecorder from "@/components/WatchRecorder";
 
 type DownloadUrl = { title: string; url: string };
 type DownloadQuality = { title: string; urls: DownloadUrl[] };
@@ -85,9 +86,20 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
 
   const currentFormatData = data.downloadUrl.formats.find(f => f.title === selectedFormat);
   const currentQualityData = currentFormatData?.qualities.find(q => q.title === selectedQuality);
+  const animeTitle = data.title.split(" Episode")[0] || data.title;
 
   return (
     <div className="min-h-screen animate-fade-in font-sans">
+      <WatchRecorder
+        source="samehadaku"
+        animeSlug={data.animeId}
+        animeTitle={animeTitle}
+        episodeSlug={slug}
+        episodeTitle={data.title}
+        posterUrl={data.poster}
+        animePath={`/anime/${data.animeId}`}
+        episodePath={`/anime/episode/${slug}`}
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
 
         {/* ── Title & Meta ──────────────────────────── */}
