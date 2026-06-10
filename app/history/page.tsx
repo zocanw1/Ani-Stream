@@ -27,18 +27,18 @@ export default async function HistoryPage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#a29bfe]">Watch History</p>
-            <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">History Anime</h1>
-            <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-gray-500">
+            <p className="inline-flex rotate-[-2deg] rounded-lg border-[3px] border-[#1E1B29] bg-[#00CEC9] px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-[#1E1B29] shadow-[4px_4px_0_#1E1B29]">Watch History</p>
+            <h1 className="font-display mt-5 text-3xl font-black text-[#6C5CE7] [-webkit-text-stroke:1.5px_#1E1B29] [text-shadow:3px_3px_0_#1E1B29] sm:text-4xl">History Anime</h1>
+            <p className="mt-2 max-w-2xl text-sm font-extrabold leading-7 text-[#1E1B29]/75">
               Satu episode terakhir dari setiap anime yang pernah kamu tonton.
             </p>
           </div>
 
-          <div className="flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
-            <Link href="/history" className="rounded-xl bg-[#6c5ce7] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+          <div className="flex rounded-2xl border-[3px] border-[#1E1B29] bg-white p-1 shadow-[5px_5px_0_#1E1B29]">
+            <Link href="/history" className="rounded-xl bg-[#FDCB6E] px-4 py-2 text-xs font-black uppercase tracking-widest text-[#1E1B29]">
               Per Anime
             </Link>
-            <Link href="/history/episodes" className="rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-white">
+            <Link href="/history/episodes" className="rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-[#1E1B29] hover:bg-[#FAF9FF]">
               Per Episode
             </Link>
           </div>
@@ -46,8 +46,8 @@ export default async function HistoryPage() {
 
         {history.length === 0 ? (
           <div className="glass rounded-3xl p-10 text-center">
-            <h2 className="text-xl font-black text-white">Belum ada history.</h2>
-            <p className="mt-2 text-sm text-gray-500">Tonton episode dulu, nanti daftar anime terakhir muncul di sini.</p>
+            <h2 className="font-display text-xl font-black text-[#1E1B29]">Belum ada history.</h2>
+            <p className="mt-2 text-sm font-extrabold text-[#1E1B29]/75">Tonton episode dulu, nanti daftar anime terakhir muncul di sini.</p>
             <Link href="/" className="btn-primary mt-6 inline-flex text-xs font-black uppercase tracking-widest">
               Mulai Nonton
             </Link>
@@ -55,28 +55,28 @@ export default async function HistoryPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {history.map((item) => (
-              <article key={item.anime_slug} className="glass group rounded-3xl p-4 transition-all hover:border-[#6c5ce7]/40">
+              <article key={item.anime_slug} className="glass group rounded-[22px] p-4 transition-all">
                 <div className="flex gap-4">
                   {item.poster_url ? (
-                    <img src={item.poster_url} alt={item.anime_title} className="h-32 w-24 flex-shrink-0 rounded-2xl object-cover ring-1 ring-white/10" />
+                    <img src={item.poster_url} alt={item.anime_title} className="h-32 w-24 flex-shrink-0 rounded-2xl object-cover border-[3px] border-[#1E1B29]" />
                   ) : (
-                    <div className="h-32 w-24 flex-shrink-0 rounded-2xl bg-white/5" />
+                    <div className="h-32 w-24 flex-shrink-0 rounded-2xl border-[3px] border-[#1E1B29] bg-[#FAF9FF]" />
                   )}
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#a29bfe]">{item.source}</p>
-                      <h2 className="mt-2 line-clamp-2 text-base font-black leading-snug text-white">{item.anime_title}</h2>
-                      <p className="mt-2 line-clamp-2 text-xs font-bold leading-5 text-gray-500">{item.episode_title}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[#6C5CE7]">{item.source}</p>
+                      <h2 className="font-display mt-2 line-clamp-2 text-base font-black leading-snug text-[#1E1B29]">{item.anime_title}</h2>
+                      <p className="mt-2 line-clamp-2 text-xs font-extrabold leading-5 text-[#1E1B29]/75">{item.episode_title}</p>
                     </div>
-                    <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-gray-600">{formatDate(item.watched_at)}</p>
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-[#1E1B29]/60">{formatDate(item.watched_at)}</p>
                   </div>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Link href={item.episode_path} prefetch={false} className="rounded-xl bg-[#6c5ce7] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-[#5a4ecf]">
+                  <Link href={item.episode_path} prefetch={false} className="rounded-xl border-[3px] border-[#1E1B29] bg-[#FF7675] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0_#1E1B29] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5">
                     Lanjut
                   </Link>
-                  <Link href={item.anime_path} prefetch={false} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-gray-300 transition-all hover:bg-white/10 hover:text-white">
+                  <Link href={item.anime_path} prefetch={false} className="rounded-xl border-[3px] border-[#1E1B29] bg-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-[#1E1B29] shadow-[4px_4px_0_#1E1B29] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#FDCB6E]">
                     Detail
                   </Link>
                 </div>

@@ -8,14 +8,14 @@ export default function SourceSwitcher({ className = "" }: { className?: string 
   const isOtakudesu = pathname.startsWith("/otakudesu");
 
   return (
-    <div className={`flex bg-white/5 backdrop-blur-md rounded-xl p-1 border border-white/10 ${className}`}>
+    <div className={`flex bg-white rounded-xl p-1 border-[3px] border-[#1E1B29] shadow-[4px_4px_0_#1E1B29] ${className}`}>
       <Link
         href="/"
         prefetch={false}
         className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
           !isOtakudesu
-            ? "bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20"
-            : "text-gray-500 hover:text-gray-300"
+            ? "bg-[#00CEC9] text-[#1E1B29] shadow-[3px_3px_0_#1E1B29]"
+            : "text-[#1E1B29] hover:bg-[#FAF9FF]"
         }`}
       >
         Samehadaku
@@ -25,8 +25,8 @@ export default function SourceSwitcher({ className = "" }: { className?: string 
         prefetch={false}
         className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${
           isOtakudesu
-            ? "bg-[#ff7675] text-white shadow-lg shadow-[#ff7675]/20"
-            : "text-gray-500 hover:text-gray-300"
+            ? "bg-[#FF7675] text-white shadow-[3px_3px_0_#1E1B29]"
+            : "text-[#1E1B29] hover:bg-[#FAF9FF]"
         }`}
       >
         Otakudesu
