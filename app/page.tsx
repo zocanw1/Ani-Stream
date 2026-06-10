@@ -174,40 +174,38 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen bg-[#050505] pb-20 text-white">
       {/* ── Hero Carousel Section ───────────────────── */}
-      <section className="neo-brutal relative h-[560px] sm:h-[550px] lg:h-[650px] w-full overflow-hidden mb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto rounded-[22px] mt-6 bg-[#6C5CE7]">
+      <section className="relative h-[560px] sm:h-[590px] lg:h-[690px] w-full overflow-hidden mb-12 bg-[#050505]">
         {!popularData ? (
-          <div className="relative w-full h-full rounded-[18px] bg-[#6C5CE7] p-8 sm:p-12 lg:p-16 overflow-hidden">
-            <div className="absolute -right-10 top-10 h-44 w-44 rounded-full border-[4px] border-[#1E1B29] bg-[#FDCB6E] shadow-[6px_6px_0_#1E1B29]" />
-            <div className="absolute bottom-6 left-8 rotate-[-15deg] font-display text-7xl text-[#00CEC9] [-webkit-text-stroke:3px_#1E1B29] [text-shadow:4px_4px_0_#1E1B29]">★</div>
+          <div className="relative w-full h-full bg-[#050505] p-8 sm:p-12 lg:p-16 overflow-hidden">
             <div className="grid h-full items-center gap-10 lg:grid-cols-[1fr_420px]">
               <div className="relative z-10 max-w-[290px] space-y-6 sm:max-w-none">
-                <span className="inline-flex rotate-[-2deg] rounded-lg border-[3px] border-[#1E1B29] bg-[#00CEC9] px-4 py-2 text-[10px] font-black uppercase text-[#1E1B29] shadow-[4px_4px_0_#1E1B29]">
-                  Anime Pop Mode
+                <span className="inline-flex rounded bg-[#E50914] px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                  Streaming Mode
                 </span>
-                <h1 className="font-display max-w-full text-3xl font-black leading-tight text-white [-webkit-text-stroke:1.5px_#1E1B29] [text-shadow:5px_5px_0_#1E1B29] sm:max-w-3xl sm:text-6xl sm:[-webkit-text-stroke:2px_#1E1B29]">
-                  Nonton anime terasa pop, ceria, dan cepat.
+                <h1 className="max-w-full text-4xl font-black leading-tight text-white sm:max-w-3xl sm:text-7xl">
+                  Streaming anime tanpa jeda.
                 </h1>
-                <p className="max-w-full rounded-xl border-[3px] border-[#1E1B29] bg-[#1E1B29]/90 p-4 text-sm font-extrabold leading-7 text-white shadow-[5px_5px_0_#1E1B29] sm:max-w-xl sm:text-base">
-                  Jelajahi update terbaru, jadwal rilis, film anime, dan riwayat tontonan dengan vibe Manga-Pop.
+                <p className="max-w-xl text-sm font-bold leading-7 text-neutral-300 sm:text-base">
+                  Jelajahi update terbaru, jadwal rilis, film anime, dan riwayat tontonan dengan tampilan sinematik.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <span className="btn-primary inline-flex">Mulai Jelajah</span>
                   <span className="btn-ghost inline-flex">Lihat Jadwal</span>
                 </div>
               </div>
-              <div className="neo-brutal relative z-10 hidden rounded-[22px] bg-white p-5 lg:block">
+              <div className="relative z-10 hidden rounded-lg border border-white/10 bg-[#141414] p-5 shadow-2xl lg:block">
                 <div className="mb-5 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-black text-[#6C5CE7]">Preview</p>
-                    <p className="font-display text-lg font-black text-[#1E1B29]">Anime Dashboard</p>
+                    <p className="text-xs font-black text-[#E50914]">Preview</p>
+                    <p className="text-lg font-black text-white">Anime Dashboard</p>
                   </div>
-                  <span className="rounded-lg border-[3px] border-[#1E1B29] bg-[#00CEC9] px-3 py-1 text-xs font-black text-[#1E1B29] shadow-[3px_3px_0_#1E1B29]">Live</span>
+                  <span className="rounded bg-[#E50914] px-3 py-1 text-xs font-black text-white">Live</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="aspect-[3/4] rounded-2xl border-[3px] border-[#1E1B29] bg-[#FAF9FF]" />
+                    <div key={index} className="aspect-[3/4] rounded bg-[#1f1f1f]" />
                   ))}
                 </div>
               </div>
@@ -239,12 +237,12 @@ export default function HomePage() {
                         ⭐ {typeof anime.score === 'string' ? anime.score : anime.score.value}
                       </span>
                     )}
-                  <span className="px-3 py-1 rounded-lg bg-[#00CEC9] backdrop-blur-md border-[3px] border-[#1E1B29] text-[10px] font-black text-[#1E1B29] uppercase tracking-widest shadow-[4px_4px_0_#1E1B29]">
+                  <span className="px-3 py-1 rounded bg-[#E50914] backdrop-blur-md text-[10px] font-black text-white uppercase tracking-widest">
                       {anime.type}
                     </span>
                   </div>
 
-                  <h2 className="font-display text-3xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] animate-fade-in-up [-webkit-text-stroke:2px_#1E1B29] [text-shadow:5px_5px_0_#1E1B29]" style={{ animationDelay: '0.2s' }}>
+                  <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                     {anime.title}
                   </h2>
 
@@ -272,7 +270,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Main Poster Image (Floating on Right) */}
-                <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-2xl overflow-hidden border border-white/70 shadow-2xl animate-fade-in-left">
+                  <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-md overflow-hidden border border-white/20 shadow-2xl animate-fade-in-left">
                   <img src={anime.poster} alt={anime.title} className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -284,7 +282,7 @@ export default function HomePage() {
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
-                  className={`h-3 transition-all duration-300 rounded-full border-2 border-[#1E1B29] ${i === currentSlide ? 'w-8 bg-[#FDCB6E]' : 'w-4 bg-white hover:bg-[#00CEC9]'}`}
+                  className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-[#E50914]' : 'w-4 bg-white/40 hover:bg-white'}`}
                 />
               ))}
             </div>

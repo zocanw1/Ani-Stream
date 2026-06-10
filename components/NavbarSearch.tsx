@@ -39,7 +39,7 @@ export default function NavbarSearch() {
       <div className={`relative flex items-center transition-all duration-300 ${isFocused ? 'scale-[1.02]' : ''}`}>
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg 
-            className={`w-4 h-4 transition-colors duration-200 ${isFocused ? (isOtakudesu ? 'text-[#FF7675]' : 'text-[#6C5CE7]') : 'text-[#1E1B29]'}`}
+            className={`w-4 h-4 transition-colors duration-200 ${isFocused ? 'text-[#E50914]' : 'text-neutral-500'}`}
             xmlns="http://www.w3.org/2000/svg" 
             fill="none" 
             viewBox="0 0 24 24" 
@@ -57,22 +57,22 @@ export default function NavbarSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full pl-9 pr-8 py-2 text-xs font-black rounded-xl bg-white border-[3px] border-[#1E1B29] text-[#1E1B29] placeholder-[#1E1B29]/50 shadow-[4px_4px_0_#1E1B29] focus:outline-none transition-all ${
+          className={`w-full pl-9 pr-8 py-2 text-xs font-black rounded-md border border-white/15 bg-black/50 text-white placeholder-neutral-500 focus:outline-none transition-all focus:border-white/35 ${
             isFocused 
-              ? `-translate-x-0.5 -translate-y-0.5 ${isOtakudesu ? 'bg-[#FFF3D2]' : 'bg-[#FAF9FF]'}`
+              ? 'bg-black/80'
               : ''
           }`}
         />
         {!isFocused && !query && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none hidden sm:flex">
-            <span className="text-[10px] font-black text-[#1E1B29] bg-[#FDCB6E] px-1.5 py-0.5 rounded border-2 border-[#1E1B29]">/</span>
+            <span className="text-[10px] font-black text-neutral-400 bg-white/10 px-1.5 py-0.5 rounded border border-white/10">/</span>
           </div>
         )}
         {query && (
           <button
             type="button"
             onClick={() => setQuery("")}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#1E1B29] hover:text-[#FF7675] transition-colors"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-white transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

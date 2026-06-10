@@ -51,22 +51,22 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
   }
 
   return (
-    <section className="glass relative overflow-hidden rounded-[22px] p-6 sm:p-8">
-      <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[4px] border-[#1E1B29] bg-[#FDCB6E]" />
+    <section className="glass relative overflow-hidden rounded-lg p-6 sm:p-8">
+      <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#E50914]/20 blur-2xl" />
       <div className="relative space-y-6">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#6C5CE7]">Account</p>
-          <h2 className="font-display mt-2 text-2xl font-black text-[#1E1B29]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#E50914]">Account</p>
+          <h2 className="mt-2 text-2xl font-black text-white">
             {mode === "login" ? "Masuk ke akun" : "Buat akun baru"}
           </h2>
-          <p className="mt-2 text-xs font-extrabold leading-6 text-[#1E1B29]/75">
+          <p className="mt-2 text-xs font-bold leading-6 text-neutral-400">
             {mode === "login"
               ? "Gunakan akun AniStream kamu untuk membuka history."
               : "Daftar cepat dengan email dan password minimal 6 karakter."}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 rounded-2xl border-[3px] border-[#1E1B29] bg-[#FAF9FF] p-1">
+        <div className="grid grid-cols-2 rounded-md border border-white/10 bg-black/40 p-1">
           <button
             type="button"
             onClick={() => {
@@ -74,7 +74,7 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
               setError("");
             }}
             className={`rounded-xl py-3 text-xs font-black uppercase tracking-widest transition-all ${
-              mode === "login" ? "bg-[#00CEC9] text-[#1E1B29] shadow-[3px_3px_0_#1E1B29]" : "text-[#1E1B29] hover:bg-white"
+              mode === "login" ? "bg-white text-black" : "text-neutral-300 hover:bg-white/10 hover:text-white"
             }`}
           >
             Masuk
@@ -86,7 +86,7 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
               setError("");
             }}
             className={`rounded-xl py-3 text-xs font-black uppercase tracking-widest transition-all ${
-              mode === "register" ? "bg-[#FF7675] text-white shadow-[3px_3px_0_#1E1B29]" : "text-[#1E1B29] hover:bg-white"
+              mode === "register" ? "bg-[#E50914] text-white" : "text-neutral-300 hover:bg-white/10 hover:text-white"
             }`}
           >
             Daftar
@@ -95,19 +95,19 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1B29]">Email</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">Email</span>
             <input
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="nama@email.com"
               autoComplete="email"
-              className="w-full rounded-2xl border-[3px] border-[#1E1B29] bg-white px-4 py-4 text-sm font-black text-[#1E1B29] placeholder-[#1E1B29]/45 outline-none transition-all focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[5px_5px_0_#1E1B29]"
+              className="w-full rounded-md border border-white/10 bg-black/45 px-4 py-4 text-sm font-black text-white placeholder-neutral-600 outline-none transition-all focus:border-white/35"
             />
           </label>
 
           <label className="block space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1B29]">Password</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">Password</span>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -115,12 +115,12 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Minimal 6 karakter"
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
-                className="w-full rounded-2xl border-[3px] border-[#1E1B29] bg-white px-4 py-4 pr-20 text-sm font-black text-[#1E1B29] placeholder-[#1E1B29]/45 outline-none transition-all focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[5px_5px_0_#1E1B29]"
+                className="w-full rounded-md border border-white/10 bg-black/45 px-4 py-4 pr-20 text-sm font-black text-white placeholder-neutral-600 outline-none transition-all focus:border-white/35"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
-                className="absolute inset-y-0 right-3 my-auto h-9 rounded-xl px-3 text-[10px] font-black uppercase tracking-widest text-[#1E1B29] hover:bg-[#FDCB6E]"
+                className="absolute inset-y-0 right-3 my-auto h-9 rounded px-3 text-[10px] font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white"
               >
                 {showPassword ? "Tutup" : "Lihat"}
               </button>

@@ -7,8 +7,8 @@ export default function NavbarLinks({ className = "" }: { className?: string }) 
   const pathname = usePathname();
   const isOtakudesu = pathname.startsWith("/otakudesu");
   const linkClass = (active: boolean) =>
-    `px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-sm font-black rounded-xl transition-all border-[2px] ${
-      active ? "text-[#1E1B29] bg-[#FDCB6E] border-[#1E1B29] shadow-[3px_3px_0_#1E1B29]" : "text-[#1E1B29] border-transparent hover:bg-white"
+    `px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-sm font-black rounded-md transition-all ${
+      active ? "text-white bg-[#E50914]" : "text-neutral-300 hover:text-white hover:bg-white/10"
     }`;
 
   if (isOtakudesu) {

@@ -21,67 +21,73 @@ export default async function HistoryPage() {
   }
 
   const history = await getAnimeHistory(user.id);
+  const featured = history[0];
 
   return (
-    <div className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="inline-flex rotate-[-2deg] rounded-lg border-[3px] border-[#1E1B29] bg-[#00CEC9] px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em] text-[#1E1B29] shadow-[4px_4px_0_#1E1B29]">Watch History</p>
-            <h1 className="font-display mt-5 text-3xl font-black text-[#6C5CE7] [-webkit-text-stroke:1.5px_#1E1B29] [text-shadow:3px_3px_0_#1E1B29] sm:text-4xl">History Anime</h1>
-            <p className="mt-2 max-w-2xl text-sm font-extrabold leading-7 text-[#1E1B29]/75">
+    <div className="min-h-screen bg-[#050505] pb-20 text-white">
+      <section className="relative overflow-hidden px-4 pb-14 pt-12 sm:px-6 lg:px-8">
+        {featured?.poster_url && (
+          <img src={featured.poster_url} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-sm" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+        <div className="relative mx-auto flex max-w-7xl flex-col gap-8 pt-10 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.35em] text-[#E50914]">Watch History</p>
+            <h1 className="mt-4 text-4xl font-black leading-none text-white sm:text-6xl">Continue Watching</h1>
+            <p className="mt-4 max-w-2xl text-sm font-bold leading-7 text-neutral-300 sm:text-base">
               Satu episode terakhir dari setiap anime yang pernah kamu tonton.
             </p>
           </div>
 
-          <div className="flex rounded-2xl border-[3px] border-[#1E1B29] bg-white p-1 shadow-[5px_5px_0_#1E1B29]">
-            <Link href="/history" className="rounded-xl bg-[#FDCB6E] px-4 py-2 text-xs font-black uppercase tracking-widest text-[#1E1B29]">
+          <div className="flex w-fit rounded-md border border-white/10 bg-[#141414] p-1">
+            <Link href="/history" className="rounded bg-[#E50914] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
               Per Anime
             </Link>
-            <Link href="/history/episodes" className="rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-[#1E1B29] hover:bg-[#FAF9FF]">
+            <Link href="/history/episodes" className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
               Per Episode
             </Link>
           </div>
-        </header>
+        </div>
+      </section>
 
+      <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
         {history.length === 0 ? (
-          <div className="glass rounded-3xl p-10 text-center">
-            <h2 className="font-display text-xl font-black text-[#1E1B29]">Belum ada history.</h2>
-            <p className="mt-2 text-sm font-extrabold text-[#1E1B29]/75">Tonton episode dulu, nanti daftar anime terakhir muncul di sini.</p>
+          <div className="rounded-lg border border-white/10 bg-[#141414] p-10 text-center">
+            <h2 className="text-xl font-black text-white">Belum ada history.</h2>
+            <p className="mt-2 text-sm font-bold text-neutral-400">Tonton episode dulu, nanti daftar anime terakhir muncul di sini.</p>
             <Link href="/" className="btn-primary mt-6 inline-flex text-xs font-black uppercase tracking-widest">
               Mulai Nonton
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div>
+            <h2 className="mb-4 text-xl font-black text-white">Anime Saya</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
             {history.map((item) => (
-              <article key={item.anime_slug} className="glass group rounded-[22px] p-4 transition-all">
-                <div className="flex gap-4">
+              <article key={item.anime_slug} className="group">
+                <Link href={item.episode_path} prefetch={false} className="poster-card block aspect-[2/3] bg-[#141414]">
                   {item.poster_url ? (
-                    <img src={item.poster_url} alt={item.anime_title} className="h-32 w-24 flex-shrink-0 rounded-2xl object-cover border-[3px] border-[#1E1B29]" />
+                    <img src={item.poster_url} alt={item.anime_title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="h-32 w-24 flex-shrink-0 rounded-2xl border-[3px] border-[#1E1B29] bg-[#FAF9FF]" />
+                    <div className="h-full w-full bg-[#141414]" />
                   )}
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-[#6C5CE7]">{item.source}</p>
-                      <h2 className="font-display mt-2 line-clamp-2 text-base font-black leading-snug text-[#1E1B29]">{item.anime_title}</h2>
-                      <p className="mt-2 line-clamp-2 text-xs font-extrabold leading-5 text-[#1E1B29]/75">{item.episode_title}</p>
-                    </div>
-                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-[#1E1B29]/60">{formatDate(item.watched_at)}</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Link href={item.episode_path} prefetch={false} className="rounded-xl border-[3px] border-[#1E1B29] bg-[#FF7675] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0_#1E1B29] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5">
-                    Lanjut
-                  </Link>
-                  <Link href={item.anime_path} prefetch={false} className="rounded-xl border-[3px] border-[#1E1B29] bg-white px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-[#1E1B29] shadow-[4px_4px_0_#1E1B29] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#FDCB6E]">
+                  <span className="absolute inset-x-0 bottom-0 z-10 p-3">
+                    <span className="inline-flex rounded bg-[#E50914] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">Lanjut</span>
+                  </span>
+                </Link>
+                <div className="mt-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-[#E50914]">{item.source}</p>
+                  <h2 className="mt-1 line-clamp-2 text-sm font-black leading-snug text-neutral-100">{item.anime_title}</h2>
+                  <p className="mt-1 line-clamp-1 text-xs font-bold text-neutral-500">{item.episode_title}</p>
+                  <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-neutral-600">{formatDate(item.watched_at)}</p>
+                  <Link href={item.anime_path} prefetch={false} className="mt-3 inline-flex text-[10px] font-black uppercase tracking-widest text-neutral-300 hover:text-white">
                     Detail
                   </Link>
                 </div>
               </article>
             ))}
+            </div>
           </div>
         )}
       </div>
