@@ -1,21 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, ChevronLeft, ChevronRight, CirclePause, CirclePlay, Info, Play, Star, TrendingUp } from "lucide-react";
+
 import AnimeCard from "@/components/common/AnimeCard";
 import SkeletonCard from "@/components/common/SkeletonCard";
-import Image from "next/image";
+import ContinueWatchingShelf from "@/components/ContinueWatchingShelf";
 
 const DAY_NAMES_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const DAY_NAMES_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+const DAY_NAMES_ID = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
-/* ── Interfaces ──────────────────────────── */
-
-type Genre = {
-  title: string;
-  genreId: string;
-  href: string;
-};
+type Genre = { title: string; genreId: string; href: string };
 
 type SamehadakuAnime = {
   title: string;
@@ -42,10 +39,7 @@ type ScheduleItem = {
   href: string;
 };
 
-type DaySchedule = {
-  day: string;
-  animeList: ScheduleItem[];
-};
+type DaySchedule = { day: string; animeList: ScheduleItem[] };
 
 export type HomeData = {
   recent: { animeList: SamehadakuAnime[] };
@@ -60,10 +54,7 @@ type Pagination = {
   totalPages: number;
 };
 
-export type PaginatedAnime = {
-  animeList: SamehadakuAnime[];
-  pagination: Pagination;
-};
+export type PaginatedAnime = { animeList: SamehadakuAnime[]; pagination: Pagination };
 
 export type HomePageInitialData = {
   homeData: HomeData;
@@ -72,449 +63,213 @@ export type HomePageInitialData = {
   popularData: SamehadakuAnime[];
 };
 
+function scoreValue(score: SamehadakuAnime["score"]) {
+  return typeof score === "string" ? score : score?.value ?? "";
+}
 
-export default function HomePageClient({
-  initialData,
-  initialError = null,
-}: {
+function cleanSlug(href: string) {
+  return href.replace(/^\/samehadaku\/anime\//, "");
+}
+
+function SectionHeading({ icon: Icon, title, description, href }: {
+  icon: typeof TrendingUp;
+  title: string;
+  description?: string;
+  href?: string;
+}) {
+  return (
+    <div className="catalog-heading">
+      <div>
+        <span className="catalog-heading__icon"><Icon size={17} /></span>
+        <div><h2>{title}</h2>{description && <p>{description}</p>}</div>
+      </div>
+      {href && <Link href={href} prefetch={false}>Lihat Semua <ChevronRight size={15} /></Link>}
+    </div>
+  );
+}
+
+export default function HomePageClient({ initialData, initialError = null }: {
   initialData: HomePageInitialData | null;
   initialError?: string | null;
 }) {
-  // States
-  const [homeData, setHomeData] = useState<HomeData | null>(initialData?.homeData ?? null);
-  const [scheduleData, setScheduleData] = useState<DaySchedule[] | null>(initialData?.scheduleData ?? null);
-  const [ongoingData, setOngoingData] = useState<PaginatedAnime | null>(initialData?.ongoingData ?? null);
-  const [popularData, setPopularData] = useState<SamehadakuAnime[] | null>(initialData?.popularData ?? null);
-
-  const [activeDay, setActiveDay] = useState("");
-  const [ongoingPage, setOngoingPage] = useState(1);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
+  const [data, setData] = useState<HomePageInitialData | null>(initialData);
   const [loading, setLoading] = useState(!initialData);
-  const [loadingOngoing, setLoadingOngoing] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
-
-  // Mapping Global Date to API Days (English for Samehadaku)
-  const cleanSlug = (href: string) => href.replace(/^\/samehadaku\/anime\//, "");
+  const [activeDay, setActiveDay] = useState("");
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [carouselPaused, setCarouselPaused] = useState(false);
 
   useEffect(() => {
-    const today = DAY_NAMES_EN[new Date().getDay()];
-    setActiveDay(today);
-
+    setActiveDay(DAY_NAMES_EN[new Date().getDay()]);
     if (initialData) return;
 
     async function fetchInitialData() {
       try {
         setLoading(true);
-
-        const [homeRes, scheduleRes, popularRes] = await Promise.all([
+        const [homeRes, scheduleRes, popularRes, ongoingRes] = await Promise.all([
           fetch("https://www.sankavollerei.com/anime/samehadaku/home"),
           fetch("https://www.sankavollerei.com/anime/samehadaku/schedule"),
-          fetch("https://www.sankavollerei.com/anime/samehadaku/popular")
+          fetch("https://www.sankavollerei.com/anime/samehadaku/popular"),
+          fetch("https://www.sankavollerei.com/anime/samehadaku/ongoing?page=1"),
         ]);
-
-        if (!homeRes.ok || !scheduleRes.ok || !popularRes.ok) throw new Error("Gagal mengambil data dari server");
-
-        const homeJson = await homeRes.json();
-        const scheduleJson = await scheduleRes.json();
-        const popularJson = await popularRes.json();
-
-        setHomeData(homeJson.data);
-        setScheduleData(scheduleJson.data.days);
-        setPopularData(popularJson.data?.animeList?.slice(0, 7) || []);
-
-        await fetchOngoingAnime(1);
-
-      } catch (error: unknown) {
-        setError(error instanceof Error ? error.message : "Gagal mengambil data dari server");
+        if (![homeRes, scheduleRes, popularRes, ongoingRes].every((response) => response.ok)) throw new Error("Gagal mengambil data dari server");
+        const [home, schedule, popular, ongoing] = await Promise.all([homeRes.json(), scheduleRes.json(), popularRes.json(), ongoingRes.json()]);
+        setData({
+          homeData: home.data,
+          scheduleData: schedule.data.days,
+          popularData: popular.data?.animeList?.slice(0, 7) ?? [],
+          ongoingData: { animeList: ongoing.data?.animeList ?? [], pagination: ongoing.pagination },
+        });
+        setError(null);
+      } catch (reason) {
+        setError(reason instanceof Error ? reason.message : "Gagal mengambil data anime");
       } finally {
         setLoading(false);
       }
     }
-
     fetchInitialData();
   }, [initialData]);
 
-  // Auto Slide Effect
   useEffect(() => {
-    if (!popularData || popularData.length === 0) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % popularData.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [popularData]);
-
-  async function fetchOngoingAnime(page: number) {
-    try {
-      setLoadingOngoing(true);
-      const res = await fetch(`https://www.sankavollerei.com/anime/samehadaku/ongoing?page=${page}`);
-      if (!res.ok) throw new Error("Gagal mengambil data anime ongoing");
-      const json = await res.json();
-
-      setOngoingData({
-        animeList: json.data?.animeList || [],
-        pagination: json.pagination
-      });
-      setOngoingPage(page);
-    } catch (error: unknown) {
-      console.error(error);
-    } finally {
-      setLoadingOngoing(false);
-    }
-  }
+    if (carouselPaused || !data?.popularData.length) return;
+    const interval = window.setInterval(() => setCurrentSlide((slide) => (slide + 1) % data.popularData.length), 6500);
+    return () => window.clearInterval(interval);
+  }, [carouselPaused, data?.popularData.length]);
 
   const activeDayList = useMemo(() => {
-    if (!scheduleData) return [];
-    return scheduleData.find(d => d.day === activeDay)?.animeList || [];
-  }, [scheduleData, activeDay]);
+    return data?.scheduleData.find((entry) => entry.day === activeDay)?.animeList ?? [];
+  }, [activeDay, data?.scheduleData]);
 
-  // Pagination Helper
-  const getPageNumbers = () => {
-    if (!ongoingData?.pagination) return [];
-    const total = ongoingData.pagination.totalPages;
-    const current = ongoingPage;
-    let pages: (number | string)[] = [];
+  const heroAnime = data?.popularData[currentSlide];
+  const slideCount = data?.popularData.length ?? 0;
 
-    if (total <= 5) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-    } else {
-      if (current <= 3) {
-        pages = [1, 2, 3, 4, "...", total];
-      } else if (current >= total - 2) {
-        pages = [1, "...", total - 3, total - 2, total - 1, total];
-      } else {
-        pages = [1, "...", current - 1, current, current + 1, "...", total];
-      }
-    }
-    return pages;
-  };
+  function moveSlide(direction: -1 | 1) {
+    if (!slideCount) return;
+    setCurrentSlide((slide) => (slide + direction + slideCount) % slideCount);
+  }
 
   return (
-    <div className="min-h-screen bg-[#050505] pb-20 text-white">
-      {/* ── Hero Carousel Section ───────────────────── */}
-      <section className="relative h-[560px] sm:h-[590px] lg:h-[690px] w-full overflow-hidden mb-12 bg-[#050505]">
-        {!popularData ? (
-          <div className="relative w-full h-full bg-[#050505] p-8 sm:p-12 lg:p-16 overflow-hidden">
-            <div className="grid h-full items-center gap-10 lg:grid-cols-[1fr_420px]">
-              <div className="relative z-10 max-w-[290px] space-y-6 sm:max-w-none">
-                <span className="inline-flex rounded bg-[#E50914] px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-white">
-                  Streaming Mode
-                </span>
-                <h1 className="max-w-full text-4xl font-black leading-tight text-white sm:max-w-3xl sm:text-7xl">
-                  Streaming anime tanpa jeda.
-                </h1>
-                <p className="max-w-xl text-sm font-bold leading-7 text-neutral-300 sm:text-base">
-                  Jelajahi update terbaru, jadwal rilis, film anime, dan riwayat tontonan dengan tampilan sinematik.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <span className="btn-primary inline-flex">Mulai Jelajah</span>
-                  <span className="btn-ghost inline-flex">Lihat Jadwal</span>
+    <div className="cinematic-home">
+      <section className="cinematic-hero" aria-label="Anime pilihan">
+        {heroAnime ? (
+          <>
+            <div className="cinematic-hero__backdrop">
+              <Image src={heroAnime.poster} alt="" fill sizes="100vw" priority className="object-cover" />
+            </div>
+            <div className="cinematic-hero__veil" />
+            <div className="cinematic-hero__inner">
+              <div className="cinematic-hero__copy">
+                <div className="hero-eyebrow">
+                  <span># {currentSlide + 1} Populer</span>
+                  {scoreValue(heroAnime.score) && <span><Star size={12} fill="currentColor" /> {scoreValue(heroAnime.score)}</span>}
+                  {heroAnime.type && <span>{heroAnime.type}</span>}
+                </div>
+                <h1>{heroAnime.title}</h1>
+                <div className="hero-genres">
+                  {heroAnime.genreList?.slice(0, 4).map((genre) => <span key={genre.genreId}>{genre.title}</span>)}
+                </div>
+                <p>Ikuti kisah {heroAnime.title} dan temukan episode terbaru dengan subtitle Indonesia.</p>
+                <div className="hero-actions">
+                  <Link href={`/anime/${cleanSlug(heroAnime.href)}`} prefetch={false} className="btn-primary"><Play size={18} fill="currentColor" /> Tonton Sekarang</Link>
+                  <Link href={`/anime/${cleanSlug(heroAnime.href)}`} prefetch={false} className="btn-secondary"><Info size={18} /> Detail Anime</Link>
                 </div>
               </div>
-              <div className="relative z-10 hidden rounded-lg border border-white/10 bg-[#141414] p-5 shadow-2xl lg:block">
-                <div className="mb-5 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-black text-[#E50914]">Preview</p>
-                    <p className="text-lg font-black text-white">Anime Dashboard</p>
-                  </div>
-                  <span className="rounded bg-[#E50914] px-3 py-1 text-xs font-black text-white">Live</span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="aspect-[3/4] rounded bg-[#1f1f1f]" />
-                  ))}
-                </div>
+              <div className="cinematic-hero__poster">
+                <Image src={heroAnime.poster} alt={heroAnime.title} fill sizes="(max-width: 1024px) 0px, 270px" priority className="object-cover" />
               </div>
             </div>
-          </div>
-        ) : popularData.length > 0 ? (
-          <div className="relative w-full h-full group">
-            {popularData.map((anime, idx) => (
-              <div
-                key={anime.animeId + idx}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-                  }`}
-              >
-                {/* Background Poster (Scaled & Blurred) */}
-                <div className="absolute inset-0 scale-110 blur-xl opacity-30 transform-gpu translate-z-0">
-                  <Image src={anime.poster} alt="" fill sizes="100vw" className="object-cover" priority={idx === 0} />
-                </div>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/40 to-transparent z-10" />
-                <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-r from-[#0a0a0c] via-[#0a0a0c]/20 to-transparent z-10" />
-
-                <div className="relative z-20 h-full flex flex-col justify-end p-8 sm:p-12 lg:p-20 pb-16 sm:pb-24 max-w-4xl space-y-6">
-                  <div className="flex items-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                    <span className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white uppercase tracking-widest">
-                      #{idx + 1} Terpopuler
-                    </span>
-                    {anime.score && (
-                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-yellow-500/10 backdrop-blur-md border border-yellow-500/20 text-[10px] font-black text-yellow-500 uppercase tracking-widest">
-                        ⭐ {typeof anime.score === 'string' ? anime.score : anime.score.value}
-                      </span>
-                    )}
-                  <span className="px-3 py-1 rounded bg-[#E50914] backdrop-blur-md text-[10px] font-black text-white uppercase tracking-widest">
-                      {anime.type}
-                    </span>
-                  </div>
-
-                  <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                    {anime.title}
-                  </h2>
-
-                  <div className="flex flex-wrap gap-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                    {anime.genreList?.slice(0, 4).map((g, i) => (
-                      <span key={i} className="text-xs font-black text-white after:content-['•'] after:ml-2 last:after:content-none">
-                        {g.title}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-4 pt-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <Link
-                      href={`/anime/${cleanSlug(anime.href)}`}
-                      prefetch={false}
-                      className="btn-primary px-8 py-4 text-xs font-black uppercase tracking-widest flex items-center gap-3 group/btn"
-                    >
-                      <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                      Tonton Sekarang
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Main Poster Image (Floating on Right) */}
-                  <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-md overflow-hidden border border-white/20 shadow-2xl animate-fade-in-left">
-                  <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 1024px) 12rem, 16rem" className="object-cover" priority={idx === 0} />
-                </div>
-              </div>
-            ))}
-
-            {/* Carousel Navigation Dots */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
-              {popularData.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentSlide(i)}
-                  className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-[#E50914]' : 'w-4 bg-white/40 hover:bg-white'}`}
-                />
+            <button type="button" className="hero-arrow hero-arrow--left" onClick={() => moveSlide(-1)} aria-label="Anime sebelumnya"><ChevronLeft /></button>
+            <button type="button" className="hero-arrow hero-arrow--right" onClick={() => moveSlide(1)} aria-label="Anime berikutnya"><ChevronRight /></button>
+            <div className="hero-carousel-controls">
+              <button type="button" onClick={() => setCarouselPaused((value) => !value)} aria-label={carouselPaused ? "Putar carousel" : "Jeda carousel"}>
+                {carouselPaused ? <CirclePlay size={18} /> : <CirclePause size={18} />}
+              </button>
+              {data.popularData.map((anime, index) => (
+                <button key={anime.animeId || index} type="button" onClick={() => setCurrentSlide(index)} aria-label={`Tampilkan ${anime.title}`} aria-pressed={index === currentSlide} />
               ))}
             </div>
-          </div>
+          </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center glass rounded-3xl">
-            <p className="text-[#1E1B29] font-black italic">Belum ada anime populer hari ini.</p>
+          <div className="cinematic-hero__fallback">
+            <span>ANISTREAM</span>
+            <h1>Anime favoritmu, lebih cepat ditemukan.</h1>
+            <p>Jelajahi jadwal rilis, episode terbaru, film, dan daftar tontonan dari satu tempat.</p>
+            <div className="hero-actions"><a href="#jadwal-rilis" className="btn-primary"><CalendarDays size={18} /> Lihat Jadwal</a></div>
           </div>
         )}
       </section>
 
-      {/* ── Main Content ──────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+      <div className="cinematic-content">
+        <ContinueWatchingShelf />
 
         {error && (
-          <div className="glass rounded-xl p-8 border-red-500/20 text-center animate-fade-in-up">
-            <p className="text-red-400 font-medium text-lg">⚠️ Ups! Ada kendala saat memuat data.</p>
-            <p className="text-sm text-[#1E1B29] mt-2 mb-4">{error}</p>
-            <button onClick={() => window.location.reload()} className="btn-primary">Muat Ulang</button>
+          <div className="state-panel state-panel--error" role="alert">
+            <div><strong>Data anime belum dapat dimuat.</strong><span>{error}</span></div>
+            <button type="button" onClick={() => window.location.reload()}>Muat Ulang</button>
           </div>
         )}
 
-        {/* 1. SCHEDULE SECTION (Jadwal Rilis) */}
-        {!loading && scheduleData && (
-          <section className="animate-fade-in-up">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-              <div>
-                <h2 className="section-title">Jadwal Rilis Minggu Ini</h2>
-                <p className="text-sm font-extrabold text-[#1E1B29]/75 mt-1">Cek jadwal anime kesayanganmu</p>
-              </div>
-
-              {/* Day Tabs */}
-              <div className="flex flex-wrap gap-2 p-1.5 glass rounded-xl w-fit">
-                {DAY_NAMES_EN.map((day, idx) => (
-                  <button
-                    key={day}
-                    onClick={() => setActiveDay(day)}
-                    className={`px-4 py-2 rounded-lg border-[3px] text-xs font-black transition-all ${activeDay === day
-                      ? "bg-[#FDCB6E] text-[#1E1B29] border-[#1E1B29] shadow-[4px_4px_0_#1E1B29] scale-105"
-                      : "text-[#1E1B29] border-transparent hover:bg-white"
-                      }`}
-                  >
-                    {day === DAY_NAMES_EN[new Date().getDay()] ? `Hari Ini` : DAY_NAMES_ID[idx]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {activeDayList.map((anime, idx) => (
-                <AnimeCard 
-                  key={anime.animeId + idx}
-                  source="samehadaku"
-                  title={anime.title}
-                  poster={anime.poster}
-                  href={`/anime/${cleanSlug(anime.href)}`}
-                  score={anime.score}
-                  type={anime.type}
-                  className="animate-fade-in-up"
-                />
-              ))}
-              {activeDayList.length === 0 && (
-                <div className="col-span-full py-12 text-center text-[#1E1B29] italic font-black">Tidak ada jadwal rilis hari ini.</div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* 2. TOP 10 SECTION (New) */}
-        {!loading && homeData && (
-          <section className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="section-title">Trending Sekarang (Top 10)</h2>
-                <p className="text-sm font-extrabold text-[#1E1B29]/75 mt-1">Anime paling populer minggu ini</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-              {homeData.top10.animeList.map((anime, idx) => (
-                <div key={anime.animeId + idx} className="relative">
-                  <div className="absolute top-2 left-2 bg-[#FDCB6E] backdrop-blur-md rounded-lg w-9 h-9 flex items-center justify-center border-[3px] border-[#1E1B29] shadow-[3px_3px_0_#1E1B29] z-20 pointer-events-none">
-                    <span className="text-lg font-black italic gradient-text">#{idx + 1}</span>
-                  </div>
-                  <AnimeCard 
-                    source="samehadaku"
-                    title={anime.title}
-                    poster={anime.poster}
-                    href={`/anime/${cleanSlug(anime.href)}`}
-                    score={typeof anime.score === 'string' ? anime.score : anime.score?.value || ""}
-                    type={anime.type}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 2.5 RECENT SECTION (Baru Ditambahkan) */}
-        {!loading && homeData?.recent?.animeList && homeData.recent.animeList.length > 0 && (
-          <section className="animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="section-title">Baru Ditambahkan</h2>
-                <p className="text-sm font-extrabold text-[#1E1B29]/75 mt-1">Update rilis episode hari ini</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-              {homeData.recent.animeList.slice(0, 5).map((anime, idx) => (
-                <AnimeCard 
-                  key={anime.animeId + idx}
-                  source="samehadaku"
-                  title={anime.title}
-                  poster={anime.poster}
-                  href={`/anime/${cleanSlug(anime.href)}`}
-                  score={typeof anime.score === 'string' ? anime.score : anime.score?.value || ""}
-                  episodes={anime.episodes}
-                  subText={anime.releasedOn}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 2.6 MOVIE SECTION */}
-        {!loading && homeData?.movie?.animeList && homeData.movie.animeList.length > 0 && (
-          <section className="animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="section-title">Film Anime (Movie)</h2>
-                <p className="text-sm font-extrabold text-[#1E1B29]/75 mt-1">Tontonan teater terbaik untuk akhir pekan</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-              {homeData.movie.animeList.slice(0, 5).map((anime, idx) => (
-                <AnimeCard 
-                  key={anime.animeId + idx}
-                  source="samehadaku"
-                  title={anime.title}
-                  poster={anime.poster}
-                  href={`/anime/${cleanSlug(anime.href)}`}
-                  subText="MOVIE"
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 3. ONGOING SECTION (Samehadaku API) */}
-        <section className="animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="section-title">Update Terbaru (Ongoing)</h2>
-              <p className="text-sm font-extrabold text-[#1E1B29]/75 mt-1">Nonton episode terbaru yang rilis hari ini</p>
-            </div>
+        <section id="jadwal-rilis" className="schedule-panel" aria-labelledby="schedule-title">
+          <SectionHeading icon={CalendarDays} title="Jadwal Rilis Minggu Ini" description="Pilih hari untuk melihat anime yang tayang" />
+          <div className="schedule-days" role="tablist" aria-label="Hari jadwal rilis">
+            {DAY_NAMES_EN.map((day, index) => (
+              <button key={day} type="button" role="tab" aria-selected={activeDay === day} onClick={() => setActiveDay(day)}>
+                <span>{DAY_NAMES_ID[index]}</span>
+                {day === DAY_NAMES_EN[new Date().getDay()] && <small>Hari ini</small>}
+              </button>
+            ))}
           </div>
-
-          {(loading && !ongoingData) ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-              {Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)}
-            </div>
-          ) : (
-            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6 transition-opacity duration-300 ${loadingOngoing ? 'opacity-40' : 'opacity-100'}`}>
-              {ongoingData?.animeList.map((anime, idx) => (
-                <AnimeCard 
-                  key={anime.animeId + idx}
-                  source="samehadaku"
-                  title={anime.title}
-                  poster={anime.poster}
-                  href={`/anime/${cleanSlug(anime.href)}`}
-                  score={typeof anime.score === 'string' ? anime.score : anime.score?.value || ""}
-                  status={anime.status}
-                  type={anime.type}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Pagination Controls */}
-          {!loading && ongoingData?.pagination && (
-            <div className="flex justify-center items-center gap-2 mt-12 pb-10">
-              <button
-                disabled={!ongoingData.pagination.hasPrevPage || loadingOngoing}
-                onClick={() => fetchOngoingAnime(ongoingPage - 1)}
-                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-[#1E1B29] hover:text-[#FF7675] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-
-              {getPageNumbers().map((p, i) => (
-                typeof p === "string" ? (
-                  <span key={`dots-${i}`} className="text-[#1E1B29] px-1 font-black">...</span>
-                ) : (
-                  <button
-                    key={p}
-                    onClick={() => fetchOngoingAnime(p as number)}
-                    className={`min-w-[40px] h-10 px-2 rounded-lg text-sm font-bold transition-all ${ongoingPage === p
-                      ? "bg-[#FF7675] text-white border-[3px] border-[#1E1B29] shadow-[4px_4px_0_#1E1B29] scale-110"
-                      : "text-[#1E1B29] hover:text-[#FF7675] glass"
-                      }`}
-                  >
-                    {p}
-                  </button>
-                )
-              ))}
-
-              <button
-                disabled={!ongoingData.pagination.hasNextPage || loadingOngoing}
-                onClick={() => fetchOngoingAnime(ongoingPage + 1)}
-                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-[#1E1B29] hover:text-[#FF7675] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-              </button>
-            </div>
-          )}
+          <div className="schedule-strip">
+            {activeDayList.map((anime) => (
+              <Link key={anime.animeId} href={`/anime/${cleanSlug(anime.href)}`} prefetch={false} className="schedule-item">
+                <span className="schedule-item__poster"><Image src={anime.poster} alt="" fill sizes="56px" className="object-cover" /></span>
+                <span><strong>{anime.title}</strong><small>{anime.estimation || anime.type}</small></span>
+                <ChevronRight size={16} />
+              </Link>
+            ))}
+            {!activeDayList.length && !loading && <p className="schedule-empty">Tidak ada jadwal pada hari ini.</p>}
+          </div>
         </section>
 
+        <section className="catalog-section" aria-labelledby="top-title">
+          <SectionHeading icon={TrendingUp} title="Top 10 Minggu Ini" description="Judul yang sedang banyak ditonton" href="/popular" />
+          <div className="top-ten-row">
+            {data?.homeData.top10.animeList.slice(0, 10).map((anime, index) => (
+              <div key={anime.animeId} className="ranked-card">
+                <span className="ranked-card__rank">{index + 1}</span>
+                <AnimeCard compact source="samehadaku" title={anime.title} poster={anime.poster} href={`/anime/${cleanSlug(anime.href)}`} score={scoreValue(anime.score)} type={anime.type} />
+              </div>
+            ))}
+            {loading && Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />)}
+          </div>
+        </section>
+
+        <div className="home-catalog-grid">
+          <section className="catalog-panel">
+            <SectionHeading icon={CirclePlay} title="Episode Baru" />
+            <div className="catalog-panel__grid">
+              {data?.homeData.recent.animeList.slice(0, 4).map((anime) => (
+                <AnimeCard key={anime.animeId} compact source="samehadaku" title={anime.title} poster={anime.poster} href={`/anime/${cleanSlug(anime.href)}`} episodes={anime.episodes} subText={anime.releasedOn} />
+              ))}
+            </div>
+          </section>
+          <section className="catalog-panel">
+            <SectionHeading icon={TrendingUp} title="Sedang Tayang" />
+            <div className="catalog-panel__grid">
+              {data?.ongoingData.animeList.slice(0, 4).map((anime) => (
+                <AnimeCard key={anime.animeId} compact source="samehadaku" title={anime.title} poster={anime.poster} href={`/anime/${cleanSlug(anime.href)}`} score={scoreValue(anime.score)} status={anime.status} />
+              ))}
+            </div>
+          </section>
+          <section className="catalog-panel">
+            <SectionHeading icon={Play} title="Film Anime" />
+            <div className="catalog-panel__grid">
+              {data?.homeData.movie.animeList.slice(0, 4).map((anime) => (
+                <AnimeCard key={anime.animeId} compact source="samehadaku" title={anime.title} poster={anime.poster} href={`/anime/${cleanSlug(anime.href)}`} subText="Movie" />
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

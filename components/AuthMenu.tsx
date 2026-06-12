@@ -2,37 +2,44 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Clock3, LogIn, LogOut, UserRound } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-type User = {
-  id: string;
-  email: string;
-};
+type User = { id: string; email: string };
 
 export default function AuthMenu({ className = "" }: { className?: string }) {
   const router = useRouter();
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [databaseConfigured, setDatabaseConfigured] = useState(true);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((json) => {
+        if (!active) return;
+        setUser(json.user ?? null);
+        setDatabaseConfigured(json.databaseConfigured !== false);
+      })
+      .catch(() => active && setDatabaseConfigured(false));
+    return () => { active = false; };
+  }, []);
 
-    async function refreshSession() {
-      const response = await fetch("/api/auth/me", { cache: "no-store" });
-      const json = await response.json();
-      if (!active) return;
-      setUser(json.user ?? null);
-      setDatabaseConfigured(json.databaseConfigured !== false);
+  useEffect(() => {
+    function closeOutside(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
     }
-
-    refreshSession().catch(() => {
-      if (active) setDatabaseConfigured(false);
-    });
-
+    function closeEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", closeOutside);
+    document.addEventListener("keydown", closeEscape);
     return () => {
-      active = false;
+      document.removeEventListener("mousedown", closeOutside);
+      document.removeEventListener("keydown", closeEscape);
     };
   }, []);
 
@@ -43,74 +50,37 @@ export default function AuthMenu({ className = "" }: { className?: string }) {
     router.refresh();
   }
 
-  const loginHref = `/login?next=${encodeURIComponent(pathname || "/")}`;
-
   if (!user) {
     return (
-      <Link
-        href={loginHref}
-        prefetch={false}
-        className={`rounded-md bg-[#E50914] px-3 py-2 text-[10px] font-black text-white transition-all hover:bg-[#B20710] sm:text-sm ${className}`}
-      >
-        Masuk
+      <Link href={`/login?next=${encodeURIComponent(pathname || "/")}`} prefetch={false} className={`header-login ${className}`}>
+        <LogIn size={16} />
+        <span>Masuk</span>
       </Link>
     );
   }
 
   return (
-    <div className={`relative flex-shrink-0 ${className}`}>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="rounded-md bg-white px-3 py-2 text-[10px] font-black text-black transition-all hover:bg-neutral-200 sm:text-sm"
-      >
-        Akun
+    <div ref={menuRef} className={`account-menu ${className}`}>
+      <button type="button" className="account-menu__trigger" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-haspopup="menu">
+        <span className="account-avatar"><UserRound size={17} /></span>
+        <span className="hidden lg:block">{user.email.split("@")[0]}</span>
       </button>
 
       {open && (
-        <div className="glass absolute right-0 top-full z-[80] mt-3 w-[min(90vw,300px)] rounded-2xl p-5">
+        <div className="account-popover" role="menu">
+          <div className="account-popover__identity">
+            <span>Login sebagai</span>
+            <strong>{user.email}</strong>
+          </div>
           {!databaseConfigured ? (
-            <div className="space-y-3">
-              <h2 className="text-sm font-black text-white">Database belum aktif</h2>
-              <p className="text-xs leading-6 text-neutral-400">
-                Tambahkan env <span className="font-mono text-[#E50914]">DATABASE_URL</span>.
-              </p>
-            </div>
+            <p className="account-popover__notice">Database belum aktif. Atur DATABASE_URL untuk mengaktifkan history.</p>
           ) : (
-            <div className="space-y-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-[#E50914]">Login sebagai</p>
-                <p className="mt-1 truncate text-sm font-black text-white">{user.email}</p>
-              </div>
-
-              <div className="grid gap-2">
-                <Link
-                  href="/history"
-                  prefetch={false}
-                  onClick={() => setOpen(false)}
-                  className="rounded-md bg-white/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/15"
-                >
-                  History Anime
-                </Link>
-                <Link
-                  href="/history/episodes"
-                  prefetch={false}
-                  onClick={() => setOpen(false)}
-                  className="rounded-md bg-white/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/15"
-                >
-                  History Episode
-                </Link>
-              </div>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="w-full rounded-md bg-[#E50914] py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-[#B20710]"
-              >
-                Keluar
-              </button>
-            </div>
+            <>
+              <Link href="/history" prefetch={false} onClick={() => setOpen(false)} role="menuitem"><Clock3 size={17} /> History Anime</Link>
+              <Link href="/history/episodes" prefetch={false} onClick={() => setOpen(false)} role="menuitem"><Clock3 size={17} /> History Episode</Link>
+            </>
           )}
+          <button type="button" onClick={logout} role="menuitem"><LogOut size={17} /> Keluar</button>
         </div>
       )}
     </div>

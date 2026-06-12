@@ -3,65 +3,33 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+type NavItem = { href: string; label: string; exact?: boolean };
+
 export default function NavbarLinks({ className = "" }: { className?: string }) {
   const pathname = usePathname();
   const isOtakudesu = pathname.startsWith("/otakudesu");
-  const linkClass = (active: boolean) =>
-    `px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-sm font-black rounded-md transition-all ${
-      active ? "text-white bg-[#E50914]" : "text-neutral-300 hover:text-white hover:bg-white/10"
-    }`;
-
-  if (isOtakudesu) {
-    return (
-      <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 flex-shrink-0 ${className}`}>
-        <Link 
-          href="/otakudesu" 
-          prefetch={false} 
-          className={linkClass(pathname === "/otakudesu")}
-        >
-          Home
-        </Link>
-        <Link 
-          href="/otakudesu/completed" 
-          prefetch={false} 
-          className={linkClass(pathname === "/otakudesu/completed")}
-        >
-          Completed
-        </Link>
-        <Link 
-          href="/otakudesu/anime/unlimited" 
-          prefetch={false} 
-          className={linkClass(pathname === "/otakudesu/anime/unlimited")}
-        >
-          Daftar
-        </Link>
-      </div>
-    );
-  }
+  const items: NavItem[] = isOtakudesu
+    ? [
+        { href: "/otakudesu", label: "Home", exact: true },
+        { href: "/otakudesu/completed", label: "Completed" },
+        { href: "/otakudesu/anime/unlimited", label: "Daftar Anime" },
+      ]
+    : [
+        { href: "/", label: "Home", exact: true },
+        { href: "/popular", label: "Populer" },
+        { href: "/batch", label: "Batch" },
+      ];
 
   return (
-    <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 flex-shrink-0 ${className}`}>
-      <Link 
-        href="/" 
-        prefetch={false} 
-        className={linkClass(pathname === "/")}
-      >
-        Home
-      </Link>
-      <Link 
-        href="/popular" 
-        prefetch={false} 
-        className={linkClass(pathname === "/popular")}
-      >
-        Populer
-      </Link>
-      <Link 
-        href="/batch" 
-        prefetch={false} 
-        className={linkClass(pathname === "/batch")}
-      >
-        Batch
-      </Link>
+    <div className={`nav-links ${className}`}>
+      {items.map((item) => {
+        const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        return (
+          <Link key={item.href} href={item.href} prefetch={false} className="nav-link" aria-current={active ? "page" : undefined}>
+            {item.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

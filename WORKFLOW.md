@@ -34,3 +34,12 @@
 2. Push ke repository GitHub.
 3. Tunggu deployment Vercel selesai.
 4. Verifikasi `/`, `/robots.txt`, `/sitemap.xml`, `/popular`, `/batch`, dan pencarian di URL production.
+
+## UX dan Visual QA
+
+1. Gunakan `docs/ux-audit/selected-cinematic-focus.png` sebagai visual target homepage.
+2. Periksa desktop pada viewport 1440 x 1024 dan mobile pada 390 x 844.
+3. Pastikan lebar dokumen mobile sama dengan lebar viewport dan tidak ada horizontal page overflow.
+4. Uji keyboard focus, shortcut pencarian, carousel pause, mobile dock, login, dan Continue Watching.
+5. Perbarui `design-qa.md` serta screenshot di `docs/ux-audit` jika tampilan utama berubah.
+6. Gunakan `docs/ux-audit/UX_KPI_FRAMEWORK.md` saat analytics produk mulai dipasang.

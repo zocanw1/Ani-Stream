@@ -6,21 +6,22 @@ function read(path: string) {
   return readFileSync(path, "utf8");
 }
 
-test("global theme uses a Netflix-style dark streaming palette", () => {
+test("global theme uses the AniStream cinematic palette", () => {
   const css = read("app/globals.css");
 
-  assert.match(css, /--netflix-red:\s*#e50914/i);
-  assert.match(css, /--netflix-black:\s*#050505/i);
-  assert.match(css, /background:\s*var\(--netflix-black\)/i);
+  assert.match(css, /--red:\s*#ef1b24/i);
+  assert.match(css, /--black:\s*#050607/i);
+  assert.match(css, /background:\s*var\(--black\)/i);
   assert.doesNotMatch(css, /radial-gradient\(rgba\(108,\s*92,\s*231/i);
 });
 
-test("site shell uses dark streaming navigation and brand treatment", () => {
+test("site shell uses cinematic navigation and brand treatment", () => {
   const layout = read("app/layout.tsx");
 
-  assert.match(layout, /bg-gradient-to-b from-black\/95/i);
-  assert.match(layout, /text-\[#E50914\]/);
+  assert.match(layout, /site-header/);
+  assert.match(layout, /brand-wordmark/);
   assert.match(layout, /AniStream/);
+  assert.match(layout, /MobileDock/);
   assert.doesNotMatch(layout, /border-b-\[3px\] border-\[#1E1B29\]/);
 });
 

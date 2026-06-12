@@ -1,6 +1,7 @@
-import React from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { Play, Star } from "lucide-react";
+import type { CSSProperties } from "react";
 
 interface AnimeCardProps {
   title: string;
@@ -13,7 +14,8 @@ interface AnimeCardProps {
   subText?: string;
   source: "samehadaku" | "otakudesu";
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
+  compact?: boolean;
 }
 
 export default function AnimeCard({
@@ -27,77 +29,47 @@ export default function AnimeCard({
   subText,
   source,
   className = "",
-  style
+  style,
+  compact = false,
 }: AnimeCardProps) {
-  const hoverText = "group-hover:text-white";
-  const badgeBg = source === "otakudesu" ? "bg-[#E50914]" : "bg-white/20";
+  const episodeText = episodes
+    ? typeof episodes === "number" || !Number.isNaN(Number(episodes)) ? `Eps ${episodes}` : String(episodes)
+    : "";
 
   return (
-    <Link 
-      href={href} 
-      prefetch={true} 
-      className={`group block animate-fade-in-up ${className}`}
+    <Link
+      href={href}
+      prefetch={false}
+      className={`anime-card group focus-visible:outline-none ${compact ? "anime-card--compact" : ""} ${className}`}
       style={style}
+      aria-label={`Buka ${title}`}
     >
-      <div className="poster-card aspect-[3/4] overflow-hidden">
-        <Image 
-          src={poster} 
-          alt={title} 
+      <span className="anime-card__media poster-card">
+        <Image
+          src={poster}
+          alt={title}
           fill
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 640px) 46vw, (max-width: 1024px) 25vw, 16vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-        
-        {/* Badges */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
-          {episodes && (
-             <div className={`${badgeBg} rounded px-2 py-0.5 backdrop-blur`}>
-                <span className="text-[10px] font-black text-white italic tracking-tighter uppercase">
-                   {typeof episodes === 'number' || !isNaN(Number(episodes)) ? `EPS ${episodes}` : episodes}
-                </span>
-             </div>
-          )}
-          {type && (
-            <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-md text-white w-fit">
-              {type}
-            </span>
-          )}
-        </div>
-
+        <span className="anime-card__shade" />
+        <span className="anime-card__badges">
+          {episodeText && <span className="anime-badge anime-badge--accent">{episodeText}</span>}
+          {type && <span className="anime-badge">{type}</span>}
+        </span>
         {score && score !== "0" && score !== "?" && (
-          <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md rounded px-2 py-0.5 flex items-center gap-1 z-10">
-            <span className="text-[10px]">⭐</span>
-            <span className="text-[10px] font-bold text-yellow-400">{score}</span>
-          </div>
+          <span className="anime-card__score"><Star size={11} fill="currentColor" /> {score}</span>
         )}
-
-        {/* Play Icon on Hover */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-y-4 group-hover:translate-y-0">
-          <div className={`w-12 h-12 rounded-full ${badgeBg} flex items-center justify-center shadow-2xl`}>
-            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 space-y-1">
-        <h3 className={`text-sm font-black text-neutral-200 ${hoverText} line-clamp-2 leading-snug transition-colors`}>
-          {title}
-        </h3>
-        <div className="flex items-center gap-2">
-           {status && (
-             <span className="text-[10px] text-neutral-500 font-black uppercase tracking-wider">{status}</span>
-           )}
-           {subText && (
-             <>
-               <span className="w-1 h-1 rounded-full bg-neutral-600" />
-               <span className="text-[10px] text-neutral-500 font-black uppercase tracking-wider">{subText}</span>
-             </>
-           )}
-        </div>
-      </div>
+        <span className="anime-card__play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>
+      </span>
+      <span className="anime-card__content">
+        <strong>{title}</strong>
+        <span className="anime-card__meta">
+          <span>{source === "otakudesu" ? "Otakudesu" : "Samehadaku"}</span>
+          {status && <span>{status}</span>}
+          {subText && <span>{subText}</span>}
+        </span>
+      </span>
     </Link>
   );
 }
