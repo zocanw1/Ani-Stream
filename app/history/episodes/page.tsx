@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getEpisodeHistory } from "@/lib/watch-history";
 import Image from "next/image";
+import { normalizeHistorySource } from "@/lib/history";
 
 export const metadata = {
   title: "History Episode - AniStream",
@@ -15,14 +16,38 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export default async function EpisodeHistoryPage() {
+type EpisodeHistoryPageProps = {
+  searchParams: Promise<{ source?: string | string[] }>;
+};
+
+export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistoryPageProps) {
+  const params = await searchParams;
+  const source = normalizeHistorySource(
+    Array.isArray(params.source) ? params.source[0] : params.source,
+  );
   const user = await getCurrentUser();
   if (!user) {
-    redirect("/login?next=/history/episodes");
+    const nextPath =
+      source === "all" ? "/history/episodes" : `/history/episodes?source=${source}`;
+    redirect(`/login?next=${encodeURIComponent(nextPath)}`);
   }
 
-  const history = await getEpisodeHistory(user.id);
+  const history = await getEpisodeHistory(user.id, 100, source);
   const featured = history[0];
+  const animeHistoryHref = source === "all" ? "/history" : `/history?source=${source}`;
+  const sourceTabs = [
+    { label: "Semua", value: "all", href: "/history/episodes" },
+    {
+      label: "Samehadaku",
+      value: "samehadaku",
+      href: "/history/episodes?source=samehadaku",
+    },
+    {
+      label: "Otakudesu",
+      value: "otakudesu",
+      href: "/history/episodes?source=otakudesu",
+    },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-[#050505] pb-20 text-white">
@@ -42,7 +67,7 @@ export default async function EpisodeHistoryPage() {
           </div>
 
           <div className="flex w-fit rounded-md border border-white/10 bg-[#141414] p-1">
-            <Link href="/history" className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
+            <Link href={animeHistoryHref} className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
               Per Anime
             </Link>
             <Link href="/history/episodes" className="rounded bg-[#E50914] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
@@ -53,6 +78,23 @@ export default async function EpisodeHistoryPage() {
       </section>
 
       <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Filter sumber history" className="flex w-full gap-2 overflow-x-auto rounded-lg border border-white/10 bg-[#141414] p-2">
+          {sourceTabs.map((tab) => (
+            <Link
+              key={tab.value}
+              href={tab.href}
+              aria-current={source === tab.value ? "page" : undefined}
+              className={`whitespace-nowrap rounded-md px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
+                source === tab.value
+                  ? "bg-[#E50914] text-white"
+                  : "text-neutral-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+
         {history.length === 0 ? (
           <div className="rounded-lg border border-white/10 bg-[#141414] p-10 text-center">
             <h2 className="text-xl font-black text-white">Belum ada episode.</h2>
@@ -81,6 +123,20 @@ export default async function EpisodeHistoryPage() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#E50914]">{item.source}</span>
                   <span className="mt-1 line-clamp-1 text-base font-black text-white group-hover:text-neutral-200">{item.anime_title}</span>
                   <span className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-neutral-400">{item.episode_title}</span>
+                  {item.progress_source === "player" && item.progress_percent !== null && (
+                    <span className="mt-3">
+                      <span className="mb-1 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-neutral-500">
+                        <span>{item.is_completed ? "Selesai" : "Progress asli player"}</span>
+                        <span>{Math.round(item.progress_percent)}%</span>
+                      </span>
+                      <span className="block h-1 overflow-hidden rounded-full bg-white/10">
+                        <span
+                          className="block h-full bg-[#E50914]"
+                          style={{ width: `${Math.max(0, Math.min(100, item.progress_percent))}%` }}
+                        />
+                      </span>
+                    </span>
+                  )}
                   <span className="mt-3 text-[10px] font-black uppercase tracking-widest text-neutral-600">{formatDate(item.watched_at)}</span>
                 </span>
                 <span className="hidden items-center self-center rounded bg-[#E50914] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all group-hover:bg-[#B20710] sm:flex">

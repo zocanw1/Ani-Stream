@@ -34,3 +34,16 @@ test("history pages render as Netflix-style continue watching shelves", () => {
   assert.match(episodes, /Episode Timeline/i);
   assert.match(episodes, /bg-\[#141414\]/);
 });
+
+test("provider history tabs keep Samehadaku and Otakudesu separate", () => {
+  const history = read("app/history/page.tsx");
+  const episodes = read("app/history/episodes/page.tsx");
+
+  for (const page of [history, episodes]) {
+    assert.match(page, /normalizeHistorySource/);
+    assert.match(page, /source=samehadaku/);
+    assert.match(page, /source=otakudesu/);
+    assert.match(page, /progress_source\s*===\s*"player"/);
+    assert.match(page, /progress_percent\s*!==\s*null/);
+  }
+});

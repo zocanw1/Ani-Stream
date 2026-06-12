@@ -94,6 +94,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
         episodeTitle={data.title}
         animePath={`/otakudesu/anime/${data.animeId}`}
         episodePath={`/otakudesu/episode/${slug}`}
+        playerSrc={streamingUrl}
       />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
 

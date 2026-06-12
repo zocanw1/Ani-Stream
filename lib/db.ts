@@ -74,6 +74,12 @@ export async function ensureDatabase() {
           poster_url TEXT,
           anime_path TEXT NOT NULL,
           episode_path TEXT NOT NULL,
+          watched_seconds DOUBLE PRECISION,
+          duration_seconds DOUBLE PRECISION,
+          progress_percent DOUBLE PRECISION,
+          progress_source TEXT,
+          is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+          last_watched_at TIMESTAMPTZ,
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `;
@@ -90,9 +96,35 @@ export async function ensureDatabase() {
           poster_url TEXT,
           anime_path TEXT NOT NULL,
           episode_path TEXT NOT NULL,
+          watched_seconds DOUBLE PRECISION,
+          duration_seconds DOUBLE PRECISION,
+          progress_percent DOUBLE PRECISION,
+          progress_source TEXT,
+          is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+          last_watched_at TIMESTAMPTZ,
           watched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           UNIQUE (user_id, episode_path)
         )
+      `;
+
+      await sql`
+        ALTER TABLE watch_history
+          ADD COLUMN IF NOT EXISTS watched_seconds DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS progress_percent DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS progress_source TEXT,
+          ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+          ADD COLUMN IF NOT EXISTS last_watched_at TIMESTAMPTZ
+      `;
+
+      await sql`
+        ALTER TABLE watch_history_events
+          ADD COLUMN IF NOT EXISTS watched_seconds DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS duration_seconds DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS progress_percent DOUBLE PRECISION,
+          ADD COLUMN IF NOT EXISTS progress_source TEXT,
+          ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+          ADD COLUMN IF NOT EXISTS last_watched_at TIMESTAMPTZ
       `;
 
       await sql`

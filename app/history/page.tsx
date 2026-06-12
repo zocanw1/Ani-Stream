@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getAnimeHistory } from "@/lib/watch-history";
 import Image from "next/image";
+import { normalizeHistorySource } from "@/lib/history";
 
 export const metadata = {
   title: "History Anime - AniStream",
@@ -15,14 +16,30 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export default async function HistoryPage() {
+type HistoryPageProps = {
+  searchParams: Promise<{ source?: string | string[] }>;
+};
+
+export default async function HistoryPage({ searchParams }: HistoryPageProps) {
+  const params = await searchParams;
+  const source = normalizeHistorySource(
+    Array.isArray(params.source) ? params.source[0] : params.source,
+  );
   const user = await getCurrentUser();
   if (!user) {
-    redirect("/login?next=/history");
+    const nextPath = source === "all" ? "/history" : `/history?source=${source}`;
+    redirect(`/login?next=${encodeURIComponent(nextPath)}`);
   }
 
-  const history = await getAnimeHistory(user.id);
+  const history = await getAnimeHistory(user.id, 100, source);
   const featured = history[0];
+  const episodeHistoryHref =
+    source === "all" ? "/history/episodes" : `/history/episodes?source=${source}`;
+  const sourceTabs = [
+    { label: "Semua", value: "all", href: "/history" },
+    { label: "Samehadaku", value: "samehadaku", href: "/history?source=samehadaku" },
+    { label: "Otakudesu", value: "otakudesu", href: "/history?source=otakudesu" },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-[#050505] pb-20 text-white">
@@ -45,7 +62,7 @@ export default async function HistoryPage() {
             <Link href="/history" className="rounded bg-[#E50914] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
               Per Anime
             </Link>
-            <Link href="/history/episodes" className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
+            <Link href={episodeHistoryHref} className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
               Per Episode
             </Link>
           </div>
@@ -53,6 +70,23 @@ export default async function HistoryPage() {
       </section>
 
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Filter sumber history" className="flex w-full gap-2 overflow-x-auto rounded-lg border border-white/10 bg-[#141414] p-2">
+          {sourceTabs.map((tab) => (
+            <Link
+              key={tab.value}
+              href={tab.href}
+              aria-current={source === tab.value ? "page" : undefined}
+              className={`whitespace-nowrap rounded-md px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
+                source === tab.value
+                  ? "bg-[#E50914] text-white"
+                  : "text-neutral-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+
         {history.length === 0 ? (
           <div className="rounded-lg border border-white/10 bg-[#141414] p-10 text-center">
             <h2 className="text-xl font-black text-white">Belum ada history.</h2>
@@ -66,7 +100,7 @@ export default async function HistoryPage() {
             <h2 className="mb-4 text-xl font-black text-white">Anime Saya</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
             {history.map((item) => (
-              <article key={item.anime_slug} className="group">
+              <article key={`${item.source}:${item.anime_slug}`} className="group">
                 <Link href={item.episode_path} prefetch={false} className="poster-card block aspect-[2/3] bg-[#141414]">
                   {item.poster_url ? (
                     <Image src={item.poster_url} alt={item.anime_title} fill sizes="(max-width: 640px) 50vw, 14vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -74,8 +108,25 @@ export default async function HistoryPage() {
                     <div className="h-full w-full bg-[#141414]" />
                   )}
                   <span className="absolute inset-x-0 bottom-0 z-10 p-3">
-                    <span className="inline-flex rounded bg-[#E50914] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">Lanjut</span>
+                    <span className="flex items-end justify-between gap-2">
+                      <span className="inline-flex rounded bg-[#E50914] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                        {item.is_completed ? "Selesai" : "Lanjut"}
+                      </span>
+                      {item.progress_source === "player" && item.progress_percent !== null && (
+                        <span className="rounded bg-black/80 px-2 py-1 text-[10px] font-black text-white">
+                          {Math.round(item.progress_percent)}%
+                        </span>
+                      )}
+                    </span>
                   </span>
+                  {item.progress_source === "player" && item.progress_percent !== null && (
+                    <span className="absolute inset-x-0 bottom-0 z-20 h-1 bg-white/20">
+                      <span
+                        className="block h-full bg-[#E50914]"
+                        style={{ width: `${Math.max(0, Math.min(100, item.progress_percent))}%` }}
+                      />
+                    </span>
+                  )}
                 </Link>
                 <div className="mt-3">
                   <p className="text-[10px] font-black uppercase tracking-widest text-[#E50914]">{item.source}</p>

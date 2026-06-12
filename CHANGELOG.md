@@ -36,6 +36,9 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Saat player dikunci, interaksi video ditutup oleh interaction shield dan tombol fullscreen disembunyikan sampai kunci dibuka.
 - Iframe streaming tidak lagi memakai atribut `sandbox` agar provider Otakudesu seperti Desustream dapat memutar video.
 - Vercel Functions dipindahkan dari Washington, D.C. (`iad1`) ke Singapura (`sin1`).
+- History kini dapat difilter terpisah antara Samehadaku dan Otakudesu tanpa memisahkan akun pengguna.
+- Episode langsung disimpan saat halaman tontonan dibuka, termasuk ketika pengguna berhenti di tengah episode.
+- Progress video hanya disimpan dan ditampilkan jika iframe provider mengirim posisi player asli; AniStream tidak membuat estimasi dari lamanya halaman terbuka.
 
 ### Removed
 

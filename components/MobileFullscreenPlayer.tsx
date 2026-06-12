@@ -2,6 +2,11 @@
 
 import { Lock, Maximize2, Minimize2, Unlock } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import {
+  normalizePlayerProgress,
+  PLAYER_PROGRESS_EVENT,
+  type PlayerProgressEventDetail,
+} from "@/lib/player-progress";
 
 type FullscreenDocument = Document & {
   webkitExitFullscreen?: () => Promise<void> | void;
@@ -31,6 +36,7 @@ export default function MobileFullscreenPlayer({
   className = "",
 }: MobileFullscreenPlayerProps) {
   const playerRef = useRef<FullscreenElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [usesFallback, setUsesFallback] = useState(false);
   const [isInteractionLocked, setIsInteractionLocked] = useState(false);
@@ -69,6 +75,32 @@ export default function MobileFullscreenPlayer({
       unlockOrientation();
     };
   }, [usesFallback]);
+
+  useEffect(() => {
+    let playerOrigin = "";
+    try {
+      playerOrigin = new URL(src).origin;
+    } catch {
+      return;
+    }
+
+    const handlePlayerMessage = (event: MessageEvent) => {
+      if (iframeRef.current?.contentWindow !== event.source) return;
+      if (event.origin !== playerOrigin) return;
+
+      const progress = normalizePlayerProgress(event.data);
+      if (!progress) return;
+
+      window.dispatchEvent(
+        new CustomEvent<PlayerProgressEventDetail>(PLAYER_PROGRESS_EVENT, {
+          detail: { src, progress },
+        }),
+      );
+    };
+
+    window.addEventListener("message", handlePlayerMessage);
+    return () => window.removeEventListener("message", handlePlayerMessage);
+  }, [src]);
 
   const lockLandscape = async () => {
     try {
@@ -134,6 +166,7 @@ export default function MobileFullscreenPlayer({
     >
       {children}
       <iframe
+        ref={iframeRef}
         key={src}
         src={src}
         className="absolute inset-0 h-full w-full"
