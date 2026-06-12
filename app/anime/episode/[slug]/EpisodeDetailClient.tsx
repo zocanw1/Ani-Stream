@@ -69,7 +69,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
     try {
       setSwitching(true);
       setServerSwitchError("");
-      const res = await fetch(`https://www.sankavollerei.com/anime/samehadaku/server/${serverId}`, {
+      const res = await fetch(`/api/anime/server?source=samehadaku&serverId=${encodeURIComponent(serverId)}`, {
         cache: "no-store",
         headers: { Accept: "application/json" },
       });

@@ -32,3 +32,22 @@ test("changing a stream URL remounts the third-party iframe", () => {
 
   assert.match(player, /key=\{src\}/);
 });
+
+test("episode clients resolve server URLs through the AniStream API proxy", () => {
+  const samehadaku = read("app/anime/episode/[slug]/EpisodeDetailClient.tsx");
+  const otakudesu = read("app/otakudesu/episode/[slug]/OtakudesuEpisodeClient.tsx");
+
+  assert.match(samehadaku, /\/api\/anime\/server\?source=samehadaku&serverId=/);
+  assert.match(otakudesu, /\/api\/anime\/server\?source=otakudesu&serverId=/);
+  assert.doesNotMatch(samehadaku, /www\.sankavollerei\.com\/anime\/samehadaku\/server/);
+  assert.doesNotMatch(otakudesu, /www\.sankavollerei\.com\/anime\/server/);
+});
+
+test("server proxy only forwards supported sources and safe server IDs", () => {
+  const route = read("app/api/anime/server/route.ts");
+
+  assert.match(route, /source === "samehadaku"/);
+  assert.match(route, /source === "otakudesu"/);
+  assert.match(route, /SERVER_ID_PATTERN/);
+  assert.match(route, /cache:\s*"no-store"/);
+});

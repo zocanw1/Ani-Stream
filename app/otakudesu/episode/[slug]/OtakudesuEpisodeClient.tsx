@@ -60,7 +60,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
     try {
       setSwitching(true);
       setServerSwitchError("");
-      const res = await fetch(`https://www.sankavollerei.com/anime/server/${serverId}`, {
+      const res = await fetch(`/api/anime/server?source=otakudesu&serverId=${encodeURIComponent(serverId)}`, {
         cache: "no-store",
         headers: { Accept: "application/json" },
       });
