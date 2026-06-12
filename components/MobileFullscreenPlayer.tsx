@@ -1,6 +1,6 @@
 "use client";
 
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Lock, Maximize2, Minimize2, Unlock } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 type FullscreenDocument = Document & {
@@ -33,6 +33,7 @@ export default function MobileFullscreenPlayer({
   const playerRef = useRef<FullscreenElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [usesFallback, setUsesFallback] = useState(false);
+  const [isInteractionLocked, setIsInteractionLocked] = useState(false);
 
   const unlockOrientation = () => {
     const orientation = screen.orientation as LockableOrientation | undefined;
@@ -53,6 +54,7 @@ export default function MobileFullscreenPlayer({
 
       setIsFullscreen(playerIsFullscreen || usesFallback);
       if (!playerIsFullscreen && !usesFallback) {
+        setIsInteractionLocked(false);
         unlockOrientation();
       }
     };
@@ -104,6 +106,7 @@ export default function MobileFullscreenPlayer({
   const exitFullscreen = async () => {
     const fullscreenDocument = document as FullscreenDocument;
 
+    setIsInteractionLocked(false);
     if (usesFallback) {
       clearFallback();
     } else if (document.fullscreenElement && document.exitFullscreen) {
@@ -139,19 +142,40 @@ export default function MobileFullscreenPlayer({
         allow="autoplay; encrypted-media; picture-in-picture"
         title={title}
       />
-      <button
-        type="button"
-        className="mobile-video-player__fullscreen"
-        onClick={toggleFullscreen}
-        onDoubleClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        aria-label={isFullscreen ? "Keluar dari layar penuh" : "Masuk ke layar penuh landscape"}
-        title={isFullscreen ? "Keluar dari layar penuh" : "Layar penuh landscape"}
-      >
-        {isFullscreen ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
-      </button>
+      {isInteractionLocked && (
+        <div
+          className="mobile-video-player__interaction-shield"
+          aria-hidden="true"
+          onContextMenu={(event) => event.preventDefault()}
+        />
+      )}
+      {isFullscreen && (
+        <button
+          type="button"
+          className={`mobile-video-player__lock ${isInteractionLocked ? "is-locked" : ""}`}
+          onClick={() => setIsInteractionLocked((locked) => !locked)}
+          aria-label={isInteractionLocked ? "Buka kunci kontrol video" : "Kunci kontrol video"}
+          aria-pressed={isInteractionLocked}
+          title={isInteractionLocked ? "Buka kunci" : "Kunci video"}
+        >
+          {isInteractionLocked ? <Unlock aria-hidden="true" /> : <Lock aria-hidden="true" />}
+        </button>
+      )}
+      {!isInteractionLocked && (
+        <button
+          type="button"
+          className="mobile-video-player__fullscreen"
+          onClick={toggleFullscreen}
+          onDoubleClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          aria-label={isFullscreen ? "Keluar dari layar penuh" : "Masuk ke layar penuh landscape"}
+          title={isFullscreen ? "Keluar dari layar penuh" : "Layar penuh landscape"}
+        >
+          {isFullscreen ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+        </button>
+      )}
     </div>
   );
 }

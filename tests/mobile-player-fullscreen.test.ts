@@ -30,6 +30,19 @@ test("controlled player locks landscape and owns fullscreen exit", () => {
   assert.doesNotMatch(player, /fullscreen; picture-in-picture/);
 });
 
+test("fullscreen player can lock iframe interaction so video cannot be paused accidentally", () => {
+  const player = read("components/MobileFullscreenPlayer.tsx");
+  const css = read("app/globals.css");
+
+  assert.match(player, /Lock/);
+  assert.match(player, /Unlock/);
+  assert.match(player, /isInteractionLocked/);
+  assert.match(player, /mobile-video-player__interaction-shield/);
+  assert.match(player, /aria-pressed=\{isInteractionLocked\}/);
+  assert.match(css, /\.mobile-video-player__interaction-shield/);
+  assert.match(css, /\.mobile-video-player__lock/);
+});
+
 test("portrait phones rotate the controlled fullscreen surface", () => {
   const css = read("app/globals.css");
 

@@ -145,6 +145,42 @@ button, input { font: inherit; }
   width: 21px;
   height: 21px;
 }
+.mobile-video-player__interaction-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: transparent;
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+}
+.mobile-video-player__lock {
+  position: absolute;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.78);
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.mobile-video-player__lock:hover,
+.mobile-video-player__lock.is-locked {
+  border-color: rgba(255, 83, 89, 0.72);
+  background: var(--red);
+}
+.mobile-video-player__lock svg {
+  width: 20px;
+  height: 20px;
+}
 
 @media (max-width: 767px) and (orientation: portrait) {
   .mobile-video-player:fullscreen,

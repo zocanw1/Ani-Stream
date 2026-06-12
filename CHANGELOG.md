@@ -22,6 +22,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Lucide React untuk ikon antarmuka yang konsisten.
 - Kontrol fullscreen player khusus mobile dengan orientasi landscape otomatis dan fallback rotasi CSS.
 - Test regresi untuk fullscreen mobile, orientation lock, dan pencegahan fullscreen bawaan iframe.
+- Tombol kunci fullscreen untuk memblokir sentuhan pada iframe agar video tidak ter-pause atau terganggu kontrol player.
 
 ### Changed
 
@@ -32,6 +33,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Homepage kini memakai hero yang lebih ringkas, jadwal horizontal, Top 10 rail, serta tiga katalog padat.
 - Responsivitas mobile diperbaiki agar tidak menghasilkan horizontal page overflow.
 - Player Samehadaku dan Otakudesu sekarang memakai satu kontrol fullscreen milik AniStream; double tap pada player tidak lagi mengaktifkan atau menutup fullscreen.
+- Saat player dikunci, interaksi video ditutup oleh interaction shield dan tombol fullscreen disembunyikan sampai kunci dibuka.
 
 ### Removed
 
