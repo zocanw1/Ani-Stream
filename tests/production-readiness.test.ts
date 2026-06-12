@@ -34,3 +34,9 @@ test("important list routes render initial API data on the server with revalidat
     assert.match(source, /export const revalidate\s*=|revalidate:/, `${route} must cache upstream API data`);
   }
 });
+
+test("deploys Vercel Functions in Singapore", () => {
+  const config = JSON.parse(read("vercel.json")) as { regions?: string[] };
+
+  assert.deepEqual(config.regions, ["sin1"]);
+});

@@ -35,6 +35,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Player Samehadaku dan Otakudesu sekarang memakai satu kontrol fullscreen milik AniStream; double tap pada player tidak lagi mengaktifkan atau menutup fullscreen.
 - Saat player dikunci, interaksi video ditutup oleh interaction shield dan tombol fullscreen disembunyikan sampai kunci dibuka.
 - Iframe streaming tidak lagi memakai atribut `sandbox` agar provider Otakudesu seperti Desustream dapat memutar video.
+- Vercel Functions dipindahkan dari Washington, D.C. (`iad1`) ke Singapura (`sin1`).
 
 ### Removed
 
