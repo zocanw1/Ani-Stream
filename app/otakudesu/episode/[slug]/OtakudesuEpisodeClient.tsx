@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import WatchRecorder from "@/components/WatchRecorder";
+import MobileFullscreenPlayer from "@/components/MobileFullscreenPlayer";
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -125,23 +126,18 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
 
         {/* ── Video Player & Servers ─────────────────── */}
         <div className="space-y-4">
-          <div className="rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/80 bg-black aspect-video relative group/player ring-1 ring-white/10">
+          <MobileFullscreenPlayer
+            src={streamingUrl}
+            title={data.title}
+            className="rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/80 bg-black aspect-video relative group/player ring-1 ring-white/10"
+          >
             {switching && (
               <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center gap-4 animate-fade-in">
                 <div className="w-12 h-12 border-4 border-[#ff7675]/20 border-t-[#ff7675] rounded-full animate-spin shadow-lg shadow-[#ff7675]/20" />
                 <span className="text-[10px] font-black uppercase text-white tracking-[0.4em] animate-pulse">Switching Server...</span>
               </div>
             )}
-            <iframe
-              src={streamingUrl}
-              className="absolute inset-0 w-full h-full"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-              allowFullScreen
-              title={data.title}
-            />
-          </div>
+          </MobileFullscreenPlayer>
 
           <div className="flex flex-col gap-4">
              {/* Server Switcher Grid */}

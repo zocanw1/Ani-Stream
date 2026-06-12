@@ -99,6 +99,66 @@ button, input { font: inherit; }
 .icon-button--small { width: 28px; height: 28px; border-radius: 5px; }
 .icon-button--small:hover { background: white; color: black; }
 
+.mobile-video-player {
+  isolation: isolate;
+  touch-action: manipulation;
+}
+.mobile-video-player:fullscreen,
+.mobile-video-player--fallback {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+.mobile-video-player--fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+.mobile-video-fullscreen-open {
+  overflow: hidden;
+}
+.mobile-video-player__fullscreen {
+  position: absolute;
+  right: max(10px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.78);
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.mobile-video-player__fullscreen:hover {
+  background: var(--red);
+}
+.mobile-video-player__fullscreen svg {
+  width: 21px;
+  height: 21px;
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .mobile-video-player:fullscreen,
+  .mobile-video-player--fallback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100vh;
+    height: 100vw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center;
+  }
+}
+
 .cinematic-home { min-height: 100vh; background: var(--black); padding-bottom: 80px; }
 .cinematic-hero { position: relative; height: 430px; min-height: 430px; overflow: hidden; background: #090b0d; }
 .cinematic-hero__backdrop { position: absolute; inset: -7%; filter: blur(9px); transform: scale(1.06); opacity: 0.78; }

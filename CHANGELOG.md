@@ -20,6 +20,8 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Continue Watching shelf yang terhubung ke riwayat akun.
 - Dokumentasi desain, visual QA, screenshot desktop/mobile, dan kerangka KPI UX.
 - Lucide React untuk ikon antarmuka yang konsisten.
+- Kontrol fullscreen player khusus mobile dengan orientasi landscape otomatis dan fallback rotasi CSS.
+- Test regresi untuk fullscreen mobile, orientation lock, dan pencegahan fullscreen bawaan iframe.
 
 ### Changed
 
@@ -29,6 +31,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Global shell, homepage, kartu anime, login, dan account menu didesain ulang mengikuti konsep Cinematic Focus.
 - Homepage kini memakai hero yang lebih ringkas, jadwal horizontal, Top 10 rail, serta tiga katalog padat.
 - Responsivitas mobile diperbaiki agar tidak menghasilkan horizontal page overflow.
+- Player Samehadaku dan Otakudesu sekarang memakai satu kontrol fullscreen milik AniStream; double tap pada player tidak lagi mengaktifkan atau menutup fullscreen.
 
 ### Removed
 

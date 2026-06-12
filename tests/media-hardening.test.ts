@@ -7,13 +7,17 @@ function read(path: string) {
 }
 
 test("streaming frames use a sandbox and strict referrer policy", () => {
+  const player = read("components/MobileFullscreenPlayer.tsx");
+
+  assert.match(player, /sandbox=/);
+  assert.match(player, /referrerPolicy="strict-origin-when-cross-origin"/);
+
   for (const path of [
     "app/anime/episode/[slug]/EpisodeDetailClient.tsx",
     "app/otakudesu/episode/[slug]/OtakudesuEpisodeClient.tsx",
   ]) {
     const source = read(path);
-    assert.match(source, /sandbox=/);
-    assert.match(source, /referrerPolicy="strict-origin-when-cross-origin"/);
+    assert.match(source, /MobileFullscreenPlayer/);
   }
 });
 

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import WatchRecorder from "@/components/WatchRecorder";
 import Image from "next/image";
+import MobileFullscreenPlayer from "@/components/MobileFullscreenPlayer";
 
 type DownloadUrl = { title: string; url: string };
 type DownloadQuality = { title: string; urls: DownloadUrl[] };
@@ -138,23 +139,18 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
 
         {/* ── Video Player ──────────────────────────── */}
         <div className="space-y-4">
-          <div className="rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/60 bg-black aspect-video relative group/player">
+          <MobileFullscreenPlayer
+            src={streamingUrl}
+            title={data.title}
+            className="rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl shadow-black/60 bg-black aspect-video relative group/player"
+          >
             {switching && (
               <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center gap-3 animate-fade-in">
                 <div className="w-12 h-12 border-4 border-[#6c5ce7]/20 border-t-[#6c5ce7] rounded-full animate-spin shadow-lg shadow-[#6c5ce7]/20" />
                 <span className="text-[10px] font-black uppercase text-white tracking-[0.3em] animate-pulse">Switching Server...</span>
               </div>
             )}
-            <iframe
-              src={streamingUrl}
-              className="absolute inset-0 w-full h-full"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-              allowFullScreen
-              title={data.title}
-            />
-          </div>
+          </MobileFullscreenPlayer>
 
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between glass p-4 rounded-2xl border border-white/5 shadow-xl">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 max-w-full overflow-x-auto no-scrollbar">
