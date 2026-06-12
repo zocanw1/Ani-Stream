@@ -70,8 +70,8 @@ function SearchContent() {
         
         const json: SearchResponse = await res.json();
         setResults(json.data?.animeList || []);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil hasil pencarian Otakudesu");
       } finally {
         setLoading(false);
       }
@@ -98,7 +98,7 @@ function SearchContent() {
         <div>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Hasil Pencarian <span className="text-[#ff7675]">Otaku</span></h1>
           <p className="text-sm text-gray-500 mt-2 font-medium">
-            Menampilkan hasil untuk <span className="text-[#ff7675] font-black italic">"{query}"</span>
+            Menampilkan hasil untuk <span className="text-[#ff7675] font-black italic">&quot;{query}&quot;</span>
           </p>
         </div>
         {!loading && results && (
@@ -185,7 +185,7 @@ function SearchContent() {
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-tight">Tidak Ada Hasil</h2>
           <p className="text-gray-500 mt-3 max-w-sm font-medium">
-            Maaf, kami tidak menemukan anime <span className="text-[#ff7675] italic font-bold">"{query}"</span> di database Otakudesu. Coba kata kunci lain atau periksa ejaan Anda.
+            Maaf, kami tidak menemukan anime <span className="text-[#ff7675] italic font-bold">&quot;{query}&quot;</span> di database Otakudesu. Coba kata kunci lain atau periksa ejaan Anda.
           </p>
           <Link href="/otakudesu" prefetch={false} className="btn-primary bg-[#ff7675] mt-10 shadow-lg shadow-[#ff7675]/30">Kembali ke Beranda</Link>
         </div>

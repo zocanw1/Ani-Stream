@@ -36,6 +36,14 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "samehadaku.how",
+      },
+      {
+        protocol: "https",
+        hostname: "*.samehadaku.how",
+      },
+      {
+        protocol: "https",
         hostname: "otakudesu.blog",
       },
       {

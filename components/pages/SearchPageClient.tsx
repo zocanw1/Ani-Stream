@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -79,8 +80,8 @@ function SearchContent({
         
         const json: SearchResponse = await res.json();
         setResults(json.data?.animeList || []);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil hasil pencarian");
       } finally {
         setLoading(false);
       }
@@ -103,7 +104,7 @@ function SearchContent({
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Hasil Pencarian</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Menampilkan hasil untuk <span className="text-[#a29bfe] font-bold italic">"{query}"</span>
+            Menampilkan hasil untuk <span className="text-[#a29bfe] font-bold italic">&quot;{query}&quot;</span>
           </p>
         </div>
         {!loading && results && (
@@ -127,7 +128,7 @@ function SearchContent({
           {results.map((anime) => (
             <Link key={anime.animeId} href={`/anime/${cleanSlug(anime.href)}`} prefetch={false} className="group block animate-fade-in-up">
               <div className="poster-card aspect-[3/4]">
-                <img src={anime.poster} alt={anime.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 {anime.score && anime.score !== "0" && anime.score !== "?" && (
                   <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded-md px-1.5 py-0.5 flex items-center gap-1 border border-white/10 z-10">
                     <span className="text-[10px]">⭐</span>
@@ -178,7 +179,7 @@ function SearchContent({
           </div>
           <h2 className="text-xl font-bold text-white">Oops! Tidak ada hasil</h2>
           <p className="text-gray-500 mt-2 max-w-sm">
-            Kami tidak dapat menemukan anime dengan judul <span className="text-gray-300 italic">"{query}"</span>. Coba gunakan kata kunci lain.
+            Kami tidak dapat menemukan anime dengan judul <span className="text-gray-300 italic">&quot;{query}&quot;</span>. Coba gunakan kata kunci lain.
           </p>
           <Link href="/" prefetch={false} className="btn-primary mt-8">Kembali ke Beranda</Link>
         </div>

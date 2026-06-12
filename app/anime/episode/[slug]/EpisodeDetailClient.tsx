@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import WatchRecorder from "@/components/WatchRecorder";
+import Image from "next/image";
 
 type DownloadUrl = { title: string; url: string };
 type DownloadQuality = { title: string; urls: DownloadUrl[] };
@@ -147,6 +148,9 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
             <iframe
               src={streamingUrl}
               className="absolute inset-0 w-full h-full"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
               allowFullScreen
               title={data.title}
             />
@@ -285,7 +289,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                   {data.recommendedEpisodeList.slice(0, 8).map((ep, i) => (
                     <Link key={i} href={`/anime/episode/${cleanEpisodeSlug(ep.href)}`} prefetch={false} className="group flex gap-4 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover:border-[#6c5ce7]/30">
                       <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 relative shadow-lg">
-                        <img src={ep.poster} alt={ep.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                         <Image src={ep.poster} alt={ep.title} fill sizes="5rem" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                       </div>
                       <div className="flex-1 py-1 flex flex-col justify-center min-w-0">
@@ -305,8 +309,8 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                 <div className="space-y-4">
                   {data.movie.animeList.slice(0, 5).map((anime, i) => (
                     <Link key={i} href={`/anime/${cleanAnimeSlug(anime.href)}`} prefetch={false} className="group flex gap-4 h-24 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover:border-[#6c5ce7]/30">
-                      <div className="w-16 h-full rounded-xl overflow-hidden flex-shrink-0 shadow-lg border border-white/10">
-                        <img src={anime.poster} alt={anime.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <div className="relative w-16 h-full rounded-xl overflow-hidden flex-shrink-0 shadow-lg border border-white/10">
+                         <Image src={anime.poster} alt={anime.title} fill sizes="4rem" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                       </div>
                       <div className="flex-1 py-1 flex flex-col justify-center">
                         <h4 className="text-[11px] font-black text-gray-300 group-hover:text-[#6c5ce7] line-clamp-2 leading-tight transition-colors">{anime.title}</h4>

@@ -69,7 +69,7 @@ export type OtakudesuDetail = {
   } | null;
   synopsis: {
     paragraphs: string[];
-    connections: any[];
+    connections: unknown[];
   };
   genreList: Genre[];
   episodeList: Episode[];
@@ -78,10 +78,9 @@ export type OtakudesuDetail = {
 
 interface OtakudesuDetailClientProps {
   data: OtakudesuDetail;
-  slug: string;
 }
 
-export default function OtakudesuDetailClient({ data, slug }: OtakudesuDetailClientProps) {
+export default function OtakudesuDetailClient({ data }: OtakudesuDetailClientProps) {
   const [batchData, setBatchData] = useState<BatchData | null>(null);
   const [loadingBatch, setLoadingBatch] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
@@ -111,8 +110,8 @@ export default function OtakudesuDetailClient({ data, slug }: OtakudesuDetailCli
       setTimeout(() => {
         document.getElementById('batch-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (error: unknown) {
+      console.error(error);
     } finally {
       setLoadingBatch(false);
     }

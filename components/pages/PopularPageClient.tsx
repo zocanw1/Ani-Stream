@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -78,8 +79,8 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
         pagination: json.pagination
       });
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Gagal mengambil data populer");
     } finally {
       setLoading(false);
     }
@@ -152,7 +153,7 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
                   style={{ animationDelay: `${(idx % 10) * 0.05}s` }}
                 >
                   <div className="poster-card aspect-[3/4]">
-                    <img src={anime.poster} alt={anime.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded-lg w-7 h-7 flex items-center justify-center border border-white/10 z-10">
                       <span className="text-xs font-black italic gradient-text">#{ (page - 1) * data.animeList.length + idx + 1 }</span>
                     </div>

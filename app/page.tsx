@@ -8,7 +8,7 @@ type ApiEnvelope<T> = {
   pagination?: HomePageInitialData["ongoingData"]["pagination"];
 };
 
-export default async function HomePage() {
+async function getInitialData(): Promise<HomePageInitialData | null> {
   try {
     const [home, schedule, popular, ongoing] = await Promise.all([
       fetchAnimeApi<ApiEnvelope<HomePageInitialData["homeData"]>>("/samehadaku/home", revalidate),
@@ -35,8 +35,18 @@ export default async function HomePage() {
       },
     };
 
-    return <HomePageClient initialData={initialData} />;
+    return initialData;
   } catch {
-    return <HomePageClient initialData={null} initialError="Gagal memuat data anime dari server." />;
+    return null;
   }
+}
+
+export default async function HomePage() {
+  const initialData = await getInitialData();
+  return (
+    <HomePageClient
+      initialData={initialData}
+      initialError={initialData ? null : "Gagal memuat data anime dari server."}
+    />
+  );
 }

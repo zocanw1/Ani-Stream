@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Link from "next/link";
 import HomeCarousel from "@/components/otakudesu/HomeCarousel";
 import ScheduleSection from "@/components/otakudesu/ScheduleSection";
@@ -19,26 +19,6 @@ type OtakudesuAnime = {
   animeId: string;
   href: string;
   otakudesuUrl: string;
-};
-
-type OtakudesuDaySchedule = {
-  day: string;
-  anime_list: {
-    title: string;
-    slug: string;
-    url: string;
-    poster: string;
-  }[];
-};
-
-type PaginatedAnime = {
-  animeList: OtakudesuAnime[];
-  pagination: {
-    currentPage: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    totalPages: number;
-  };
 };
 
 /* ── Fetch Functions ─────────────────────── */
@@ -120,7 +100,7 @@ export default async function OtakudesuPage(props: { searchParams: Promise<{ ong
           ) : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-                {ongoingData.animeList.map((anime: any, idx: number) => (
+                {ongoingData.animeList.map((anime: OtakudesuAnime, idx: number) => (
                   <AnimeCard 
                     key={anime.animeId + idx}
                     source="otakudesu"
@@ -166,7 +146,7 @@ export default async function OtakudesuPage(props: { searchParams: Promise<{ ong
           ) : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-                {completedData.animeList.map((anime: any, idx: number) => (
+                {completedData.animeList.map((anime: OtakudesuAnime, idx: number) => (
                   <AnimeCard 
                     key={anime.animeId + idx}
                     source="otakudesu"

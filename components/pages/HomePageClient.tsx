@@ -4,6 +4,10 @@ import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import AnimeCard from "@/components/common/AnimeCard";
 import SkeletonCard from "@/components/common/SkeletonCard";
+import Image from "next/image";
+
+const DAY_NAMES_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_NAMES_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -91,13 +95,10 @@ export default function HomePageClient({
   const [error, setError] = useState<string | null>(initialError);
 
   // Mapping Global Date to API Days (English for Samehadaku)
-  const dayNamesEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const dayNamesId = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
   const cleanSlug = (href: string) => href.replace(/^\/samehadaku\/anime\//, "");
 
   useEffect(() => {
-    const today = dayNamesEn[new Date().getDay()];
+    const today = DAY_NAMES_EN[new Date().getDay()];
     setActiveDay(today);
 
     if (initialData) return;
@@ -124,8 +125,8 @@ export default function HomePageClient({
 
         await fetchOngoingAnime(1);
 
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil data dari server");
       } finally {
         setLoading(false);
       }
@@ -155,8 +156,8 @@ export default function HomePageClient({
         pagination: json.pagination
       });
       setOngoingPage(page);
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (error: unknown) {
+      console.error(error);
     } finally {
       setLoadingOngoing(false);
     }
@@ -236,7 +237,7 @@ export default function HomePageClient({
               >
                 {/* Background Poster (Scaled & Blurred) */}
                 <div className="absolute inset-0 scale-110 blur-xl opacity-30 transform-gpu translate-z-0">
-                  <img src={anime.poster} alt="" className="w-full h-full object-cover" />
+                  <Image src={anime.poster} alt="" fill sizes="100vw" className="object-cover" priority={idx === 0} />
                 </div>
 
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/40 to-transparent z-10" />
@@ -278,15 +279,12 @@ export default function HomePageClient({
                       <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                       Tonton Sekarang
                     </Link>
-                    <button className="btn-ghost hidden sm:flex text-[10px] uppercase tracking-widest">
-                      + Favorite
-                    </button>
                   </div>
                 </div>
 
                 {/* Main Poster Image (Floating on Right) */}
                   <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-md overflow-hidden border border-white/20 shadow-2xl animate-fade-in-left">
-                  <img src={anime.poster} alt={anime.title} className="w-full h-full object-cover" />
+                  <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 1024px) 12rem, 16rem" className="object-cover" priority={idx === 0} />
                 </div>
               </div>
             ))}
@@ -331,7 +329,7 @@ export default function HomePageClient({
 
               {/* Day Tabs */}
               <div className="flex flex-wrap gap-2 p-1.5 glass rounded-xl w-fit">
-                {dayNamesEn.map((day, idx) => (
+                {DAY_NAMES_EN.map((day, idx) => (
                   <button
                     key={day}
                     onClick={() => setActiveDay(day)}
@@ -340,7 +338,7 @@ export default function HomePageClient({
                       : "text-[#1E1B29] border-transparent hover:bg-white"
                       }`}
                   >
-                    {day === dayNamesEn[new Date().getDay()] ? `Hari Ini` : dayNamesId[idx]}
+                    {day === DAY_NAMES_EN[new Date().getDay()] ? `Hari Ini` : DAY_NAMES_ID[idx]}
                   </button>
                 ))}
               </div>

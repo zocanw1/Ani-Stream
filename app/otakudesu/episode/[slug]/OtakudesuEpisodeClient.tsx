@@ -56,7 +56,6 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
   const [switching, setSwitching] = useState(false);
 
   const cleanEpisodeSlug = (href: string) => href.replace(/^\/anime\/episode\//, "");
-  const cleanAnimeSlug = (href: string) => href.replace(/^\/anime\/anime\//, "");
 
   const fetchServerUrl = async (serverId: string) => {
     try {
@@ -68,8 +67,8 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
       if (json.data?.url) {
         setStreamingUrl(json.data.url);
       }
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (error: unknown) {
+      console.error(error);
     } finally {
       setTimeout(() => setSwitching(false), 500);
     }
@@ -136,6 +135,9 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
             <iframe
               src={streamingUrl}
               className="absolute inset-0 w-full h-full"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
               allowFullScreen
               title={data.title}
             />

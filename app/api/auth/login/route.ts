@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
 import { normalizeEmail, verifyPassword } from "@/lib/auth-core";
 import { ensureDatabase, getSql, hasDatabaseUrl } from "@/lib/db";
+import { checkAuthRateLimit } from "@/lib/auth-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,14 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const email = normalizeEmail(String(body?.email || ""));
   const password = String(body?.password || "");
+
+  const rateLimit = await checkAuthRateLimit(request, "login", email);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan login. Coba lagi nanti." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+    );
+  }
 
   await ensureDatabase();
   const rows = await getSql()`

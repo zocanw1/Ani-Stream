@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -51,7 +52,6 @@ function Skeleton() {
 
 export default function BatchDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params.slug;
 
   const [data, setData] = useState<BatchDetail | null>(null);
@@ -67,8 +67,8 @@ export default function BatchDetailPage() {
         if (!res.ok) throw new Error("Gagal mengambil rincian batch");
         const json = await res.json();
         setData(json.data);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil rincian batch");
       } finally {
         setLoading(false);
       }
@@ -114,8 +114,8 @@ export default function BatchDetailPage() {
            <div className="absolute top-0 right-0 w-64 h-64 bg-[#6c5ce7]/5 rounded-full blur-[100px] -z-10" />
            
            <div className="flex flex-col md:flex-row gap-10 items-start">
-             <div className="w-48 sm:w-56 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden border border-white/10 group">
-                <img src={data.poster} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+             <div className="relative aspect-[3/4] w-48 sm:w-56 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden border border-white/10 group">
+                <Image src={data.poster} alt={data.title} fill sizes="(max-width: 640px) 12rem, 14rem" className="object-cover group-hover:scale-105 transition-transform duration-700" />
              </div>
              
              <div className="flex-1 space-y-6">

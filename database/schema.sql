@@ -16,6 +16,16 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS sessions_token_hash_idx
 ON sessions(token_hash);
 
+CREATE TABLE IF NOT EXISTS auth_rate_limits (
+  key_hash TEXT PRIMARY KEY,
+  attempts INTEGER NOT NULL,
+  window_started_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS auth_rate_limits_updated_idx
+ON auth_rate_limits(updated_at);
+
 CREATE TABLE IF NOT EXISTS watch_history (
   user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   source TEXT NOT NULL,

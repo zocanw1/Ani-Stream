@@ -50,6 +50,20 @@ export async function ensureDatabase() {
       `;
 
       await sql`
+        CREATE TABLE IF NOT EXISTS auth_rate_limits (
+          key_hash TEXT PRIMARY KEY,
+          attempts INTEGER NOT NULL,
+          window_started_at TIMESTAMPTZ NOT NULL,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+      `;
+
+      await sql`
+        CREATE INDEX IF NOT EXISTS auth_rate_limits_updated_idx
+        ON auth_rate_limits(updated_at)
+      `;
+
+      await sql`
         CREATE TABLE IF NOT EXISTS watch_history (
           user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
           source TEXT NOT NULL,
@@ -89,6 +103,11 @@ export async function ensureDatabase() {
       await sql`
         CREATE INDEX IF NOT EXISTS watch_history_events_user_anime_watched_idx
         ON watch_history_events(user_id, anime_slug, watched_at DESC)
+      `;
+
+      await sql`
+        DELETE FROM auth_rate_limits
+        WHERE updated_at < NOW() - INTERVAL '2 days'
       `;
     })();
   }

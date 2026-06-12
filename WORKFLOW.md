@@ -24,6 +24,9 @@
 - Route akun, API, dan history tidak dimasukkan ke indeks melalui `app/robots.ts`.
 - Security headers dikelola terpusat di `next.config.ts`.
 - Jika menambah domain API, gambar, media, atau iframe, domain tersebut harus ditambahkan secara terbatas ke CSP.
+- Login dibatasi per alamat dan akun, sedangkan registrasi dibatasi per alamat melalui tabel `auth_rate_limits`.
+- Player pihak ketiga wajib memakai sandbox dan referrer policy; penambahan izin iframe harus sesempit mungkin.
+- Kontrol UI yang belum memiliki perilaku lengkap tidak boleh ditampilkan ke pengguna.
 
 ## Rilis
 

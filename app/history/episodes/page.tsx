@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getEpisodeHistory } from "@/lib/watch-history";
+import Image from "next/image";
 
 export const metadata = {
   title: "History Episode - AniStream",
@@ -27,7 +28,7 @@ export default async function EpisodeHistoryPage() {
     <div className="min-h-screen bg-[#050505] pb-20 text-white">
       <section className="relative overflow-hidden px-4 pb-14 pt-12 sm:px-6 lg:px-8">
         {featured?.poster_url && (
-          <img src={featured.poster_url} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-20 blur-sm" />
+          <Image src={featured.poster_url} alt="" fill sizes="100vw" className="scale-110 object-cover opacity-20 blur-sm" priority />
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
@@ -70,7 +71,9 @@ export default async function EpisodeHistoryPage() {
                 className="group flex gap-4 rounded-lg border border-white/10 bg-[#141414] p-3 transition-all hover:scale-[1.01] hover:bg-[#1f1f1f]"
               >
                 {item.poster_url ? (
-                  <img src={item.poster_url} alt={item.anime_title} className="h-28 w-20 flex-shrink-0 rounded-md object-cover" />
+                  <span className="relative h-28 w-20 flex-shrink-0 overflow-hidden rounded-md">
+                    <Image src={item.poster_url} alt={item.anime_title} fill sizes="5rem" className="object-cover" />
+                  </span>
                 ) : (
                   <div className="h-28 w-20 flex-shrink-0 rounded-md bg-[#1f1f1f]" />
                 )}

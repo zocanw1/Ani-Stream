@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import AnimeDetailClient, { AnimeDetail } from "./AnimeDetailClient";
+import Link from "next/link";
 
 // Helper to fetch data on server
 async function getAnimeDetail(slug: string): Promise<AnimeDetail | null> {
@@ -11,7 +12,7 @@ async function getAnimeDetail(slug: string): Promise<AnimeDetail | null> {
     if (!res.ok) return null;
     const json = await res.json();
     return json.data || null;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -47,8 +48,8 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="glass rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-xl font-bold text-white mb-2">Gagal Memuat Data</h2>
-          <p className="text-gray-400 text-sm mb-4">Maaf, anime dengan kode "{params.slug}" tidak ditemukan atau terjadi kesalahan server.</p>
-          <a href="/" className="btn-primary text-sm inline-block">Kembali ke Beranda</a>
+          <p className="text-gray-400 text-sm mb-4">Maaf, anime dengan kode &quot;{params.slug}&quot; tidak ditemukan atau terjadi kesalahan server.</p>
+          <Link href="/" className="btn-primary text-sm inline-block">Kembali ke Beranda</Link>
         </div>
       </div>
     );

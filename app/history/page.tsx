@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getAnimeHistory } from "@/lib/watch-history";
+import Image from "next/image";
 
 export const metadata = {
   title: "History Anime - AniStream",
@@ -27,7 +28,7 @@ export default async function HistoryPage() {
     <div className="min-h-screen bg-[#050505] pb-20 text-white">
       <section className="relative overflow-hidden px-4 pb-14 pt-12 sm:px-6 lg:px-8">
         {featured?.poster_url && (
-          <img src={featured.poster_url} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-sm" />
+          <Image src={featured.poster_url} alt="" fill sizes="100vw" className="scale-110 object-cover opacity-25 blur-sm" priority />
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
@@ -68,7 +69,7 @@ export default async function HistoryPage() {
               <article key={item.anime_slug} className="group">
                 <Link href={item.episode_path} prefetch={false} className="poster-card block aspect-[2/3] bg-[#141414]">
                   {item.poster_url ? (
-                    <img src={item.poster_url} alt={item.anime_title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <Image src={item.poster_url} alt={item.anime_title} fill sizes="(max-width: 640px) 50vw, 14vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
                     <div className="h-full w-full bg-[#141414]" />
                   )}

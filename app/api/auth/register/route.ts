@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
 import { hashPassword, isValidEmail, isValidPassword, normalizeEmail } from "@/lib/auth-core";
 import { ensureDatabase, getSql, hasDatabaseUrl } from "@/lib/db";
+import { checkAuthRateLimit } from "@/lib/auth-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,14 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const email = normalizeEmail(String(body?.email || ""));
   const password = String(body?.password || "");
+
+  const rateLimit = await checkAuthRateLimit(request, "register", email);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak pendaftaran. Coba lagi nanti." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+    );
+  }
 
   if (!isValidEmail(email)) {
     return NextResponse.json({ error: "Email tidak valid." }, { status: 400 });

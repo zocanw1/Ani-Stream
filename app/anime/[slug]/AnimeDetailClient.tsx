@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 /* ── Interfaces ──────────────────────────── */
 
@@ -74,7 +75,7 @@ export type AnimeDetail = {
     batchId: string;
     href: string;
   }[];
-  synopsis: string | { paragraphs: string[]; connections?: any };
+  synopsis: string | { paragraphs: string[]; connections?: unknown };
   genreList: Genre[];
   episodeList: Episode[];
   recommendedAnimeList?: RecommendedAnime[];
@@ -107,8 +108,8 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
       if (!res.ok) throw new Error("Gagal mengambil data batch");
       const json = await res.json();
       setBatchData(json.data);
-    } catch (err: any) {
-      console.error(err.message);
+    } catch (error: unknown) {
+      console.error(error);
     } finally {
       setLoadingBatch(false);
     }
@@ -121,7 +122,7 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
     <div className="min-h-screen pb-20 animate-fade-in font-sans">
       {/* ── Banner ────────────────────────────────── */}
       <div className="relative h-[350px] overflow-hidden">
-        {data.poster && <img src={data.poster} alt="" className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-30" />}
+        {data.poster && <Image src={data.poster} alt="" fill sizes="100vw" className="object-cover scale-110 blur-xl opacity-30" priority />}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0b0d17]/20 via-[#0b0d17]/80 to-[#0b0d17]" />
       </div>
 
@@ -129,8 +130,8 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
         <div className="flex flex-col md:flex-row gap-8">
           {/* Poster Card */}
           <div className="w-48 sm:w-56 mx-auto md:mx-0 flex-shrink-0">
-             <div className="relative group">
-                <img src={data.poster} alt={data.title} className="w-full rounded-2xl shadow-2xl border border-white/10 aspect-[3/4] object-cover" />
+             <div className="relative group aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl border border-white/10">
+                <Image src={data.poster} alt={data.title} fill sizes="(max-width: 640px) 12rem, 14rem" className="object-cover" priority />
                 <div className="absolute inset-0 rounded-2xl shadow-[inset_0_0_40px_rgba(0,0,0,0.5)] pointer-events-none" />
              </div>
           </div>
@@ -372,7 +373,7 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                         className="group flex gap-4 h-24 hover:bg-white/[0.02] p-2 rounded-2xl transition-all border border-transparent hover:border-white/5"
                       >
                         <div className="w-16 h-full rounded-xl overflow-hidden flex-shrink-0 shadow-lg border border-white/10 relative">
-                          <img src={anime.poster} alt={anime.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          <Image src={anime.poster} alt={anime.title} fill sizes="4rem" className="object-cover group-hover:scale-110 transition-transform duration-500" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <div className="flex-1 py-1 flex flex-col justify-center">

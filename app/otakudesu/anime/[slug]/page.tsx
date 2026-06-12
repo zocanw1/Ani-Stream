@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import OtakudesuDetailClient, { OtakudesuDetail } from "./OtakudesuDetailClient";
+import Link from "next/link";
 
 // Helper to fetch data on server
 async function getOtakudesuDetail(slug: string): Promise<OtakudesuDetail | null> {
@@ -11,7 +12,7 @@ async function getOtakudesuDetail(slug: string): Promise<OtakudesuDetail | null>
     if (!res.ok) return null;
     const json = await res.json();
     return json.data || null;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
@@ -47,12 +48,12 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="glass rounded-2xl p-8 text-center max-w-md">
           <h2 className="text-xl font-bold text-white mb-2">Gagal Memuat Data</h2>
-          <p className="text-gray-400 text-sm mb-4">Maaf, anime Otakudesu dengan kode "{params.slug}" tidak ditemukan atau terjadi kesalahan server.</p>
-          <a href="/otakudesu" className="btn-primary bg-[#ff7675] text-sm inline-block">Kembali ke Beranda</a>
+          <p className="text-gray-400 text-sm mb-4">Maaf, anime Otakudesu dengan kode &quot;{params.slug}&quot; tidak ditemukan atau terjadi kesalahan server.</p>
+          <Link href="/otakudesu" className="btn-primary bg-[#ff7675] text-sm inline-block">Kembali ke Beranda</Link>
         </div>
       </div>
     );
   }
 
-  return <OtakudesuDetailClient data={data} slug={params.slug} />;
+  return <OtakudesuDetailClient data={data} />;
 }

@@ -29,8 +29,8 @@ export default function UnlimitedOtakudesuPage() {
         if (!res.ok) throw new Error("Gagal mengambil daftar anime");
         const json = await res.json();
         setData(json.data.list);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil daftar anime");
       } finally {
         setLoading(false);
       }

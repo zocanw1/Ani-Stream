@@ -39,7 +39,7 @@ async function getCompletedData(page: number): Promise<PaginatedAnime | null> {
       animeList: json.data?.animeList || [],
       pagination: json.pagination
     };
-  } catch (err) {
+  } catch {
     return null;
   }
 }
