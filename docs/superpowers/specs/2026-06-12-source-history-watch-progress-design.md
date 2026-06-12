@@ -13,38 +13,37 @@ Pisahkan history Samehadaku dan Otakudesu tanpa memisahkan akun, lalu simpan akt
   - Samehadaku
   - Otakudesu
 - Filter sumber disimpan di URL melalui query `source`, sehingga dapat dibuka ulang dan dibagikan.
-- Aktivitas menonton direkam berkala selama halaman aktif.
+- Episode langsung disimpan ke history saat halaman tontonan dibuka, tanpa harus mencapai persentase tertentu.
 - Posisi asli player dipakai jika iframe provider mengirim data yang valid melalui `postMessage`.
-- Jika provider tidak menyediakan posisi asli, aplikasi memakai durasi menonton aktif sebagai fallback.
+- Jika provider tidak menyediakan posisi asli, aplikasi tidak menampilkan atau memperkirakan menit terakhir menonton.
 
 ## Data Model
 
 Kolom berikut ditambahkan ke `watch_history` dan `watch_history_events`:
 
-- `watched_seconds`: posisi atau estimasi waktu yang sudah ditonton.
+- `watched_seconds`: posisi video asli yang dilaporkan player.
 - `duration_seconds`: durasi video jika diketahui.
 - `progress_percent`: persentase progres yang sudah dinormalisasi.
-- `progress_source`: `player` untuk data iframe asli atau `estimated` untuk heartbeat halaman.
+- `progress_source`: `player` jika data berasal langsung dari iframe.
 - `is_completed`: penanda episode dianggap selesai.
-- `last_watched_at`: waktu heartbeat atau pembaruan progres terakhir.
+- `last_watched_at`: waktu history atau progres terakhir diperbarui.
 
-Nilai progres tidak boleh negatif. Persentase dibatasi ke rentang `0-100`. Episode dianggap selesai jika progres mencapai minimal 90 persen saat durasi tersedia.
+Nilai progres tidak boleh negatif dan persentase dibatasi ke rentang `0-100`. Kolom progres boleh kosong ketika provider tidak memberikan posisi asli. Status selesai hanya boleh ditentukan dari data player yang valid dan tidak memengaruhi apakah episode disimpan ke history.
 
 ## Recording Flow
 
 1. Saat episode dibuka, `WatchRecorder` mengirim data metadata awal.
-2. Selama halaman terlihat dan browser aktif, recorder menghitung waktu menonton aktif.
-3. Heartbeat dikirim berkala, bukan setiap detik, agar beban database tetap rendah.
-4. Jika iframe mengirim `postMessage` berisi posisi dan durasi yang valid, data tersebut menggantikan estimasi.
-5. Saat tab disembunyikan atau komponen dilepas, recorder mengirim pembaruan terakhir jika memungkinkan.
-6. Server memvalidasi dan membatasi semua angka sebelum menyimpannya.
-7. Pembaruan history memakai nilai progres terbaru dan tidak mengurangi progres yang sudah tersimpan akibat heartbeat terlambat.
+2. Metadata awal langsung membuat atau memperbarui history, meskipun pengguna berhenti di tengah episode.
+3. Recorder tidak menghitung durasi berdasarkan lamanya halaman terbuka karena hasilnya tidak mewakili posisi video setelah pengguna melakukan skip.
+4. Jika iframe mengirim `postMessage` berisi posisi dan durasi yang valid, recorder mengirim posisi asli tersebut ke server.
+5. Server memvalidasi dan membatasi semua angka sebelum menyimpannya.
+6. Pembaruan history tidak mengurangi progres yang sudah tersimpan akibat pesan terlambat.
 
 ## Provider Safety
 
 Data `postMessage` hanya diterima dari origin iframe aktif. Payload harus memiliki nilai waktu numerik yang masuk akal. Pesan lain diabaikan.
 
-AniStream tidak memaksa akses DOM iframe lintas domain dan tidak melakukan seek jika provider tidak menyediakan API yang kompatibel. Ini mencegah error cross-origin dan menjaga server streaming tetap dapat digunakan.
+AniStream tidak memaksa akses DOM iframe lintas domain, tidak memperkirakan posisi dari waktu halaman aktif, dan tidak melakukan seek jika provider tidak menyediakan API yang kompatibel. Ini mencegah error cross-origin serta menghindari informasi progres yang menyesatkan.
 
 ## History Filtering
 
@@ -64,18 +63,19 @@ Halaman `/history` dan `/history/episodes` menampilkan tab sumber di dekat pilih
 - Provider.
 - Episode terakhir.
 - Waktu terakhir ditonton.
-- Progress bar.
-- Persentase atau durasi progres jika tersedia.
-- Status selesai jika episode mencapai batas selesai.
+- Progress bar hanya jika provider mengirim posisi asli.
+- Persentase atau posisi video hanya jika datanya akurat.
+- Tidak menampilkan menit atau persentase perkiraan.
+- Status selesai hanya jika dapat ditentukan dari data player yang valid.
 
-History lama tetap dapat ditampilkan dengan progres nol tanpa migrasi data manual.
+History lama dan provider tanpa dukungan posisi player tetap ditampilkan tanpa progress bar.
 
 ## Error Handling
 
-- Kegagalan heartbeat tidak menghentikan pemutaran video.
+- Kegagalan pencatatan history atau pembaruan progres tidak menghentikan pemutaran video.
 - Request anonim tetap diabaikan seperti perilaku sekarang.
 - Nilai progres rusak atau berlebihan ditolak atau dinormalisasi oleh server.
-- Provider tanpa dukungan posisi asli tetap menggunakan estimasi.
+- Provider tanpa dukungan posisi asli tetap menyimpan episode, tetapi tidak menyimpan posisi perkiraan.
 - Database yang belum memiliki kolom baru ditingkatkan secara idempoten oleh bootstrap schema.
 
 ## Testing
@@ -84,11 +84,11 @@ History lama tetap dapat ditampilkan dengan progres nol tanpa migrasi data manua
 - Query history memfilter `source`.
 - Pengelompokan anime tidak mencampur provider.
 - Validasi dan normalisasi payload progres.
+- Episode tersimpan sejak halaman dibuka tanpa syarat persentase.
 - Progress tidak mundur karena request lama.
-- Status selesai pada batas 90 persen.
-- Recorder berhenti menghitung saat halaman tidak aktif.
+- Recorder tidak membuat estimasi berdasarkan waktu halaman aktif.
 - Pesan iframe hanya diterima dari origin yang benar.
-- Halaman history memiliki tab provider dan indikator progres.
+- Halaman history memiliki tab provider dan hanya menampilkan indikator progres untuk data player yang valid.
 
 ## Non-Goals
 
