@@ -137,7 +137,6 @@ export default function MobileFullscreenPlayer({
         key={src}
         src={src}
         className="absolute inset-0 h-full w-full"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups"
         referrerPolicy="strict-origin-when-cross-origin"
         allow="autoplay; encrypted-media; picture-in-picture"
         title={title}

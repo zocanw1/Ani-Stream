@@ -25,7 +25,7 @@
 - Security headers dikelola terpusat di `next.config.ts`.
 - Jika menambah domain API, gambar, media, atau iframe, domain tersebut harus ditambahkan secara terbatas ke CSP.
 - Login dibatasi per alamat dan akun, sedangkan registrasi dibatasi per alamat melalui tabel `auth_rate_limits`.
-- Player pihak ketiga wajib memakai sandbox dan referrer policy; penambahan izin iframe harus sesempit mungkin.
+- Player pihak ketiga wajib memakai referrer policy dan izin iframe sesempit mungkin. Jangan menambahkan atribut `sandbox` karena beberapa provider streaming menolak berjalan di iframe sandbox.
 - Iframe streaming tidak diberi izin fullscreen langsung. Fullscreen mobile dikendalikan melalui `MobileFullscreenPlayer` agar orientasi landscape dan tombol keluar tetap konsisten.
 - Mode kunci fullscreen wajib memblokir semua sentuhan ke iframe; pengguna harus membuka kunci sebelum mengakses kontrol atau keluar fullscreen.
 - Kontrol UI yang belum memiliki perilaku lengkap tidak boleh ditampilkan ke pengguna.

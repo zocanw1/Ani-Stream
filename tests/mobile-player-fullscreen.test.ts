@@ -28,6 +28,7 @@ test("controlled player locks landscape and owns fullscreen exit", () => {
   assert.match(player, /Keluar dari layar penuh/);
   assert.doesNotMatch(player, /allowFullScreen/);
   assert.doesNotMatch(player, /fullscreen; picture-in-picture/);
+  assert.doesNotMatch(player, /sandbox=/);
 });
 
 test("fullscreen player can lock iframe interaction so video cannot be paused accidentally", () => {

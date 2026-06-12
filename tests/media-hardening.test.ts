@@ -6,10 +6,10 @@ function read(path: string) {
   return readFileSync(path, "utf8");
 }
 
-test("streaming frames use a sandbox and strict referrer policy", () => {
+test("streaming frames remain compatible with providers and use a strict referrer policy", () => {
   const player = read("components/MobileFullscreenPlayer.tsx");
 
-  assert.match(player, /sandbox=/);
+  assert.doesNotMatch(player, /sandbox=/);
   assert.match(player, /referrerPolicy="strict-origin-when-cross-origin"/);
 
   for (const path of [

@@ -34,6 +34,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 - Responsivitas mobile diperbaiki agar tidak menghasilkan horizontal page overflow.
 - Player Samehadaku dan Otakudesu sekarang memakai satu kontrol fullscreen milik AniStream; double tap pada player tidak lagi mengaktifkan atau menutup fullscreen.
 - Saat player dikunci, interaksi video ditutup oleh interaction shield dan tombol fullscreen disembunyikan sampai kunci dibuka.
+- Iframe streaming tidak lagi memakai atribut `sandbox` agar provider Otakudesu seperti Desustream dapat memutar video.
 
 ### Removed
 
