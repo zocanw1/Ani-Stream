@@ -58,11 +58,9 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
   const [selectedFormat, setSelectedFormat] = useState(initialData.downloadUrl.formats[0]?.title || "");
   const [selectedQuality, setSelectedQuality] = useState(initialData.downloadUrl.formats[0]?.qualities[0]?.title || "");
   const [streamingUrl, setStreamingUrl] = useState(initialData.defaultStreamingUrl);
-  
-  // Find initial active server
-  const firstServer = initialData.server.qualities.find(q => q.serverList.length > 0)?.serverList[0];
-  const [activeServer, setActiveServer] = useState(firstServer?.serverId || "");
+  const [activeServer, setActiveServer] = useState("");
   const [switching, setSwitching] = useState(false);
+  const [serverSwitchError, setServerSwitchError] = useState("");
 
   const cleanEpisodeSlug = (href: string) => href.replace(/^\/samehadaku\/episode\//, "");
   const cleanAnimeSlug = (href: string) => href.replace(/^\/samehadaku\/anime\//, "");
@@ -70,19 +68,25 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
   const fetchServerUrl = async (serverId: string) => {
     try {
       setSwitching(true);
-      setActiveServer(serverId);
+      setServerSwitchError("");
       const res = await fetch(`https://www.sankavollerei.com/anime/samehadaku/server/${serverId}`, {
+        cache: "no-store",
         headers: { Accept: "application/json" },
       });
       if (!res.ok) throw new Error("Gagal mengambil server");
       const json = await res.json();
-      if (json.data?.url) {
-        setStreamingUrl(json.data.url);
+      const nextUrl = json.data?.url;
+      if (typeof nextUrl !== "string" || new URL(nextUrl).protocol !== "https:") {
+        throw new Error("Server tidak memberikan URL streaming yang aman");
       }
+
+      setStreamingUrl(nextUrl);
+      setActiveServer(serverId);
     } catch (err) {
       console.error(err);
+      setServerSwitchError("Server ini sedang tidak tersedia. Player tetap memakai server sebelumnya.");
     } finally {
-      setTimeout(() => setSwitching(false), 500);
+      setSwitching(false);
     }
   };
 
@@ -162,10 +166,12 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                       {qual.serverList.map((server) => (
                         <button
                           key={server.serverId}
+                          type="button"
+                          disabled={switching}
                           className={`px-3 py-1.5 text-[10px] rounded-lg font-black uppercase tracking-tighter transition-all active:scale-95 ${
                             activeServer === server.serverId
                               ? "bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20"
-                              : "text-gray-500 hover:text-white hover:bg-white/10"
+                              : "text-gray-500 hover:text-white hover:bg-white/10 disabled:cursor-wait disabled:opacity-50"
                           }`}
                           onClick={() => fetchServerUrl(server.serverId)}
                         >
@@ -191,6 +197,11 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
               )}
             </div>
           </div>
+          {serverSwitchError && (
+            <p role="alert" className="px-2 text-center text-xs font-bold text-red-400">
+              {serverSwitchError}
+            </p>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-10">

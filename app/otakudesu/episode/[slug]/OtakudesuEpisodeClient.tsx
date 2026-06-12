@@ -50,28 +50,34 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
   const [data] = useState<EpisodeData>(initialData);
   const [streamingUrl, setStreamingUrl] = useState(initialData.defaultStreamingUrl);
   const [selectedQuality, setSelectedQuality] = useState(initialData.downloadUrl.qualities[initialData.downloadUrl.qualities.length - 1]?.title || "");
-  
-  // Find initial active server
-  const firstServer = initialData.server.qualities.find(q => q.serverList.length > 0)?.serverList[0];
-  const [activeServer, setActiveServer] = useState(firstServer?.serverId || "");
+  const [activeServer, setActiveServer] = useState("");
   const [switching, setSwitching] = useState(false);
+  const [serverSwitchError, setServerSwitchError] = useState("");
 
   const cleanEpisodeSlug = (href: string) => href.replace(/^\/anime\/episode\//, "");
 
   const fetchServerUrl = async (serverId: string) => {
     try {
       setSwitching(true);
-      setActiveServer(serverId);
-      const res = await fetch(`https://www.sankavollerei.com/anime/server/${serverId}`);
+      setServerSwitchError("");
+      const res = await fetch(`https://www.sankavollerei.com/anime/server/${serverId}`, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
       if (!res.ok) throw new Error("Gagal mengambil URL server");
       const json = await res.json();
-      if (json.data?.url) {
-        setStreamingUrl(json.data.url);
+      const nextUrl = json.data?.url;
+      if (typeof nextUrl !== "string" || new URL(nextUrl).protocol !== "https:") {
+        throw new Error("Server tidak memberikan URL streaming yang aman");
       }
+
+      setStreamingUrl(nextUrl);
+      setActiveServer(serverId);
     } catch (error: unknown) {
       console.error(error);
+      setServerSwitchError("Server ini sedang tidak tersedia. Player tetap memakai server sebelumnya.");
     } finally {
-      setTimeout(() => setSwitching(false), 500);
+      setSwitching(false);
     }
   };
 
@@ -155,11 +161,13 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
                               {qual.serverList.map((server) => (
                                  <button
                                     key={server.serverId}
+                                    type="button"
+                                    disabled={switching}
                                     onClick={() => fetchServerUrl(server.serverId)}
                                     className={`px-4 py-2.5 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all border active:scale-95 ${
                                        activeServer === server.serverId
                                        ? "bg-[#ff7675] border-[#ff7675] text-white shadow-xl shadow-[#ff7675]/30"
-                                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10"
+                                       : "bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10 disabled:cursor-wait disabled:opacity-50"
                                     }`}
                                  >
                                     {server.title.trim()}
@@ -170,6 +178,11 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
                       )
                    ))}
                 </div>
+                {serverSwitchError && (
+                  <p role="alert" className="text-center text-xs font-bold text-red-400">
+                    {serverSwitchError}
+                  </p>
+                )}
              </div>
 
              {/* Navigation Controls */}
