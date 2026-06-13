@@ -60,6 +60,42 @@ Base URL upstream: `https://www.sankavollerei.com/anime`.
 
 > CATATAN UNTUK AI/DEVELOPER: jangan mengganti request internal server atau batch menjadi `fetch()` langsung ke `www.sankavollerei.com` dari browser. Jangan menyatukan endpoint Otakudesu dan Samehadaku karena prefix, `serverId`, dan `batchId` keduanya berbeda. Perubahan kontrak API wajib disertai test regresi.
 
+## Kontrak API Samehadaku
+
+Base URL upstream: `https://www.sankavollerei.com/anime/samehadaku`.
+
+| Kebutuhan | Endpoint upstream | Pemakaian |
+| --- | --- | --- |
+| Home | `GET /anime/samehadaku/home` | Halaman utama Samehadaku |
+| Anime terbaru | `GET /anime/samehadaku/recent?page=:page` | Daftar update terbaru |
+| Pencarian | `GET /anime/samehadaku/search?q=:query&page=:page` | Pencarian Samehadaku |
+| Anime ongoing | `GET /anime/samehadaku/ongoing?page=:page&order=:order` | Daftar anime tayang |
+| Anime completed | `GET /anime/samehadaku/completed?page=:page&order=:order` | Daftar anime tamat |
+| Anime populer | `GET /anime/samehadaku/popular?page=:page` | Halaman populer |
+| Film anime | `GET /anime/samehadaku/movies?page=:page&order=:order` | Daftar movie |
+| Semua anime | `GET /anime/samehadaku/list` | Daftar seluruh anime |
+| Jadwal | `GET /anime/samehadaku/schedule` | Jadwal mingguan |
+| Semua genre | `GET /anime/samehadaku/genres` | Daftar genre |
+| Anime per genre | `GET /anime/samehadaku/genres/:genreId?page=:page` | Hasil genre |
+| Daftar batch | `GET /anime/samehadaku/batch?page=:page` | Halaman batch |
+| Detail anime | `GET /anime/samehadaku/anime/:animeId` | Detail dan daftar episode |
+| Detail episode | `GET /anime/samehadaku/episode/:episodeId` | Player, server, dan download episode |
+| Detail batch | `GET /anime/samehadaku/batch/:batchId` | Link download batch |
+| URL server | `GET /anime/samehadaku/server/:serverId` | Mengubah server player |
+
+### Aturan Pemanggilan Samehadaku
+
+1. Server Component memakai `fetchAnimeApi()` dengan prefix `/samehadaku`, misalnya `fetchAnimeApi("/samehadaku/home", 1800)`.
+2. Jangan panggil domain upstream Samehadaku langsung dari Client Component. Gunakan `/api/anime/samehadaku?resource=<resource>` untuk home, recent, search, ongoing, completed, popular, movies, list, schedule, genres, genre, dan daftar batch.
+3. Pagination client dikirim lewat parameter `page`. Pencarian memakai `q`, pengurutan memakai `order`, dan genre memakai `genreId`.
+4. `animeId` wajib berasal dari `animeId` atau `href` respons daftar anime, lalu dipakai pada endpoint detail anime.
+5. `episodeId` wajib berasal dari `data.episodeList[]` respons detail anime, bukan dibuat dari judul.
+6. `serverId` wajib berasal dari `data.server.qualities[].serverList[]` respons detail episode dan dipanggil melalui `/api/anime/server?source=samehadaku&serverId=<id>`.
+7. `batchId` wajib berasal dari `data.batchList[]` atau detail anime dan dipanggil melalui `/api/anime/batch?source=samehadaku&batchId=<id>`.
+8. Jangan menukar ID Samehadaku dengan ID Otakudesu. Walaupun nama anime sama, kontrak endpoint dan ID provider berbeda.
+
+> CATATAN UNTUK AI/DEVELOPER: pertahankan pemisahan antara request server, proxy katalog, proxy server streaming, dan proxy batch. Jangan mengembalikan `fetch()` browser ke domain upstream karena redirect domain dan CSP dapat membuat fitur terlihat ada tetapi gagal saat digunakan.
+
 ## SEO dan Keamanan
 
 - Perbarui daftar route publik di `app/sitemap.ts` saat menambah halaman utama baru.

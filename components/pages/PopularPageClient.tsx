@@ -70,7 +70,9 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`https://www.sankavollerei.com/anime/samehadaku/popular?page=${pageNum}`);
+      const res = await fetch(`/api/anime/samehadaku?resource=popular&page=${pageNum}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Gagal mengambil data populer");
       const json = await res.json();
       

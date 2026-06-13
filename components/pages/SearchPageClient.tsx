@@ -75,7 +75,9 @@ function SearchContent({
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`https://www.sankavollerei.com/anime/samehadaku/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/anime/samehadaku?resource=search&q=${encodeURIComponent(query)}`, {
+          cache: "no-store",
+        });
         if (!res.ok) throw new Error("Gagal mengambil hasil pencarian");
         
         const json: SearchResponse = await res.json();

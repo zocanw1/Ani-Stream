@@ -107,10 +107,10 @@ export default function HomePageClient({ initialData, initialError = null }: {
       try {
         setLoading(true);
         const [homeRes, scheduleRes, popularRes, ongoingRes] = await Promise.all([
-          fetch("https://www.sankavollerei.com/anime/samehadaku/home"),
-          fetch("https://www.sankavollerei.com/anime/samehadaku/schedule"),
-          fetch("https://www.sankavollerei.com/anime/samehadaku/popular"),
-          fetch("https://www.sankavollerei.com/anime/samehadaku/ongoing?page=1"),
+          fetch("/api/anime/samehadaku?resource=home", { cache: "no-store" }),
+          fetch("/api/anime/samehadaku?resource=schedule", { cache: "no-store" }),
+          fetch("/api/anime/samehadaku?resource=popular&page=1", { cache: "no-store" }),
+          fetch("/api/anime/samehadaku?resource=ongoing&page=1", { cache: "no-store" }),
         ]);
         if (![homeRes, scheduleRes, popularRes, ongoingRes].every((response) => response.ok)) throw new Error("Gagal mengambil data dari server");
         const [home, schedule, popular, ongoing] = await Promise.all([homeRes.json(), scheduleRes.json(), popularRes.json(), ongoingRes.json()]);
