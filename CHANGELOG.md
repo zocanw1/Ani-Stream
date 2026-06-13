@@ -6,6 +6,8 @@ Semua perubahan penting AniStream dicatat di file ini.
 
 ### Added
 
+- Dokumentasi kontrak lengkap endpoint Otakudesu dan aturan aman pemanggilan API di `WORKFLOW.md`.
+- Proxy batch internal yang membedakan endpoint Samehadaku dan Otakudesu berdasarkan `source`.
 - Halaman loading, error, dan 404 khusus AniStream, termasuk tombol mencoba ulang untuk gangguan API.
 - Metadata route `robots.txt` untuk mengatur indexing crawler.
 - Metadata route `sitemap.xml` untuk halaman publik utama.
@@ -27,6 +29,8 @@ Semua perubahan penting AniStream dicatat di file ini.
 
 ### Changed
 
+- Daftar anime A-Z Otakudesu sekarang diambil oleh Server Component agar tidak terblokir redirect domain API dan CSP browser.
+- Detail batch Samehadaku dan Otakudesu sekarang memakai proxy internal dengan `batchId` milik anime masing-masing.
 - Pencarian Otakudesu sekarang dijalankan melalui Server Component memakai endpoint `/anime/search/:keyword`, sehingga tidak lagi gagal akibat redirect domain API dan CSP browser.
 - Komponen interaktif halaman list dipisahkan ke `components/pages` agar initial content dapat dirender dari server.
 - Gambar poster pada halaman besar dan history menggunakan `next/image`.

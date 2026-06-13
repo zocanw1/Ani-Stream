@@ -28,6 +28,38 @@
 6. Request API dilakukan dari server AniStream, bukan langsung dari browser, supaya redirect domain API dan aturan CSP tidak memblokir pencarian.
 7. Jika API gagal, halaman menampilkan pesan gangguan dan tombol `Coba Lagi`. Jika hasil kosong, halaman menampilkan state tidak ditemukan.
 
+## Kontrak API Otakudesu
+
+Base URL upstream: `https://www.sankavollerei.com/anime`.
+
+| Kebutuhan | Endpoint upstream | Pemakaian |
+| --- | --- | --- |
+| Home | `GET /anime/home` | Halaman utama Otakudesu |
+| Jadwal | `GET /anime/schedule` | Jadwal rilis |
+| Detail anime | `GET /anime/anime/:slug` | `app/otakudesu/anime/[slug]` |
+| Anime tamat | `GET /anime/complete-anime?page=:page` | Daftar completed |
+| Anime ongoing | `GET /anime/ongoing-anime?page=:page` | Daftar ongoing |
+| Daftar genre | `GET /anime/genre` | Sumber daftar genre |
+| Anime per genre | `GET /anime/genre/:slug?page=:page` | Hasil genre |
+| Detail episode | `GET /anime/episode/:slug` | Player, daftar server, dan download episode |
+| Pencarian | `GET /anime/search/:keyword` | Pencarian Otakudesu |
+| Detail batch | `GET /anime/batch/:slug` | Link download batch |
+| URL server | `GET /anime/server/:serverId` | Mengubah server player |
+| Semua anime | `GET /anime/unlimited` | Daftar anime A-Z |
+
+### Aturan Pemanggilan API
+
+1. Server Component wajib memakai `fetchAnimeApi()` dengan path setelah `/anime`, misalnya `fetchAnimeApi("/home", 3600)`.
+2. Jangan panggil domain upstream langsung dari Client Component. Redirect domain upstream dapat diblokir CSP browser.
+3. Client Component yang mengganti server wajib memanggil route internal `/api/anime/server?source=otakudesu&serverId=<id>`.
+4. `serverId` wajib diambil dari `data.server.qualities[].serverList[]` pada respons detail episode. Jangan membuat, menebak, atau memakai ID dari anime lain.
+5. Client Component yang membuka batch wajib memanggil route internal `/api/anime/batch?source=otakudesu&batchId=<id>`.
+6. `batchId` wajib diambil dari `data.batch.batchId` pada respons detail anime. Jangan mengubah slug anime menjadi batch ID.
+7. Untuk Samehadaku, route internal yang sama dipakai dengan `source=samehadaku`; proxy akan memilih endpoint upstream provider yang benar.
+8. Bentuk respons upstream tetap dibaca dari properti `data`. Jangan mengubah kontrak field tanpa memeriksa respons API aktual dan memperbarui test.
+
+> CATATAN UNTUK AI/DEVELOPER: jangan mengganti request internal server atau batch menjadi `fetch()` langsung ke `www.sankavollerei.com` dari browser. Jangan menyatukan endpoint Otakudesu dan Samehadaku karena prefix, `serverId`, dan `batchId` keduanya berbeda. Perubahan kontrak API wajib disertai test regresi.
+
 ## SEO dan Keamanan
 
 - Perbarui daftar route publik di `app/sitemap.ts` saat menambah halaman utama baru.

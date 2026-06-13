@@ -103,7 +103,9 @@ export default function OtakudesuDetailClient({ data }: OtakudesuDetailClientPro
     try {
       setLoadingBatch(true);
       setShowBatch(true);
-      const res = await fetch(`https://www.sankavollerei.com/anime/batch/${batchId}`);
+      const res = await fetch(`/api/anime/batch?source=otakudesu&batchId=${encodeURIComponent(batchId)}`, {
+        cache: "no-store",
+      });
       if (!res.ok) throw new Error("Gagal mengambil data batch");
       const json = await res.json();
       setBatchData(json.data);

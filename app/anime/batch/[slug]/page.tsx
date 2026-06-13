@@ -63,7 +63,9 @@ export default function BatchDetailPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`https://www.sankavollerei.com/anime/batch/${slug}`);
+        const res = await fetch(`/api/anime/batch?source=samehadaku&batchId=${encodeURIComponent(String(slug))}`, {
+          cache: "no-store",
+        });
         if (!res.ok) throw new Error("Gagal mengambil rincian batch");
         const json = await res.json();
         setData(json.data);
