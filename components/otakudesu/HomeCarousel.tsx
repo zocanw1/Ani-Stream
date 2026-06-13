@@ -58,7 +58,7 @@ export default function HomeCarousel({ data }: { data: OtakudesuAnime[] }) {
               <div className="flex items-center gap-4 pt-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                 <Link
                   href={`/otakudesu/anime/${cleanSlug(anime.href)}`}
-                  prefetch={true}
+                  prefetch={false}
                   className="btn-primary px-8 py-4 text-xs font-black uppercase tracking-widest flex items-center gap-3 bg-[#ff7675] hover:bg-[#ff4757] shadow-[#ff7675]/20"
                 >
                   Tonton Sekarang

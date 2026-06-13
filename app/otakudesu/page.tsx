@@ -132,7 +132,7 @@ export default async function OtakudesuPage(props: { searchParams: Promise<{ ong
             </div>
             <Link 
               href="/otakudesu/completed" 
-              prefetch={true}
+              prefetch={false}
               className="px-4 py-2 rounded-xl glass border border-white/5 text-[10px] font-bold text-gray-400 hover:text-[#ff7675] hover:border-[#ff7675]/20 transition-all uppercase tracking-widest"
             >
               Selengkapnya →

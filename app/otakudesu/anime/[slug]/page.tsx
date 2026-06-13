@@ -1,20 +1,19 @@
 import React from "react";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import OtakudesuDetailClient, { OtakudesuDetail } from "./OtakudesuDetailClient";
-import Link from "next/link";
 
 // Helper to fetch data on server
 async function getOtakudesuDetail(slug: string): Promise<OtakudesuDetail | null> {
-  try {
-    const res = await fetch(`https://www.sankavollerei.com/anime/anime/${slug}`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data || null;
-  } catch {
-    return null;
+  const res = await fetch(`https://www.sankavollerei.com/anime/anime/${slug}`, {
+    next: { revalidate: 3600 }
+  });
+  if (!res.ok) {
+    if (res.status >= 400 && res.status < 500) return null;
+    throw new Error(`Otakudesu anime API gagal dengan status ${res.status}`);
   }
+  const json = await res.json();
+  return json.data || null;
 }
 
 // Generate Dynamic Metadata for SEO (Next.js 15+ needs await params)
@@ -44,15 +43,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
   const data = await getOtakudesuDetail(params.slug);
 
   if (!data) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass rounded-2xl p-8 text-center max-w-md">
-          <h2 className="text-xl font-bold text-white mb-2">Gagal Memuat Data</h2>
-          <p className="text-gray-400 text-sm mb-4">Maaf, anime Otakudesu dengan kode &quot;{params.slug}&quot; tidak ditemukan atau terjadi kesalahan server.</p>
-          <Link href="/otakudesu" className="btn-primary bg-[#ff7675] text-sm inline-block">Kembali ke Beranda</Link>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
   return <OtakudesuDetailClient data={data} />;

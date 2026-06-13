@@ -111,7 +111,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
           <div className="flex items-start gap-4">
             <Link
               href={`/otakudesu/anime/${data.animeId}`}
-              prefetch={true}
+              prefetch={false}
               className="mt-1 flex-shrink-0 w-11 h-11 rounded-xl bg-white/5 hover:bg-[#ff7675]/20 border border-white/10 flex items-center justify-center transition-all group lg:w-12 lg:h-12 active:scale-95"
             >
               <svg className="w-5 h-5 text-gray-400 group-hover:text-[#ff7675]" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
@@ -191,7 +191,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
                 {data.hasPrevEpisode && data.prevEpisode && (
                   <Link 
                     href={`/otakudesu/episode/${cleanEpisodeSlug(data.prevEpisode.href)}`} 
-                    prefetch={true} 
+                    prefetch={false}
                     className="flex-1 py-4 glass border border-white/5 hover:border-[#ff7675]/30 rounded-[20px] text-[11px] font-black uppercase text-gray-400 hover:text-white transition-all text-center flex items-center justify-center gap-2 group active:scale-95"
                   >
                     <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M15 19l-7-7 7-7" /></svg>
@@ -210,7 +210,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
                 {data.hasNextEpisode && data.nextEpisode && (
                   <Link 
                     href={`/otakudesu/episode/${cleanEpisodeSlug(data.nextEpisode.href)}`} 
-                    prefetch={true} 
+                    prefetch={false}
                     className="flex-1 py-4 bg-[#ff7675] hover:bg-[#ff4757] rounded-[20px] text-[11px] font-black uppercase text-white transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff7675]/20 group active:scale-95"
                   >
                     Next
@@ -317,7 +317,7 @@ export default function OtakudesuEpisodeClient({ initialData, slug }: OtakudesuE
                     <Link 
                       key={i} 
                       href={`/otakudesu/episode/${cleanEpisodeSlug(ep.href)}`} 
-                      prefetch={true} 
+                      prefetch={false}
                       className={`group block p-5 rounded-2xl border transition-all active:scale-[0.98] ${
                         isActive 
                         ? "bg-[#ff7675]/10 border-[#ff7675]/40 shadow-lg shadow-[#ff7675]/10" 

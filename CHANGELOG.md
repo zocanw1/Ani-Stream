@@ -6,6 +6,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 
 ### Added
 
+- Halaman loading, error, dan 404 khusus AniStream, termasuk tombol mencoba ulang untuk gangguan API.
 - Metadata route `robots.txt` untuk mengatur indexing crawler.
 - Metadata route `sitemap.xml` untuk halaman publik utama.
 - Security headers global, termasuk CSP, nosniff, frame protection, referrer policy, dan permissions policy.
@@ -39,6 +40,8 @@ Semua perubahan penting AniStream dicatat di file ini.
 - History kini dapat difilter terpisah antara Samehadaku dan Otakudesu tanpa memisahkan akun pengguna.
 - Episode langsung disimpan saat halaman tontonan dibuka, termasuk ketika pengguna berhenti di tengah episode.
 - Progress video hanya disimpan dan ditampilkan jika iframe provider mengirim posisi player asli; AniStream tidak membuat estimasi dari lamanya halaman terbuka.
+- Navigasi Otakudesu kini mengikuti Samehadaku dengan menonaktifkan prefetch otomatis agar halaman detail tidak memicu banyak request episode dan API yang belum dibuka pengguna.
+- Halaman detail anime dan episode kini membedakan konten yang tidak ditemukan dari gangguan server API.
 
 ### Removed
 

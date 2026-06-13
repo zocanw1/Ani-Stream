@@ -40,3 +40,18 @@ test("deploys Vercel Functions in Singapore", () => {
 
   assert.deepEqual(config.regions, ["sin1"]);
 });
+
+test("Otakudesu navigation does not eagerly prefetch anime and episode routes", () => {
+  for (const route of [
+    "app/otakudesu/page.tsx",
+    "components/otakudesu/HomeCarousel.tsx",
+    "app/otakudesu/anime/[slug]/OtakudesuDetailClient.tsx",
+    "app/otakudesu/episode/[slug]/OtakudesuEpisodeClient.tsx",
+  ]) {
+    assert.doesNotMatch(
+      read(route),
+      /prefetch=\{true\}/,
+      `${route} must avoid eager prefetches that trigger upstream API requests`,
+    );
+  }
+});

@@ -175,7 +175,7 @@ export default function OtakudesuDetailClient({ data }: OtakudesuDetailClientPro
                {data.episodeList && data.episodeList.length > 0 && (
                  <Link 
                     href={`/otakudesu/episode/${cleanEpisodeSlug(data.episodeList[data.episodeList.length-1].href)}`} 
-                    prefetch={true} 
+                    prefetch={false}
                     className="btn-primary inline-flex items-center gap-3 bg-[#ff7675] hover:bg-[#ff4757] shadow-lg shadow-[#ff7675]/20 px-8 py-3.5 transition-all active:scale-95"
                  >
                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -281,7 +281,7 @@ export default function OtakudesuDetailClient({ data }: OtakudesuDetailClientPro
                   <Link 
                     key={idx} 
                     href={`/otakudesu/episode/${cleanEpisodeSlug(ep.href)}`} 
-                    prefetch={true} 
+                    prefetch={false}
                     className="group relative glass p-5 rounded-2xl border border-white/[0.04] hover:border-[#ff7675]/50 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between min-h-[120px]"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff7675]/5 rounded-full blur-3xl group-hover:bg-[#ff7675]/20 transition-colors" />
