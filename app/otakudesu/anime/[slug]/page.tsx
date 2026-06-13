@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { isAnimeNotFoundResponse } from "@/lib/anime-response";
 import OtakudesuDetailClient, { OtakudesuDetail } from "./OtakudesuDetailClient";
 
 // Helper to fetch data on server
@@ -8,12 +9,13 @@ async function getOtakudesuDetail(slug: string): Promise<OtakudesuDetail | null>
   const res = await fetch(`https://www.sankavollerei.com/anime/anime/${slug}`, {
     next: { revalidate: 3600 }
   });
+  const json = await res.json().catch(() => null) as { data?: OtakudesuDetail | null } | null;
+  if (isAnimeNotFoundResponse(json)) return null;
   if (!res.ok) {
     if (res.status >= 400 && res.status < 500) return null;
     throw new Error(`Otakudesu anime API gagal dengan status ${res.status}`);
   }
-  const json = await res.json();
-  return json.data || null;
+  return json?.data || null;
 }
 
 // Generate Dynamic Metadata for SEO (Next.js 15+ needs await params)
