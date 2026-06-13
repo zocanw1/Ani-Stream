@@ -27,6 +27,7 @@ Semua perubahan penting AniStream dicatat di file ini.
 
 ### Changed
 
+- Pencarian Otakudesu sekarang dijalankan melalui Server Component memakai endpoint `/anime/search/:keyword`, sehingga tidak lagi gagal akibat redirect domain API dan CSP browser.
 - Komponen interaktif halaman list dipisahkan ke `components/pages` agar initial content dapat dirender dari server.
 - Gambar poster pada halaman besar dan history menggunakan `next/image`.
 - Masalah ESLint pada source aplikasi telah dibersihkan.

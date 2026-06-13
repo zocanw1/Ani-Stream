@@ -18,6 +18,16 @@
 - Interaksi setelah halaman terbuka, seperti pagination, tetap dijalankan oleh Client Component.
 - Jika API utama gagal, halaman menampilkan state error tanpa merusak shell aplikasi.
 
+## Pencarian Otakudesu
+
+1. Pengguna mengetik kata kunci pada pencarian navbar ketika sedang berada di route `/otakudesu`.
+2. `NavbarSearch` mengarahkan browser ke `/otakudesu/search?q=<kata-kunci>`.
+3. Server Component `app/otakudesu/search/page.tsx` membaca parameter `q`, menghapus spasi berlebih, dan membatasi panjangnya sampai 100 karakter.
+4. Server memanggil endpoint API `GET /anime/search/:keyword` melalui `fetchAnimeApi()`. Contoh: kata kunci `boruto` menjadi `/anime/search/boruto`.
+5. Hasil dibaca dari `data.animeList`, lalu setiap `href` API diubah menjadi route internal `/otakudesu/anime/:slug`.
+6. Request API dilakukan dari server AniStream, bukan langsung dari browser, supaya redirect domain API dan aturan CSP tidak memblokir pencarian.
+7. Jika API gagal, halaman menampilkan pesan gangguan dan tombol `Coba Lagi`. Jika hasil kosong, halaman menampilkan state tidak ditemukan.
+
 ## SEO dan Keamanan
 
 - Perbarui daftar route publik di `app/sitemap.ts` saat menambah halaman utama baru.
@@ -35,7 +45,7 @@
 1. Pastikan test dan build berhasil.
 2. Push ke repository GitHub.
 3. Tunggu deployment Vercel selesai.
-4. Verifikasi `/`, `/robots.txt`, `/sitemap.xml`, `/popular`, `/batch`, dan pencarian di URL production.
+4. Verifikasi `/`, `/robots.txt`, `/sitemap.xml`, `/popular`, `/batch`, `/search?q=...`, dan `/otakudesu/search?q=...` di URL production.
 
 ## UX dan Visual QA
 
