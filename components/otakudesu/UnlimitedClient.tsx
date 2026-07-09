@@ -73,7 +73,7 @@ export default function UnlimitedClient({ data, error }: UnlimitedClientProps) {
             placeholder="Cari anime..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#6c5ce7] transition-all"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white focus:outline-none transition-all"
           />
           <svg
             aria-hidden="true"
@@ -106,7 +106,9 @@ export default function UnlimitedClient({ data, error }: UnlimitedClientProps) {
                   .getElementById(`section-${group.startWith}`)
                   ?.scrollIntoView({ behavior: "smooth", block: "start" })
               }
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#6c5ce7] hover:text-white transition-all text-sm font-black text-gray-400"
+              className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 hover:text-white transition-all text-sm font-black text-gray-400"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, var(--primary), var(--secondary))"; e.currentTarget.style.boxShadow = "0 0 12px var(--primary-glow)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.boxShadow = ""; }}
             >
               {group.startWith}
             </button>
@@ -129,7 +131,7 @@ export default function UnlimitedClient({ data, error }: UnlimitedClientProps) {
               className="space-y-6 scroll-mt-24"
             >
               <div className="sticky top-20 z-10 py-2 bg-[#0b0d17]/80 backdrop-blur-sm border-b border-white/5">
-                <h2 className="text-3xl font-black gradient-text inline-block">
+                <h2 className="text-3xl font-black text-gradient-anime inline-block">
                   {group.startWith}
                 </h2>
               </div>

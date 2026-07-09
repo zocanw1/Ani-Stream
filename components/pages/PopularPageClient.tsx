@@ -120,7 +120,7 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
           <div className="max-w-3xl animate-fade-in-up">
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-              Anime <span className="gradient-text">Terpopuler</span>
+              Anime <span className="text-gradient-anime">Terpopuler</span>
             </h1>
             <p className="text-gray-400 text-lg leading-relaxed">
               Jelajahi judul-judul anime yang paling banyak ditonton dan sedang menjadi tren di komunitas saat ini.
@@ -157,10 +157,10 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
                   <div className="poster-card aspect-[3/4]">
                     <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded-lg w-7 h-7 flex items-center justify-center border border-white/10 z-10">
-                      <span className="text-xs font-black italic gradient-text">#{ (page - 1) * data.animeList.length + idx + 1 }</span>
+                      <span className="text-xs font-black italic text-gradient-anime">#{ (page - 1) * data.animeList.length + idx + 1 }</span>
                     </div>
                     {anime.score && anime.score !== "0" && anime.score !== "?" && (
-                      <div className="absolute top-2 right-2 bg-yellow-500 rounded px-1.5 py-0.5 z-10 shadow-lg border border-white/20">
+                      <div className="absolute top-2 right-2 rounded px-1.5 py-0.5 z-10 shadow-lg" style={{background: "var(--gold)", boxShadow: "0 0 8px var(--gold-glow)"}}>
                         <span className="text-[10px] font-black text-white">⭐ {anime.score}</span>
                       </div>
                     )}
@@ -200,9 +200,10 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
                       onClick={() => setPage(p as number)}
                       className={`min-w-[44px] h-11 px-2 rounded-xl text-sm font-bold transition-all ${
                         page === p
-                          ? "bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/30 scale-110"
+                          ? "text-white scale-110"
                           : "text-gray-500 hover:text-gray-300 glass border border-white/5"
                       }`}
+                      style={page === p ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 12px var(--primary-glow)"} : {}}
                     >
                       {p}
                     </button>

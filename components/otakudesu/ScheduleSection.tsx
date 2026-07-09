@@ -40,9 +40,10 @@ export default function ScheduleSection({ data }: { data: OtakudesuDaySchedule[]
               key={item.day}
               onClick={() => setActiveDay(item.day)}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeDay === item.day
-                ? "bg-[#ff7675] text-white shadow-lg shadow-[#ff7675]/20 scale-105"
+                ? "text-white scale-105"
                 : "text-gray-500 hover:text-white"
                 }`}
+              style={activeDay === item.day ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 12px var(--primary-glow)"} : {}}
             >
               {item.day}
             </button>

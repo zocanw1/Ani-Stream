@@ -151,8 +151,8 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
 
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               <span className={`badge ${statusClass} font-black uppercase tracking-widest text-[10px]`}>{data.status}</span>
-              <span className="badge bg-white/5 border-white/10 uppercase font-black tracking-widest text-[10px]">{data.type}</span>
-              <span className="badge bg-yellow-500/10 text-yellow-400 border-yellow-500/20 font-black tracking-widest text-[10px]">⭐ {data.score.value}</span>
+              <span className="badge uppercase font-black tracking-widest text-[10px]" style={{background: "rgba(255,255,255,0.05)", borderColor: "var(--border)"}}>{data.type}</span>
+              <span className="badge font-black tracking-widest text-[10px]" style={{background: "rgba(251,191,36,0.1)", color: "var(--gold)", borderColor: "rgba(251,191,36,0.2)"}}>⭐ {data.score.value}</span>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
@@ -185,10 +185,10 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
             {/* Actions */}
             <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
                {data.episodeList && data.episodeList.length > 0 && (
-                 <Link 
-                    href={`/anime/episode/${cleanEpisodeSlug(data.episodeList[data.episodeList.length-1].href)}`} 
-                    prefetch={false} 
-                    className="btn-primary inline-flex items-center gap-3 bg-[#6c5ce7] hover:bg-[#5f27cd] shadow-lg shadow-[#6c5ce7]/20 px-8 py-3.5 transition-all active:scale-95"
+                 <Link
+                    href={`/anime/episode/${cleanEpisodeSlug(data.episodeList[data.episodeList.length-1].href)}`}
+                    prefetch={false}
+                    className="btn-primary inline-flex items-center gap-3 px-8 py-3.5 transition-all active:scale-95"
                  >
                     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     <span className="font-black uppercase tracking-widest text-xs">Tonton Episode 1</span>
@@ -196,10 +196,11 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                )}
                {data.batchList && data.batchList.length > 0 && (
                  <div className="relative group/batch">
-                    <button 
+                    <button
                       className={`px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all border flex items-center gap-3 active:scale-95 ${
-                        showBatch ? 'bg-white text-black border-white shadow-xl' : 'bg-transparent text-[#a29bfe] border-[#6c5ce7]/30 hover:bg-[#6c5ce7]/10'
+                        showBatch ? 'bg-white text-black border-white shadow-xl' : 'bg-transparent border-[var(--secondary)]/30 hover:bg-[var(--secondary)]/10'
                       }`}
+                      style={!showBatch ? {color: "var(--secondary)"} : {}}
                       onClick={() => data.batchList.length === 1 ? fetchBatchInfo(data.batchList[0].batchId) : null}
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
@@ -237,10 +238,10 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                   <button onClick={() => setShowBatch(false)} className="text-[10px] font-black uppercase text-gray-500 hover:text-white tracking-widest">Tutup</button>
                 </div>
                 
-                <div className="glass rounded-[2rem] overflow-hidden border-[#6c5ce7]/20 shadow-2xl">
+                <div className="glass rounded-[2rem] overflow-hidden shadow-2xl" style={{borderColor: "rgba(124,58,237,0.2)"}}>
                   {loadingBatch ? (
                     <div className="p-16 flex flex-col items-center justify-center gap-6">
-                      <div className="w-12 h-12 border-4 border-[#6c5ce7] border-t-transparent rounded-full animate-spin shadow-lg shadow-[#6c5ce7]/20" />
+                      <div className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style={{borderColor: "rgba(124,58,237,0.3)", borderTopColor: "transparent", boxShadow: "0 0 12px var(--secondary-glow)"}} />
                       <p className="text-[11px] font-black uppercase tracking-[0.3em] text-gray-400 animate-pulse">Menyiapkan link batch...</p>
                     </div>
                   ) : batchData ? (
@@ -253,10 +254,10 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                            </h3>
                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-6">
                              {format.qualities.map((q, qIdx) => (
-                               <div key={qIdx} className="bg-white/[0.03] rounded-3xl p-6 border border-white/[0.05] hover:border-[#6c5ce7]/30 transition-all group">
+                               <div key={qIdx} className="bg-white/[0.03] rounded-3xl p-6 border border-white/[0.05] transition-all group hover-glow">
                                   <div className="flex items-center justify-between mb-6">
                                      <div className="flex flex-col">
-                                        <span className="text-lg font-black text-[#a29bfe]">{q.title}</span>
+                                        <span className="text-lg font-black" style={{color: "var(--secondary)"}}>{q.title}</span>
                                         <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-0.5">{q.size}</span>
                                      </div>
                                      <div className="w-8 h-8 rounded-xl bg-[#6c5ce7]/10 flex items-center justify-center">
@@ -269,7 +270,7 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                                         key={sIdx} 
                                         href={server.url} 
                                         target="_blank" 
-                                        className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-center text-gray-400 hover:bg-[#6c5ce7] hover:text-white hover:border-[#6c5ce7] transition-all uppercase tracking-tighter"
+                                        className="px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-center text-gray-400 hover:text-white transition-all uppercase tracking-tighter hover-glow"
                                        >
                                          {server.title}
                                        </a>
@@ -314,10 +315,10 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                     key={idx} 
                     href={`/anime/episode/${cleanEpisodeSlug(ep.href)}`} 
                     prefetch={false} 
-                    className="group relative glass p-5 rounded-2xl border border-white/[0.04] hover:border-[#6c5ce7]/50 hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between min-h-[120px]"
+                    className="group relative glass p-5 rounded-2xl border border-white/[0.04] hover:bg-white/[0.02] transition-all overflow-hidden flex flex-col justify-between min-h-[120px] hover-glow"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#6c5ce7]/5 rounded-full blur-3xl group-hover:bg-[#6c5ce7]/20 transition-colors" />
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#6c5ce7] to-[#a29bfe] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{background: "linear-gradient(180deg, var(--primary), var(--secondary))"}} />
                     
                     <div className="flex items-start justify-between gap-3 relative z-10 w-full mb-2">
                       <div className="min-w-0 flex-1">
@@ -327,13 +328,13 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                         </p>
                       </div>
                       
-                      <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#6c5ce7] group-hover:bg-[#6c5ce7] group-hover:text-white transition-all flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:text-white transition-all flex-shrink-0" style={{color: "var(--secondary)"}}>
                         <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                       </div>
                     </div>
 
                     <div className="relative z-10 mt-auto">
-                       <span className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#a29bfe] bg-[#6c5ce7]/10 rounded-lg group-hover:bg-[#6c5ce7]/20 transition-colors border border-[#6c5ce7]/20 inline-block">
+                       <span className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-colors border inline-block" style={{color: "var(--secondary)", background: "rgba(124,58,237,0.1)", borderColor: "rgba(124,58,237,0.2)"}}>
                          EPISODE {ep.eps}
                        </span>
                     </div>
@@ -341,9 +342,10 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                 ))}
               </div>
               {data.episodeList.length > 12 && (
-                <button 
+                <button
                   onClick={() => setShowAllEpisodes(!showAllEpisodes)}
-                  className="w-full py-4 mt-6 glass rounded-[20px] border border-white/5 text-[10px] font-black text-[#a29bfe] hover:bg-white/[0.04] transition-all uppercase tracking-[0.3em] shadow-lg"
+                  className="w-full py-4 mt-6 glass rounded-[20px] border border-white/5 text-[10px] font-black hover:bg-white/[0.04] transition-all uppercase tracking-[0.3em] shadow-lg"
+                  style={{color: "var(--secondary)"}}
                 >
                   {showAllEpisodes ? "Sembunyikan" : `Lihat Semua Episode (${data.episodeList.length})`}
                 </button>
@@ -356,7 +358,7 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                <h2 className="section-title mb-6">Genre</h2>
                <div className="flex flex-wrap gap-2 text-[11px] font-bold">
                  {data.genreList.map((g, i) => (
-                   <span key={i} className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-gray-400 hover:text-white hover:border-[#6c5ce7]/50 transition-all cursor-default uppercase tracking-widest">
+                   <span key={i} className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-gray-400 hover:text-white transition-all cursor-default uppercase tracking-widest hover-glow">
                      {g.title}
                    </span>
                  ))}
@@ -381,7 +383,7 @@ export default function AnimeDetailClient({ data, slug }: AnimeDetailClientProps
                         <div className="flex-1 py-1 flex flex-col justify-center">
                           <h4 className="text-[13px] font-black text-gray-300 group-hover:text-white line-clamp-2 leading-snug transition-colors">{anime.title}</h4>
                           <div className="mt-2 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#6c5ce7] animate-pulse" />
+                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{background: "var(--primary)"}} />
                             <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Recommended</span>
                           </div>
                         </div>

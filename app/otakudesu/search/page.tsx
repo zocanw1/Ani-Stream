@@ -53,7 +53,7 @@ export default async function OtakudesuSearchPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0d17] px-4 pb-24 pt-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen px-4 pb-24 pt-12 sm:px-6 lg:px-8" style={{background: "var(--bg-deep)"}}>
       <div className="mx-auto max-w-7xl">
         {!query ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -68,10 +68,10 @@ export default async function OtakudesuSearchPage({
             <header className="flex flex-col justify-between gap-6 border-b border-white/5 pb-8 sm:flex-row sm:items-end">
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Hasil Pencarian <span className="text-[#ff7675]">Otakudesu</span>
+                  Hasil Pencarian <span className="text-gradient-anime">Otakudesu</span>
                 </h1>
                 <p className="mt-2 text-sm font-medium text-gray-500">
-                  Menampilkan hasil untuk <strong className="font-black italic text-[#ff7675]">&quot;{query}&quot;</strong>
+                  Menampilkan hasil untuk <strong className="font-black italic" style={{color: "var(--primary)"}}>&quot;{query}&quot;</strong>
                 </p>
               </div>
               {results && (
@@ -90,7 +90,7 @@ export default async function OtakudesuSearchPage({
                 <p className="mb-6 mt-1 text-sm text-gray-500">{error}</p>
                 <a
                   href={`/otakudesu/search?q=${encodeURIComponent(query)}`}
-                  className="btn-primary bg-[#ff7675] shadow-lg shadow-[#ff7675]/20"
+                  className="btn-primary"
                 >
                   Coba Lagi
                 </a>
@@ -118,7 +118,7 @@ export default async function OtakudesuSearchPage({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
 
                       {anime.score && anime.score !== "0" && anime.score !== "?" && (
-                        <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-lg border border-white/20 bg-[#ff7675] px-2 py-1 text-[10px] font-black text-white shadow-xl">
+                        <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-lg border border-white/20 px-2 py-1 text-[10px] font-black text-white shadow-xl" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 8px var(--primary-glow)"}}>
                           <Star size={11} fill="currentColor" aria-hidden="true" />
                           {anime.score}
                         </span>
@@ -134,7 +134,7 @@ export default async function OtakudesuSearchPage({
                     </div>
 
                     <div className="mt-4 space-y-2">
-                      <h2 className="line-clamp-2 text-sm font-black leading-snug text-gray-200 transition-colors group-hover:text-[#ff7675]">
+                      <h2 className="line-clamp-2 text-sm font-black leading-snug text-gray-200 transition-colors group-hover:text-white">
                         {anime.title}
                       </h2>
                       <div className="flex flex-wrap gap-1.5">
@@ -159,7 +159,7 @@ export default async function OtakudesuSearchPage({
                 <p className="mt-3 max-w-sm font-medium text-gray-500">
                   Anime <strong className="font-bold italic text-[#ff7675]">&quot;{query}&quot;</strong> tidak ditemukan. Coba kata kunci lain atau periksa ejaannya.
                 </p>
-                <Link href="/otakudesu" prefetch={false} className="btn-primary mt-10 bg-[#ff7675] shadow-lg shadow-[#ff7675]/30">
+                <Link href="/otakudesu" prefetch={false} className="btn-primary mt-10">
                   Kembali ke Beranda
                 </Link>
               </div>

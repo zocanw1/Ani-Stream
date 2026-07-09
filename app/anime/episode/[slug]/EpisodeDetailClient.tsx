@@ -124,7 +124,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-md">{data.title}</h1>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs font-bold font-sans">
-                <span className="px-2 py-1 bg-[#6c5ce7]/20 text-[#a29bfe] rounded uppercase tracking-widest text-[10px]">Episode</span>
+                <span className="px-2 py-1 rounded uppercase tracking-widest text-[10px]" style={{background: "rgba(124,58,237,0.2)", color: "var(--secondary)"}}>Episode</span>
                 <span className="text-gray-500 flex items-center gap-1.5 uppercase tracking-[0.2em] text-[9px]">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor"><path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   {data.releasedOn}
@@ -135,7 +135,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
           
           <div className="flex flex-wrap gap-2">
             {data.genreList.map((genre) => (
-              <span key={genre.genreId} className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg bg-white/5 border border-white/10 text-gray-500 hover:text-white hover:border-[#6c5ce7]/50 transition-colors">
+              <span key={genre.genreId} className="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg bg-white/5 border border-white/10 text-gray-500 hover:text-white transition-colors hover-glow">
                 {genre.title}
               </span>
             ))}
@@ -171,9 +171,10 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                           disabled={switching}
                           className={`px-3 py-1.5 text-[10px] rounded-lg font-black uppercase tracking-tighter transition-all active:scale-95 ${
                             activeServer === server.serverId
-                              ? "bg-[#6c5ce7] text-white shadow-lg shadow-[#6c5ce7]/20"
+                              ? "text-white"
                               : "text-gray-500 hover:text-white hover:bg-white/10 disabled:cursor-wait disabled:opacity-50"
                           }`}
+                          style={activeServer === server.serverId ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 12px var(--primary-glow)"} : {}}
                           onClick={() => fetchServerUrl(server.serverId)}
                         >
                           {server.title.split(' ')[0]}
@@ -192,7 +193,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                 </Link>
               )}
               {data.hasNextEpisode && data.nextEpisode && (
-                <Link href={`/anime/episode/${cleanEpisodeSlug(data.nextEpisode.href)}`} prefetch={false} className="text-center py-3 px-6 bg-[#6c5ce7] hover:bg-[#5a4ecf] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all flex-1 md:flex-none shadow-lg shadow-[#6c5ce7]/20 active:scale-95">
+                <Link href={`/anime/episode/${cleanEpisodeSlug(data.nextEpisode.href)}`} prefetch={false} className="btn-primary text-center py-3 px-6 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all flex-1 md:flex-none active:scale-95">
                   Next
                 </Link>
               )}
@@ -211,7 +212,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
             <section className="glass rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl">
               <div className="p-8 border-b border-white/5 flex items-center justify-between flex-wrap gap-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#6c5ce7] to-[#a29bfe] flex items-center justify-center shadow-xl shadow-[#6c5ce7]/20">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 16px var(--primary-glow)"}}>
                     <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                   </div>
                   <div>
@@ -246,9 +247,10 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                       onClick={() => setSelectedQuality(q.title)}
                       className={`px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all border ${
                         selectedQuality === q.title
-                          ? "bg-[#6c5ce7] border-[#6c5ce7] text-white shadow-2xl shadow-[#6c5ce7]/20 scale-105"
+                          ? "text-white scale-105"
                           : "bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:border-white/10"
                       }`}
+                      style={selectedQuality === q.title ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", borderColor: "transparent", boxShadow: "0 0 20px var(--primary-glow)"} : {}}
                     >
                       {q.title}
                     </button>
@@ -263,7 +265,7 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                         href={dl.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center justify-center p-4 rounded-[20px] bg-white/[0.02] border border-white/[0.04] text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-[#6c5ce7] hover:text-white hover:border-[#6c5ce7] hover:shadow-lg transition-all text-center leading-tight active:scale-95"
+                        className="flex items-center justify-center p-4 rounded-[20px] bg-white/[0.02] border border-white/[0.04] text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-all text-center leading-tight active:scale-95 hover-glow"
                       >
                         {dl.title}
                       </a>
@@ -295,13 +297,13 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                 <h3 className="section-title tracking-[0.3em]">Episode Lainnya</h3>
                 <div className="space-y-4">
                   {data.recommendedEpisodeList.slice(0, 8).map((ep, i) => (
-                    <Link key={i} href={`/anime/episode/${cleanEpisodeSlug(ep.href)}`} prefetch={false} className="group flex gap-4 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover:border-[#6c5ce7]/30">
+                    <Link key={i} href={`/anime/episode/${cleanEpisodeSlug(ep.href)}`} prefetch={false} className="group flex gap-4 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover-glow">
                       <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 relative shadow-lg">
                          <Image src={ep.poster} alt={ep.title} fill sizes="5rem" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                       </div>
                       <div className="flex-1 py-1 flex flex-col justify-center min-w-0">
-                        <h4 className="text-[12px] font-black text-gray-300 group-hover:text-[#a29bfe] line-clamp-2 leading-tight transition-colors">{ep.title}</h4>
+                        <h4 className="text-[12px] font-black text-gray-300 group-hover:text-white line-clamp-2 leading-tight transition-colors">{ep.title}</h4>
                         <p className="text-[9px] text-gray-500 font-black uppercase mt-2 tracking-widest opacity-60">{ep.releaseDate}</p>
                       </div>
                     </Link>
@@ -316,15 +318,15 @@ export default function EpisodeDetailClient({ initialData, slug }: EpisodeDetail
                 <h3 className="section-title tracking-[0.3em]">Rekomendasi Film</h3>
                 <div className="space-y-4">
                   {data.movie.animeList.slice(0, 5).map((anime, i) => (
-                    <Link key={i} href={`/anime/${cleanAnimeSlug(anime.href)}`} prefetch={false} className="group flex gap-4 h-24 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover:border-[#6c5ce7]/30">
+                    <Link key={i} href={`/anime/${cleanAnimeSlug(anime.href)}`} prefetch={false} className="group flex gap-4 h-24 glass p-3 rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all hover-glow">
                       <div className="relative w-16 h-full rounded-xl overflow-hidden flex-shrink-0 shadow-lg border border-white/10">
                          <Image src={anime.poster} alt={anime.title} fill sizes="4rem" className="object-cover group-hover:scale-110 transition-transform duration-700" />
                       </div>
                       <div className="flex-1 py-1 flex flex-col justify-center">
-                        <h4 className="text-[11px] font-black text-gray-300 group-hover:text-[#6c5ce7] line-clamp-2 leading-tight transition-colors">{anime.title}</h4>
+                        <h4 className="text-[11px] font-black text-gray-300 group-hover:text-white line-clamp-2 leading-tight transition-colors">{anime.title}</h4>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {anime.genreList.slice(0, 2).map((g, gi) => (
-                            <span key={gi} className="px-2 py-0.5 rounded-md bg-[#6c5ce7]/10 text-[8px] text-[#a29bfe] font-black uppercase tracking-widest">{g.title}</span>
+                            <span key={gi} className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest" style={{background: "rgba(124,58,237,0.1)", color: "var(--secondary)"}}>{g.title}</span>
                           ))}
                         </div>
                       </div>

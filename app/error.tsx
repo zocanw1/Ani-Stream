@@ -17,9 +17,9 @@ export default function ErrorPage({
 
   return (
     <section className="flex min-h-[70vh] items-center justify-center px-4 py-16">
-      <div role="alert" className="glass w-full max-w-xl overflow-hidden border-red-500/25 bg-[#111416] text-center">
-        <div className="border-b border-white/5 bg-red-500/5 px-8 py-10">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-red-500/25 bg-red-500/10 text-red-400">
+      <div role="alert" className="glass w-full max-w-xl overflow-hidden text-center" style={{borderColor: "rgba(239,27,36,0.25)"}}>
+        <div className="border-b border-white/5 px-8 py-10" style={{background: "rgba(239,27,36,0.05)"}}>
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-red-400" style={{border: "1px solid rgba(239,27,36,0.25)", background: "rgba(239,27,36,0.1)"}}>
             <AlertTriangle size={30} aria-hidden="true" />
           </span>
           <p className="mt-6 text-[10px] font-black uppercase tracking-[0.35em] text-red-400">Terjadi Gangguan</p>

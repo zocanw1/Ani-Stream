@@ -185,6 +185,7 @@ export default function MobileFullscreenPlayer({
         <button
           type="button"
           className={`mobile-video-player__lock ${isInteractionLocked ? "is-locked" : ""}`}
+          style={isInteractionLocked ? {boxShadow: "0 0 16px var(--primary-glow)"} : {}}
           onClick={() => setIsInteractionLocked((locked) => !locked)}
           aria-label={isInteractionLocked ? "Buka kunci kontrol video" : "Kunci kontrol video"}
           aria-pressed={isInteractionLocked}

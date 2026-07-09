@@ -40,14 +40,14 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
   }
 
   return (
-    <section className="rounded-lg border border-white/10 bg-[#111416] p-6 shadow-2xl sm:p-8">
-      <p className="text-[10px] font-black uppercase text-[#ef1b24]">Account</p>
+    <section className="rounded-lg border p-6 shadow-2xl sm:p-8 glass" style={{borderColor: "var(--border)"}}>
+      <p className="text-[10px] font-black uppercase" style={{color: "var(--primary)"}}>Account</p>
       <h2 className="mt-2 text-2xl font-black">{mode === "login" ? "Masuk ke AniStream" : "Buat akun AniStream"}</h2>
       <p className="mt-2 text-xs font-bold leading-6 text-neutral-500">{mode === "login" ? "Buka history dan lanjutkan episode terakhir." : "Daftar dengan email dan password minimal 6 karakter."}</p>
 
       <div className="mt-6 grid grid-cols-2 rounded-md border border-white/10 bg-black/35 p-1">
         <button type="button" onClick={() => selectMode("login")} className={`rounded py-3 text-xs font-black ${mode === "login" ? "bg-white text-black" : "text-neutral-400 hover:text-white"}`}>Masuk</button>
-        <button type="button" onClick={() => selectMode("register")} className={`rounded py-3 text-xs font-black ${mode === "register" ? "bg-[#ef1b24] text-white" : "text-neutral-400 hover:text-white"}`}>Daftar</button>
+        <button type="button" onClick={() => selectMode("register")} className={`rounded py-3 text-xs font-black ${mode === "register" ? "text-white" : "text-neutral-400 hover:text-white"}`} style={mode === "register" ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))"} : {}}>Daftar</button>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -66,8 +66,8 @@ export default function LoginPanel({ initialMode, nextPath }: LoginPanelProps) {
             <button type="button" onClick={() => setShowPassword((value) => !value)} className="icon-button h-9 w-9 rounded text-neutral-500 hover:bg-white/10 hover:text-white" aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
           </span>
         </label>
-        {error && <div className="rounded-md border border-red-500/25 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-300" role="alert">{error}</div>}
-        <button type="submit" disabled={loading} className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50">{loading && <LoaderCircle size={17} className="animate-spin" />}{loading ? "Memproses..." : mode === "login" ? "Masuk Sekarang" : "Buat Akun"}</button>
+        {error && <div className="rounded-md border px-4 py-3 text-xs font-bold text-red-300" role="alert" style={{borderColor: "rgba(239,27,36,0.25)", background: "rgba(239,27,36,0.1)"}}>{error}</div>}
+        <button type="submit" disabled={loading} className="w-full disabled:cursor-not-allowed disabled:opacity-50 btn-primary">{loading && <LoaderCircle size={17} className="animate-spin" />}{loading ? "Memproses..." : mode === "login" ? "Masuk Sekarang" : "Buat Akun"}</button>
       </form>
     </section>
   );

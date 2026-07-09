@@ -4,7 +4,7 @@ export default function LoadingPage() {
       <span className="sr-only">Memuat halaman AniStream...</span>
 
       <div className="grid gap-8 md:grid-cols-[220px_minmax(0,1fr)]">
-        <div className="skeleton aspect-[2/3] w-full max-w-[220px] rounded-lg" />
+        <div className="skeleton aspect-[2/3] w-full max-w-[220px] rounded-xl" />
         <div className="space-y-5 pt-4">
           <div className="skeleton h-4 w-28 rounded" />
           <div className="skeleton h-10 w-full max-w-2xl rounded" />

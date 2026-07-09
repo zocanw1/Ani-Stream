@@ -106,7 +106,7 @@ function SearchContent({
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">Hasil Pencarian</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Menampilkan hasil untuk <span className="text-[#a29bfe] font-bold italic">&quot;{query}&quot;</span>
+            Menampilkan hasil untuk <span className="font-bold italic" style={{color: "var(--secondary)"}}>&quot;{query}&quot;</span>
           </p>
         </div>
         {!loading && results && (
@@ -132,16 +132,17 @@ function SearchContent({
               <div className="poster-card aspect-[3/4]">
                 <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 {anime.score && anime.score !== "0" && anime.score !== "?" && (
-                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded-md px-1.5 py-0.5 flex items-center gap-1 border border-white/10 z-10">
+                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded-md px-1.5 py-0.5 flex items-center gap-1 border border-white/10 z-10" style={{borderColor: "rgba(251,191,36,0.3)"}}>
                     <span className="text-[10px]">⭐</span>
-                    <span className="text-[10px] font-bold text-yellow-400">{anime.score}</span>
+                    <span className="text-[10px] font-bold" style={{color: "var(--gold)"}}>{anime.score}</span>
                   </div>
                 )}
                 {anime.status && (
                   <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded shadow-lg border border-white/10 ${
-                      anime.status.toLowerCase().includes('ongoing') ? 'bg-green-600/80 text-white' : 'bg-[#6c5ce7]/80 text-white'
-                    }`}>
+                      anime.status.toLowerCase().includes('ongoing') ? 'bg-green-600/80 text-white' : 'text-white'
+                    }`}
+                    style={!anime.status.toLowerCase().includes('ongoing') ? {background: "rgba(124,58,237,0.8)"} : {}}>
                       {anime.status}
                     </span>
                     {anime.type && (
@@ -152,13 +153,13 @@ function SearchContent({
                   </div>
                 )}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                  <div className="w-12 h-12 rounded-full bg-[#6c5ce7]/90 flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 16px var(--primary-glow)"}}>
                     <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   </div>
                 </div>
               </div>
               <div className="mt-3 space-y-1">
-                <h3 className="text-sm font-bold text-gray-200 group-hover:text-[#a29bfe] line-clamp-2 leading-snug transition-colors">{anime.title}</h3>
+                <h3 className="text-sm font-bold text-gray-200 group-hover:text-white line-clamp-2 leading-snug transition-colors">{anime.title}</h3>
                 <div className="flex flex-wrap gap-1">
                   {anime.genreList?.slice(0, 2).map(genre => (
                     <span key={genre.genreId} className="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 rounded bg-white/5 border border-white/5">
@@ -200,9 +201,9 @@ export default function SearchPageClient({
   initialError?: string | null;
 }) {
   return (
-    <div className="min-h-screen bg-[#0b0d17] pt-10 pb-20">
+    <div className="min-h-screen pt-10 pb-20" style={{background: "var(--bg-deep)"}}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-[#6c5ce7] border-t-transparent rounded-full animate-spin"></div></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{borderColor: "rgba(124,58,237,0.3)", borderTopColor: "transparent"}}></div></div>}>
           <SearchContent initialQuery={initialQuery} initialResults={initialResults} initialError={initialError} />
         </Suspense>
       </div>

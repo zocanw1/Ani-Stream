@@ -6,7 +6,7 @@ export default function NotFoundPage() {
     <section className="flex min-h-[70vh] items-center justify-center px-4 py-16">
       <div className="glass w-full max-w-xl overflow-hidden text-center">
         <div className="border-b border-white/5 px-8 py-12">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full text-gray-300" style={{border: "1px solid var(--border)", background: "rgba(255,255,255,0.05)"}}>
             <SearchX size={30} aria-hidden="true" />
           </span>
           <p className="mt-6 text-[10px] font-black uppercase tracking-[0.4em] text-red-400">404</p>

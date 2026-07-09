@@ -4,7 +4,7 @@ import React from "react";
 
 export default function SkeletonCard() {
   return (
-    <div className="rounded-[20px] overflow-hidden glass">
+    <div className="rounded-xl overflow-hidden glass">
       <div className="aspect-[3/4] skeleton relative" />
       <div className="p-4 space-y-3">
         <div className="h-4 w-3/4 skeleton rounded-lg" />

@@ -47,7 +47,8 @@ export default function Pagination({ currentPage, totalPages, sectionId, paramNa
           <button
             key={p}
             onClick={() => handlePageChange(p as number)}
-            className={`min-w-[40px] h-10 px-2 rounded-lg text-sm font-bold transition-all ${currentPage === p ? "bg-[#ff7675] text-white shadow-lg shadow-[#ff7675]/30 scale-110" : "text-gray-500 hover:text-gray-300 glass"}`}
+            className={`min-w-[40px] h-10 px-2 rounded-lg text-sm font-bold transition-all ${currentPage === p ? "text-white scale-110" : "text-gray-500 hover:text-gray-300 glass"}`}
+            style={currentPage === p ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 12px var(--primary-glow)"} : {}}
           >
             {p}
           </button>

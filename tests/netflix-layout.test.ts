@@ -6,12 +6,13 @@ function read(path: string) {
   return readFileSync(path, "utf8");
 }
 
-test("global theme uses the AniStream cinematic palette", () => {
+test("global theme uses the AniStream anime aesthetic palette", () => {
   const css = read("app/globals.css");
 
-  assert.match(css, /--red:\s*#ef1b24/i);
-  assert.match(css, /--black:\s*#050607/i);
-  assert.match(css, /background:\s*var\(--black\)/i);
+  assert.match(css, /--primary:\s*#ff2d7b/i);
+  assert.match(css, /--bg-deep:\s*#0a0a12/i);
+  assert.match(css, /background:\s*var\(--bg-deep\)/i);
+  assert.match(css, /--red:\s*var\(--primary\)/i);
   assert.doesNotMatch(css, /radial-gradient\(rgba\(108,\s*92,\s*231/i);
 });
 

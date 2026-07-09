@@ -38,12 +38,12 @@ export default function HomeCarousel({ data }: { data: OtakudesuAnime[] }) {
             <div className="absolute inset-0 scale-110 blur-xl opacity-30 transform-gpu translate-z-0">
               <Image src={anime.poster} alt="" fill className="object-cover" priority={idx === 0} />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/40 to-transparent z-10" />
-            <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-r from-[#0a0a0c] via-[#0a0a0c]/20 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-deep)] via-[var(--bg-deep)]/40 to-transparent z-10" />
+            <div className="absolute inset-x-0 bottom-0 top-0 bg-gradient-to-r from-[var(--bg-deep)] via-[var(--bg-deep)]/20 to-transparent z-10" />
 
             <div className="relative z-20 h-full flex flex-col justify-end p-8 sm:p-12 lg:p-20 pb-16 sm:pb-24 max-w-4xl space-y-6">
               <div className="flex items-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                <span className="px-3 py-1 rounded-lg bg-[#ff7675]/10 backdrop-blur-md border border-[#ff7675]/20 text-[10px] font-black text-[#ff7675] uppercase tracking-widest">
+                <span className="px-3 py-1 rounded-lg bg-[var(--primary)]/10 backdrop-blur-md border border-[var(--primary)]/20 text-[10px] font-black text-[var(--primary)] uppercase tracking-widest">
                   New Update
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white uppercase tracking-widest">
@@ -51,7 +51,7 @@ export default function HomeCarousel({ data }: { data: OtakudesuAnime[] }) {
                 </span>
               </div>
 
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] animate-fade-in-up text-gradient-anime" style={{ animationDelay: '0.2s' }}>
                 {anime.title}
               </h2>
 
@@ -59,14 +59,14 @@ export default function HomeCarousel({ data }: { data: OtakudesuAnime[] }) {
                 <Link
                   href={`/otakudesu/anime/${cleanSlug(anime.href)}`}
                   prefetch={false}
-                  className="btn-primary px-8 py-4 text-xs font-black uppercase tracking-widest flex items-center gap-3 bg-[#ff7675] hover:bg-[#ff4757] shadow-[#ff7675]/20"
+                  className="btn-primary px-8 py-4 text-xs font-black uppercase tracking-widest flex items-center gap-3"
                 >
                   Tonton Sekarang
                 </Link>
               </div>
             </div>
 
-            <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-2xl overflow-hidden border border-white/10 shadow-2xl animate-fade-in-left">
+            <div className="absolute right-12 lg:right-24 bottom-16 lg:bottom-24 hidden md:block w-48 lg:w-64 aspect-[3/4] z-20 rounded-2xl overflow-hidden border border-white/10 shadow-2xl animate-fade-in-left" style={{boxShadow: "0 0 30px var(--primary-glow)"}}>
               <Image src={anime.poster} alt={anime.title} fill className="object-cover" />
             </div>
           </div>
@@ -77,7 +77,8 @@ export default function HomeCarousel({ data }: { data: OtakudesuAnime[] }) {
             <button
               key={i}
               onClick={() => setCurrentSlide(i)}
-              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8 bg-[#ff7675]' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+              className={`h-1.5 transition-all duration-300 rounded-full ${i === currentSlide ? 'w-8' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+              style={i === currentSlide ? {background: "linear-gradient(90deg, var(--primary), var(--secondary))", boxShadow: "0 0 8px var(--primary-glow)"} : {}}
             />
           ))}
         </div>

@@ -161,10 +161,10 @@ export default function HomePageClient({ initialData, initialError = null }: {
               <div className="cinematic-hero__copy">
                 <div className="hero-eyebrow">
                   <span># {currentSlide + 1} Populer</span>
-                  {scoreValue(heroAnime.score) && <span><Star size={12} fill="currentColor" /> {scoreValue(heroAnime.score)}</span>}
+                  {scoreValue(heroAnime.score) && <span style={{color: "var(--gold)"}}><Star size={12} fill="currentColor" /> {scoreValue(heroAnime.score)}</span>}
                   {heroAnime.type && <span>{heroAnime.type}</span>}
                 </div>
-                <h1>{heroAnime.title}</h1>
+                <h1 className="text-gradient-anime">{heroAnime.title}</h1>
                 <div className="hero-genres">
                   {heroAnime.genreList?.slice(0, 4).map((genre) => <span key={genre.genreId}>{genre.title}</span>)}
                 </div>

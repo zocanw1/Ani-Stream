@@ -50,7 +50,7 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
   ] as const;
 
   return (
-    <div className="min-h-screen bg-[#050505] pb-20 text-white">
+    <div className="min-h-screen pb-20 text-white" style={{background: "var(--bg-deep)"}}>
       <section className="relative overflow-hidden px-4 pb-14 pt-12 sm:px-6 lg:px-8">
         {featured?.poster_url && (
           <Image src={featured.poster_url} alt="" fill sizes="100vw" className="scale-110 object-cover opacity-20 blur-sm" priority />
@@ -59,7 +59,7 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
         <div className="relative mx-auto flex max-w-6xl flex-col gap-8 pt-10 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.35em] text-[#E50914]">Watch History</p>
+            <p className="text-xs font-black uppercase tracking-[0.35em]" style={{color: "var(--primary)"}}>Watch History</p>
             <h1 className="mt-4 text-4xl font-black leading-none text-white sm:text-6xl">Episode Timeline</h1>
             <p className="mt-4 max-w-2xl text-sm font-bold leading-7 text-neutral-300 sm:text-base">
               Semua episode yang pernah kamu buka, urut dari paling baru.
@@ -70,7 +70,7 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
             <Link href={animeHistoryHref} className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-neutral-300 hover:bg-white/10 hover:text-white">
               Per Anime
             </Link>
-            <Link href="/history/episodes" className="rounded bg-[#E50914] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+            <Link href="/history/episodes" className="rounded px-4 py-2 text-xs font-black uppercase tracking-widest text-white" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))"}}>
               Per Episode
             </Link>
           </div>
@@ -86,9 +86,10 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
               aria-current={source === tab.value ? "page" : undefined}
               className={`whitespace-nowrap rounded-md px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
                 source === tab.value
-                  ? "bg-[#E50914] text-white"
+                  ? "text-white"
                   : "text-neutral-400 hover:bg-white/10 hover:text-white"
               }`}
+              style={source === tab.value ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))"} : {}}
             >
               {tab.label}
             </Link>
@@ -99,7 +100,7 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
           <div className="rounded-lg border border-white/10 bg-[#141414] p-10 text-center">
             <h2 className="text-xl font-black text-white">Belum ada episode.</h2>
             <p className="mt-2 text-sm font-bold text-neutral-400">Episode yang kamu tonton akan muncul di halaman ini.</p>
-            <Link href="/" className="btn-primary mt-6 inline-flex text-xs font-black uppercase tracking-widest">
+            <Link href="/" className="mt-6 inline-flex text-xs font-black uppercase tracking-widest btn-primary">
               Cari Anime
             </Link>
           </div>
@@ -120,7 +121,7 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
                   <div className="h-28 w-20 flex-shrink-0 rounded-md bg-[#1f1f1f]" />
                 )}
                 <span className="flex min-w-0 flex-1 flex-col justify-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#E50914]">{item.source}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{color: "var(--primary)"}}>{item.source}</span>
                   <span className="mt-1 line-clamp-1 text-base font-black text-white group-hover:text-neutral-200">{item.anime_title}</span>
                   <span className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-neutral-400">{item.episode_title}</span>
                   {item.progress_source === "player" && item.progress_percent !== null && (
@@ -131,15 +132,15 @@ export default async function EpisodeHistoryPage({ searchParams }: EpisodeHistor
                       </span>
                       <span className="block h-1 overflow-hidden rounded-full bg-white/10">
                         <span
-                          className="block h-full bg-[#E50914]"
-                          style={{ width: `${Math.max(0, Math.min(100, item.progress_percent))}%` }}
+                          className="block h-full"
+                          style={{background: "linear-gradient(90deg, var(--primary), var(--secondary))", width: `${Math.max(0, Math.min(100, item.progress_percent))}%`}}
                         />
                       </span>
                     </span>
                   )}
                   <span className="mt-3 text-[10px] font-black uppercase tracking-widest text-neutral-600">{formatDate(item.watched_at)}</span>
                 </span>
-                <span className="hidden items-center self-center rounded bg-[#E50914] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all group-hover:bg-[#B20710] sm:flex">
+                <span className="hidden items-center self-center rounded px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all sm:flex" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))"}}>
                   Tonton
                 </span>
               </Link>
