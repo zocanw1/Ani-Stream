@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { ensureDatabase, getSql, hasDatabaseUrl } from "./db";
 
 export const SESSION_COOKIE = "anistream_session";
-const SESSION_DAYS = 30;
+const SESSION_DAYS = 36500;
 
 export type CurrentUser = {
   id: string;
