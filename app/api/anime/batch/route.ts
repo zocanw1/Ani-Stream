@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { upstreamFetch } from "@/lib/upstream-cache";
 
-const ANIME_API_BASE_URL = "https://www.sankavollerei.com/anime";
 const BATCH_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export async function GET(request: Request) {
@@ -22,20 +22,16 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(`${ANIME_API_BASE_URL}${upstreamPath}`, {
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    const payload = await response.json();
+    const result = await upstreamFetch(upstreamPath, 30_000, 120_000);
 
-    return NextResponse.json(payload, {
-      status: response.ok ? 200 : response.status,
-      headers: { "Cache-Control": "no-store" },
+    return NextResponse.json(result.payload, {
+      status: result.ok ? result.status : 502,
+      headers: { "X-Upstream-Cache": result.cached ? (result.stale ? "stale" : "hit") : "miss" },
     });
   } catch {
     return NextResponse.json(
       { message: "Gagal mengambil data batch." },
-      { status: 502, headers: { "Cache-Control": "no-store" } },
+      { status: 502 },
     );
   }
 }

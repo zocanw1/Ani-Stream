@@ -38,7 +38,7 @@ test("batch proxy maps each provider to its documented endpoint", () => {
   assert.match(route, /source === "otakudesu"/);
   assert.match(route, /`\/batch\/\$\{encodeURIComponent\(batchId\)\}`/);
   assert.match(route, /BATCH_ID_PATTERN/);
-  assert.match(route, /cache:\s*"no-store"/);
+  assert.match(route, /X-Upstream-Cache/);
 });
 
 test("workflow protects the documented Otakudesu API contract", () => {

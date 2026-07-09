@@ -45,7 +45,7 @@ test("Samehadaku catalog proxy only exposes documented resources", () => {
 
   assert.match(route, /SIMPLE_RESOURCES/);
   assert.match(route, /GENRE_ID_PATTERN/);
-  assert.match(route, /cache:\s*"no-store"/);
+  assert.match(route, /X-Upstream-Cache/);
   assert.match(route, /encodeURIComponent\(query\)/);
 });
 

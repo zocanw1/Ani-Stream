@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { upstreamFetch } from "@/lib/upstream-cache";
 
-const ANIME_API_BASE_URL = "https://www.sankavollerei.com/anime/samehadaku";
 const GENRE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 const ORDER_PATTERN = /^[A-Za-z-]+$/;
 const SIMPLE_RESOURCES = new Set([
@@ -37,13 +37,13 @@ function buildUpstreamPath(searchParams: URLSearchParams) {
   if (resource === "search") {
     const query = (searchParams.get("q") ?? "").trim().slice(0, 100);
     if (!query) return null;
-    return `/search?q=${encodeURIComponent(query)}&page=${page}`;
+    return `/samehadaku/search?q=${encodeURIComponent(query)}&page=${page}`;
   }
 
   if (resource === "genre") {
     const genreId = searchParams.get("genreId") ?? "";
     if (!GENRE_ID_PATTERN.test(genreId)) return null;
-    return `/genres/${encodeURIComponent(genreId)}?page=${page}`;
+    return `/samehadaku/genres/${encodeURIComponent(genreId)}?page=${page}`;
   }
 
   if (!SIMPLE_RESOURCES.has(resource)) return null;
@@ -61,7 +61,7 @@ function buildUpstreamPath(searchParams: URLSearchParams) {
   }
 
   const queryString = upstreamParams.toString();
-  return `/${resource}${queryString ? `?${queryString}` : ""}`;
+  return `/samehadaku/${resource}${queryString ? `?${queryString}` : ""}`;
 }
 
 export async function GET(request: Request) {
@@ -69,25 +69,21 @@ export async function GET(request: Request) {
   if (!upstreamPath) {
     return NextResponse.json(
       { message: "Parameter endpoint Samehadaku tidak valid." },
-      { status: 400, headers: { "Cache-Control": "no-store" } },
+      { status: 400 },
     );
   }
 
   try {
-    const response = await fetch(`${ANIME_API_BASE_URL}${upstreamPath}`, {
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    });
-    const payload = await response.json();
+    const result = await upstreamFetch(upstreamPath, 30_000, 120_000);
 
-    return NextResponse.json(payload, {
-      status: response.ok ? 200 : response.status,
-      headers: { "Cache-Control": "no-store" },
+    return NextResponse.json(result.payload, {
+      status: result.ok ? result.status : 502,
+      headers: { "X-Upstream-Cache": result.cached ? (result.stale ? "stale" : "hit") : "miss" },
     });
   } catch {
     return NextResponse.json(
       { message: "Gagal mengambil data Samehadaku." },
-      { status: 502, headers: { "Cache-Control": "no-store" } },
+      { status: 502 },
     );
   }
 }

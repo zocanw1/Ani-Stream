@@ -32,8 +32,11 @@ export async function POST(request: Request) {
   `;
 
   const user = (rows as unknown as { id: string; email: string; password_hash: string }[])[0];
-  if (!user || !(await verifyPassword(password, user.password_hash))) {
-    return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
+  if (!user) {
+    return NextResponse.json({ error: "Maaf email tidak terdaftar." }, { status: 401 });
+  }
+  if (!(await verifyPassword(password, user.password_hash))) {
+    return NextResponse.json({ error: "Kata sandi salah." }, { status: 401 });
   }
 
   await createSession(user.id);

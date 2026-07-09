@@ -49,5 +49,5 @@ test("server proxy only forwards supported sources and safe server IDs", () => {
   assert.match(route, /source === "samehadaku"/);
   assert.match(route, /source === "otakudesu"/);
   assert.match(route, /SERVER_ID_PATTERN/);
-  assert.match(route, /cache:\s*"no-store"/);
+  assert.match(route, /X-Upstream-Cache/);
 });
