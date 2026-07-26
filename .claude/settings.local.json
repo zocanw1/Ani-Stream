@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "\"Read(*)\",\n        \"Glob(*)\",\n        \"Grep(*)\",\n        \"Bash(git status)\",\n        \"Bash(npm test*)\""
+    ]
+  }
+}

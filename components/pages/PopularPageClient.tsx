@@ -3,40 +3,18 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Sparkles, ChevronLeft, ChevronRight, TrendingUp, Play } from "lucide-react";
 
 /* ── Interfaces ──────────────────────────── */
 
-type Genre = {
-  title: string;
-  genreId: string;
-  href: string;
-};
-
+type Genre = { title: string; genreId: string; href: string };
 type SamehadakuAnime = {
-  title: string;
-  poster: string;
-  type: string;
-  score: string;
-  status: string;
-  animeId: string;
-  href: string;
-  samehadakuUrl: string;
-  genreList?: Genre[];
+  title: string; poster: string; type: string;
+  score: string; status: string; animeId: string;
+  href: string; samehadakuUrl: string; genreList?: Genre[];
 };
-
-type Pagination = {
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  totalPages: number;
-};
-
-export type PaginatedAnime = {
-  animeList: SamehadakuAnime[];
-  pagination: Pagination;
-};
-
-/* ── Components ──────────────────────────── */
+type Pagination = { currentPage: number; hasNextPage: boolean; hasPrevPage: boolean; totalPages: number };
+export type PaginatedAnime = { animeList: SamehadakuAnime[]; pagination: Pagination };
 
 function CardSkeleton() {
   return (
@@ -70,59 +48,50 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/anime/samehadaku?resource=popular&page=${pageNum}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(`/api/anime/samehadaku?resource=popular&page=${pageNum}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Gagal mengambil data populer");
       const json = await res.json();
-      
-      setData({
-        animeList: json.data?.animeList || [],
-        pagination: json.pagination
-      });
+      setData({ animeList: json.data?.animeList || [], pagination: json.pagination });
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Gagal mengambil data populer");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Gagal mengambil data populer");
     } finally {
       setLoading(false);
     }
   }
 
-  // Pagination Helper
   const getPageNumbers = () => {
     if (!data?.pagination) return [];
     const total = data.pagination.totalPages;
     const current = page;
     let pages: (number | string)[] = [];
-    
     if (total <= 5) {
       for (let i = 1; i <= total; i++) pages.push(i);
     } else {
-      if (current <= 3) {
-        pages = [1, 2, 3, 4, "...", total];
-      } else if (current >= total - 2) {
-        pages = [1, "...", total - 3, total - 2, total - 1, total];
-      } else {
-        pages = [1, "...", current - 1, current, current + 1, "...", total];
-      }
+      if (current <= 3) pages = [1, 2, 3, 4, "...", total];
+      else if (current >= total - 2) pages = [1, "...", total - 3, total - 2, total - 1, total];
+      else pages = [1, "...", current - 1, current, current + 1, "...", total];
     }
     return pages;
   };
 
   return (
     <div className="min-h-screen pb-20">
-      {/* ── Header ────────────────────────────────── */}
+      {/* ── Premium Header ── */}
       <section className="relative overflow-hidden mb-12">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff7675]/10 rounded-full blur-[120px]" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px]" style={{background: "var(--primary-glow-soft)"}} />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[120px]" style={{background: "var(--secondary-glow-soft)"}} />
         </div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
           <div className="max-w-3xl animate-fade-in-up">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/10 border border-[var(--border-glow)] text-[10px] font-black uppercase tracking-[0.15em] mb-4" style={{color: "var(--primary)"}}>
+              <Sparkles size={12} /> Trending
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
               Anime <span className="text-gradient-anime">Terpopuler</span>
             </h1>
-            <p className="text-gray-400 text-lg leading-relaxed">
+            <p className="text-[var(--text-secondary)] text-lg leading-relaxed">
               Jelajahi judul-judul anime yang paling banyak ditonton dan sedang menjadi tren di komunitas saat ini.
             </p>
           </div>
@@ -130,11 +99,10 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {error && (
-          <div className="glass rounded-xl p-12 border-red-500/20 text-center animate-fade-in">
+          <div className="glass rounded-xl p-12 text-center animate-fade-in" style={{borderColor: "rgba(239,27,36,0.2)"}}>
             <p className="text-red-400 font-medium text-lg">⚠️ Gagal memuat anime populer.</p>
-            <p className="text-sm text-gray-500 mt-2 mb-6">{error}</p>
+            <p className="text-sm text-[var(--text-dim)] mt-2 mb-6">{error}</p>
             <button onClick={() => fetchPopularData(page)} className="btn-primary">Coba Lagi</button>
           </div>
         )}
@@ -147,32 +115,37 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {data.animeList.map((anime, idx) => (
-                <Link 
-                  key={anime.animeId + idx} 
-                  href={`/anime/${cleanSlug(anime.href)}`} 
+                <Link
+                  key={anime.animeId + idx}
+                  href={`/anime/${cleanSlug(anime.href)}`}
                   prefetch={false}
                   className="group block animate-fade-in"
                   style={{ animationDelay: `${(idx % 10) * 0.05}s` }}
                 >
-                  <div className="poster-card aspect-[3/4]">
+                  <div className="relative overflow-hidden rounded-xl poster-card" style={{background: "var(--bg-surface)"}}>
                     <Image src={anime.poster} alt={anime.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md rounded-lg w-7 h-7 flex items-center justify-center border border-white/10 z-10">
-                      <span className="text-xs font-black italic text-gradient-anime">#{ (page - 1) * data.animeList.length + idx + 1 }</span>
+                    <div className="absolute top-2 left-2 z-10 w-8 h-8 rounded-lg backdrop-blur-md border border-white/10 flex items-center justify-center" style={{background: "rgba(0,0,0,0.6)"}}>
+                      <span className="text-xs font-black italic text-gradient-anime">#{(page - 1) * data.animeList.length + idx + 1}</span>
                     </div>
                     {anime.score && anime.score !== "0" && anime.score !== "?" && (
-                      <div className="absolute top-2 right-2 rounded px-1.5 py-0.5 z-10 shadow-lg" style={{background: "var(--gold)", boxShadow: "0 0 8px var(--gold-glow)"}}>
-                        <span className="text-[10px] font-black text-white">⭐ {anime.score}</span>
+                      <div className="absolute top-2 right-2 rounded px-1.5 py-0.5 z-10 flex items-center gap-1" style={{background: "rgba(251,191,36,0.15)", backdropFilter: "blur(8px)", border: "1px solid rgba(251,191,36,0.2)"}}>
+                        <span className="text-[10px] font-black text-[var(--gold)]">⭐ {anime.score}</span>
                       </div>
                     )}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg" style={{background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 24px var(--primary-glow)"}}>
+                        <Play size={22} fill="white" className="ml-1 text-white" />
+                      </div>
+                    </div>
                     <div className="absolute inset-x-0 bottom-0 p-3 pt-12 bg-gradient-to-t from-black via-black/60 to-transparent z-10">
-                       <span className="text-[10px] font-bold text-white/90 uppercase tracking-widest">{anime.type} • {anime.status}</span>
+                      <span className="text-[10px] font-bold text-white/90 uppercase tracking-widest">{anime.type} • {anime.status}</span>
                     </div>
                   </div>
                   <div className="mt-4 space-y-2">
-                    <h3 className="text-sm font-bold text-gray-200 group-hover:text-[#a29bfe] line-clamp-2 leading-snug transition-colors">{anime.title}</h3>
+                    <h3 className="text-sm font-bold text-[var(--text-secondary)] group-hover:text-white line-clamp-2 leading-snug transition-colors">{anime.title}</h3>
                     <div className="flex flex-wrap gap-1">
                       {anime.genreList?.slice(0, 3).map((g, i) => (
-                        <span key={i} className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">{g.title}</span>
+                        <span key={i} className="text-[9px] text-[var(--text-dim)] font-bold uppercase tracking-widest">{g.title}</span>
                       ))}
                     </div>
                   </div>
@@ -180,48 +153,44 @@ export default function PopularPageClient({ initialData }: { initialData: Pagina
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Premium Pagination */}
             {data.pagination && data.pagination.totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mt-16">
                 <button
                   disabled={!data.pagination.hasPrevPage || loading}
                   onClick={() => setPage(page - 1)}
-                  className="w-11 h-11 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="w-11 h-11 rounded-xl glass border border-white/5 flex items-center justify-center text-[var(--text-dim)] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                  <ChevronLeft size={20} />
                 </button>
-
-                {getPageNumbers().map((p, i) => (
+                {getPageNumbers().map((p, i) =>
                   typeof p === "string" ? (
-                    <span key={`dots-${i}`} className="text-gray-600 px-1">...</span>
+                    <span key={`dots-${i}`} className="text-[var(--text-muted)] px-1">...</span>
                   ) : (
                     <button
                       key={p}
                       onClick={() => setPage(p as number)}
                       className={`min-w-[44px] h-11 px-2 rounded-xl text-sm font-bold transition-all ${
-                        page === p
-                          ? "text-white scale-110"
-                          : "text-gray-500 hover:text-gray-300 glass border border-white/5"
+                        page === p ? "text-white scale-110" : "text-[var(--text-dim)] hover:text-[var(--text-secondary)] glass border border-white/5"
                       }`}
-                      style={page === p ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 12px var(--primary-glow)"} : {}}
+                      style={page === p ? {background: "linear-gradient(135deg, var(--primary), var(--secondary))", boxShadow: "0 0 16px var(--primary-glow)"} : {}}
                     >
                       {p}
                     </button>
                   )
-                ))}
-
+                )}
                 <button
                   disabled={!data.pagination.hasNextPage || loading}
                   onClick={() => setPage(page + 1)}
-                  className="w-11 h-11 rounded-xl glass border border-white/5 flex items-center justify-center text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  className="w-11 h-11 rounded-xl glass border border-white/5 flex items-center justify-center text-[var(--text-dim)] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                  <ChevronRight size={20} />
                 </button>
               </div>
             )}
           </>
         ) : (
-          !loading && <div className="py-20 text-center text-gray-500 animate-fade-in">Data populer tidak ditemukan.</div>
+          !loading && <div className="py-20 text-center text-[var(--text-dim)] animate-fade-in">Data populer tidak ditemukan.</div>
         )}
       </div>
     </div>

@@ -62,7 +62,7 @@ function Footer() {
   return (
     <footer className="site-footer">
       <div className="site-footer__inner">
-        <Brand />
+        <Brand compact />
         <p>Powered by Sanka Vollerei API. Dibuat untuk tujuan edukasi.</p>
         <span>&copy; {new Date().getFullYear()}</span>
       </div>
@@ -73,7 +73,7 @@ function Footer() {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id">
-      <body className={`${geist.variable} ${nunito.variable} min-h-screen bg-black antialiased`}>
+      <body className={`${geist.variable} ${nunito.variable} min-h-screen bg-[var(--bg-deep)] antialiased`}>
         <a href="#main-content" className="skip-link">Lewati ke konten</a>
         <SourceInitializer />
         <Navbar />
