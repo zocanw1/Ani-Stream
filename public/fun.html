@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Zona Seru-Seruan Anime & MyAnimeList | StellaNime</title>
+  <meta name="description" content="Kuis Anime Interaktif, Quote Anime Harian, Top Karakter, dan Peringkat Anime Terpopuler dari MyAnimeList.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .quote-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 16px;
+      transition: var(--transition);
+    }
+    .quote-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .quote-author {
+      font-size: 0.88rem;
+      color: var(--primary-light);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quiz-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 36px;
+    }
+    .quiz-question {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+    .quiz-options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .quiz-option-btn {
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .quiz-option-btn:hover {
+      border-color: var(--primary-border);
+      background: var(--primary-bg);
+      transform: translateY(-2px);
+    }
+    .quiz-option-btn.correct {
+      background: var(--accent-cyan-bg) !important;
+      border-color: var(--accent-cyan) !important;
+      color: var(--accent-cyan) !important;
+    }
+    .quiz-option-btn.wrong {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-color: #ef4444 !important;
+      color: #ef4444 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navbar -->
+  <header class="site-header">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-play"></i></div>
+        <div class="logo-text">Stella<span>Nime</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-item-link"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="/#ongoingSection" class="nav-item-link"><i class="fa-solid fa-fire"></i> Anime</a></li>
+          <li><a href="/#completeSection" class="nav-item-link"><i class="fa-solid fa-film"></i> Movie</a></li>
+          <li><a href="/schedule" class="nav-item-link"><i class="fa-solid fa-calendar-days"></i> Jadwal</a></li>
+          <li><a href="/genres" class="nav-item-link"><i class="fa-solid fa-layer-group"></i> Genre</a></li>
+          <li><a href="/bookmarks" class="nav-item-link"><i class="fa-solid fa-bookmark"></i> Library</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-right">
+        <div class="search-capsule-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-capsule-icon"></i>
+          <input type="text" id="searchInput" class="search-capsule-input" placeholder="Search anime..." autocomplete="off">
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+
+        <a href="/genres" class="btn-icon-round" title="Filter Genre Anime">
+          <i class="fa-solid fa-sliders"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-icon-round" title="Anime Tersimpan">
+          <i class="fa-regular fa-bookmark"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-vivid-purple">
+          <i class="fa-solid fa-user"></i> Masuk
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero Spotlight Banner -->
+    <section class="hero-spotlight" style="margin-top: 28px;">
+      <div class="hero-glow-blob"></div>
+      <div class="hero-spotlight-content">
+        <div class="hero-badge-pill"><i class="fa-solid fa-gamepad"></i> MyAnimeList Fun Zone</div>
+        <h1 class="hero-spotlight-title">Zona Seru-Seruan <span>Anime MAL</span></h1>
+        <p class="hero-spotlight-desc">
+          Uji wawasan wibu kamu dengan Kuis Interaktif, dapatkan Anime Quote motivasi harian, dan jelajahi peringkat karakter anime terpopuler sepanjang masa.
+        </p>
+      </div>
+    </section>
+
+    <!-- Interactive Anime Quiz Section -->
+    <section>
+      <div class="section-header-pro">
+        <h2 class="section-title-pro"><i class="fa-solid fa-puzzle-piece" style="color: var(--primary-light);"></i> Kuis Trivia Anime Interaktif</h2>
+        <button id="btnNewQuiz" class="source-tab-btn"><i class="fa-solid fa-rotate-right"></i> Soal Baru</button>
+      </div>
+
+      <div class="quiz-card" id="quizContainer">
+        <div class="quiz-question" id="quizQuestion">Memuat kuis...</div>
+        <div class="quiz-options-grid" id="quizOptions"></div>
+        <div id="quizExplanation" style="display: none; padding: 14px 18px; border-radius: var(--radius-sm); background: var(--bg-surface); border: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 10px;"></div>
+      </div>
+    </section>
+
+    <!-- Daily Anime Quote Section -->
+    <section style="margin-bottom: 40px;">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro"><i class="fa-solid fa-quote-left" style="color: var(--accent-cyan);"></i> Quote Anime Pilihan</h2>
+        <button id="btnNewQuote" class="source-tab-btn"><i class="fa-solid fa-shuffle"></i> Acak Quote</button>
+      </div>
+      <div class="quote-box" id="quoteContainer">
+        <div class="quote-text" id="quoteText">"Memuat quote..."</div>
+        <div class="quote-author" id="quoteAuthor">- Anime</div>
+      </div>
+    </section>
+
+    <!-- Top Characters Section -->
+    <section style="margin-bottom: 60px;">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro"><i class="fa-solid fa-users" style="color: var(--primary-light);"></i> Karakter Anime Terpopuler</h2>
+      </div>
+      <div id="charactersGrid" class="ranked-anime-grid">
+        <div class="spinner" style="grid-column: 1 / -1; margin: 40px auto;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">Stella<span>Nime</span></div>
+        <div class="footer-text">Streaming Anime Legal & Multi-Sumber Terlengkap.</div>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/schedule">Jadwal Rilis</a>
+        <a href="/genres">Genre</a>
+        <a href="/youtube">YouTube Anime</a>
+        <a href="/bookmarks">Library</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/fun.js"></script>
+</body>
+</html>

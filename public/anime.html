@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Detail Anime | StellaNime</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navbar -->
+  <header class="site-header">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-play"></i></div>
+        <div class="logo-text">Stella<span>Nime</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-item-link"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="/#ongoingSection" class="nav-item-link"><i class="fa-solid fa-fire"></i> Anime</a></li>
+          <li><a href="/#completeSection" class="nav-item-link"><i class="fa-solid fa-film"></i> Movie</a></li>
+          <li><a href="/schedule" class="nav-item-link"><i class="fa-solid fa-calendar-days"></i> Jadwal</a></li>
+          <li><a href="/genres" class="nav-item-link"><i class="fa-solid fa-layer-group"></i> Genre</a></li>
+          <li><a href="/bookmarks" class="nav-item-link"><i class="fa-solid fa-bookmark"></i> Library</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-right">
+        <div class="search-capsule-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-capsule-icon"></i>
+          <input type="text" id="searchInput" class="search-capsule-input" placeholder="Search anime..." autocomplete="off">
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+
+        <a href="/genres" class="btn-icon-round" title="Filter Genre Anime">
+          <i class="fa-solid fa-sliders"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-icon-round" title="Anime Tersimpan">
+          <i class="fa-regular fa-bookmark"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-vivid-purple">
+          <i class="fa-solid fa-user"></i> Masuk
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Detail Content Area -->
+  <main class="container anime-detail-header">
+    <div id="loadingState" style="text-align: center; padding: 80px 0;">
+      <div class="spinner" style="margin: 0 auto 16px;"></div>
+      <p style="color: var(--text-muted);">Memuat informasi anime...</p>
+    </div>
+
+    <div id="detailContainer" style="display: none;">
+      <!-- Anime Metadata Card -->
+      <div class="detail-card">
+        <div class="detail-poster-wrap">
+          <img id="animePoster" src="" alt="Poster" class="detail-poster" referrerpolicy="no-referrer">
+        </div>
+        <div class="detail-info">
+          <h1 id="animeTitle" class="detail-title">Judul Anime</h1>
+          <div id="animeJapanese" class="detail-japanese-title">Judul Jepang</div>
+
+          <!-- Metadata Pills -->
+          <div id="animePills" class="detail-pills"></div>
+
+          <!-- Genres -->
+          <div id="animeGenres" class="detail-genres"></div>
+
+          <!-- Synopsis -->
+          <div class="detail-synopsis">
+            <h3 style="color: var(--text-main); font-size: 1rem; font-weight: 700; margin-bottom: 8px;">
+              <i class="fa-solid fa-align-left" style="color: var(--primary-light); margin-right: 6px;"></i> Sinopsis
+            </h3>
+            <p id="animeSynopsis" style="white-space: pre-line;">Sinopsis belum tersedia.</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="detail-actions">
+            <a id="btnFirstEpisode" href="#" class="btn btn-primary"><i class="fa-solid fa-play"></i> Tonton Sekarang</a>
+            <button id="btnBookmark" class="btn btn-secondary"><i class="fa-regular fa-bookmark"></i> Simpan ke Library</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Episodes Section -->
+      <section class="episodes-section">
+        <div class="episodes-filter-bar">
+          <h2 class="section-title-pro"><i class="fa-solid fa-list-ol"></i> Daftar Episode (<span id="episodeCount">0</span>)</h2>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="epSearchInput" class="episodes-search-input" placeholder="Cari episode...">
+            <button id="epOrderBtn" class="source-tab-btn active"><i class="fa-solid fa-arrow-down-short-wide"></i> Urutkan</button>
+          </div>
+        </div>
+
+        <div id="episodesGrid" class="episodes-grid"></div>
+      </section>
+
+      <!-- Batch Downloads Section (If Available) -->
+      <div id="batchSection" class="batch-section" style="display: none;">
+        <div class="batch-title"><i class="fa-solid fa-download" style="color: var(--accent-cyan);"></i> Unduh Batch Anime</div>
+        <div id="batchContent"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">Stella<span>Nime</span></div>
+        <div class="footer-text">Aplikasi web streaming & unduh anime subtitle Indonesia. Sumber data dari Otakudesu.</div>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/schedule">Jadwal Rilis</a>
+        <a href="/genres">Genre</a>
+        <a href="/youtube">YouTube Anime</a>
+        <a href="/bookmarks">Library</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/anime.js"></script>
+</body>
+</html>

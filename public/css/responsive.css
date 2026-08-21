@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Stella-Nime - Responsive Layout Styles
+   ========================================================================== */
+
+/* Laptop / Desktop (max-width: 1200px) */
+@media (max-width: 1200px) {
+  .ranked-anime-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+
+  .update-anime-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Tablet (max-width: 992px) */
+@media (max-width: 992px) {
+  .nav-menu {
+    gap: 2px;
+  }
+
+  .nav-item-link {
+    padding: 7px 10px;
+    font-size: 0.84rem;
+  }
+
+  .search-capsule-wrapper {
+    width: 200px;
+  }
+
+  .ranked-anime-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .update-anime-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .watch-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .detail-pills, .detail-genres, .detail-actions {
+    justify-content: center;
+  }
+
+  .hero-spotlight {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+  }
+
+  .hero-spotlight-content {
+    max-width: 100%;
+  }
+
+  .hero-actions-row {
+    justify-content: center;
+  }
+}
+
+/* Mobile Devices (max-width: 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  .nav-content {
+    height: 60px;
+  }
+
+  /* Hide textual nav menu on small mobile, show core links or mobile bar */
+  .nav-menu {
+    display: none;
+  }
+
+  .search-capsule-wrapper {
+    width: 160px;
+  }
+
+  .search-capsule-input {
+    font-size: 0.8rem;
+    padding: 7px 12px 7px 32px;
+  }
+
+  .btn-vivid-purple {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .update-anime-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .ranked-anime-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .hero-spotlight-title {
+    font-size: 1.6rem;
+  }
+
+  .hero-spotlight-desc {
+    font-size: 0.85rem;
+  }
+
+  .section-title-pro {
+    font-size: 1.15rem;
+  }
+
+  .detail-poster-wrap {
+    width: 170px;
+  }
+
+  .detail-title {
+    font-size: 1.45rem;
+  }
+
+  .episodes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .footer-nav {
+    justify-content: center;
+  }
+}
+
+/* Small Phones (max-width: 480px) */
+@media (max-width: 480px) {
+  .search-capsule-wrapper {
+    width: 130px;
+  }
+
+  .brand-logo .logo-text {
+    font-size: 1.15rem;
+  }
+
+  .card-overlay-title {
+    font-size: 0.78rem;
+  }
+
+  .anime-update-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .update-poster-wrap {
+    width: 80px;
+    height: 112px;
+  }
+
+  .update-anime-title {
+    font-size: 0.88rem;
+  }
+}

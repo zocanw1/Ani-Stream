@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Nonton Streaming Anime | StellaNime</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navbar -->
+  <header class="site-header">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-play"></i></div>
+        <div class="logo-text">Stella<span>Nime</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-item-link"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="/#ongoingSection" class="nav-item-link"><i class="fa-solid fa-fire"></i> Anime</a></li>
+          <li><a href="/#completeSection" class="nav-item-link"><i class="fa-solid fa-film"></i> Movie</a></li>
+          <li><a href="/schedule" class="nav-item-link"><i class="fa-solid fa-calendar-days"></i> Jadwal</a></li>
+          <li><a href="/genres" class="nav-item-link"><i class="fa-solid fa-layer-group"></i> Genre</a></li>
+          <li><a href="/bookmarks" class="nav-item-link"><i class="fa-solid fa-bookmark"></i> Library</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-right">
+        <div class="search-capsule-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-capsule-icon"></i>
+          <input type="text" id="searchInput" class="search-capsule-input" placeholder="Search anime..." autocomplete="off">
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+
+        <a href="/genres" class="btn-icon-round" title="Filter Genre Anime">
+          <i class="fa-solid fa-sliders"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-icon-round" title="Anime Tersimpan">
+          <i class="fa-regular fa-bookmark"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-vivid-purple">
+          <i class="fa-solid fa-user"></i> Masuk
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Cinema Watch Area -->
+  <main class="container">
+    <div id="loadingState" style="text-align: center; padding: 80px 0;">
+      <div class="spinner" style="margin: 0 auto 16px;"></div>
+      <p style="color: var(--text-muted);">Menyiapkan pemutar video...</p>
+    </div>
+
+    <div id="watchContainer" class="watch-layout" style="display: none;">
+      
+      <!-- Main Video Column -->
+      <div class="player-container">
+        
+        <!-- Video Title & Back Link -->
+        <div>
+          <a id="backToAnimeLink" href="#" style="font-size: 0.85rem; color: var(--primary-light); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <i class="fa-solid fa-arrow-left"></i> Kembali ke Detail Anime
+          </a>
+          <h1 id="episodeTitle" style="font-family: var(--font-main); font-size: 1.4rem; font-weight: 800; line-height: 1.3;">Judul Episode</h1>
+        </div>
+
+        <!-- 16:9 Video Frame Embed -->
+        <div class="video-frame-wrap">
+          <iframe id="videoPlayer" src="" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" sandbox="allow-scripts allow-pointer-lock allow-forms allow-same-origin allow-fullscreen allow-orientation-lock"></iframe>
+          <div id="playerSpinner" class="player-loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <div style="font-size: 0.88rem; color: var(--text-main);">Memuat server stream...</div>
+          </div>
+        </div>
+
+        <!-- Controls & Navigation Bar -->
+        <div class="player-controls-bar">
+          <div class="episode-nav-btns">
+            <a id="prevEpBtn" href="#" class="btn-nav"><i class="fa-solid fa-backward-step"></i> Episode Sebelumnya</a>
+            <a id="nextEpBtn" href="#" class="btn-nav">Episode Selanjutnya <i class="fa-solid fa-forward-step"></i></a>
+          </div>
+          <div>
+            <a id="allEpBtn" href="#" class="btn-nav"><i class="fa-solid fa-list"></i> Semua Episode</a>
+          </div>
+        </div>
+
+        <!-- Server & Quality Mirror Selector -->
+        <div class="server-selector-card">
+          <div class="server-selector-header">
+            <div class="server-selector-title">
+              <i class="fa-solid fa-server" style="color: var(--primary-light);"></i> Pilih Server Mirror
+            </div>
+            <div class="quality-tabs" id="qualityTabs">
+              <button class="quality-tab-btn active" data-quality="360p">360p</button>
+              <button class="quality-tab-btn" data-quality="480p">480p</button>
+              <button class="quality-tab-btn" data-quality="720p">720p</button>
+            </div>
+          </div>
+
+          <div id="serverButtonsGrid" class="server-buttons-grid">
+            <!-- Server Buttons dynamically rendered -->
+          </div>
+          <div style="margin-top: 10px; font-size: 0.78rem; color: var(--text-dim);">
+            <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan);"></i> Jika video tidak bisa diputar / macet, silakan beralih ke server mirror lain (Filedon, Vidhide, Mega, dll).
+          </div>
+        </div>
+
+        <!-- Direct Downloads Section -->
+        <div id="downloadSection" class="batch-section" style="display: none; margin-top: 0;">
+          <div class="batch-title"><i class="fa-solid fa-cloud-arrow-down" style="color: var(--accent-cyan);"></i> Download Episode Ini</div>
+          <div id="downloadButtonsGrid"></div>
+        </div>
+
+      </div>
+
+      <!-- Right Sidebar: Episode Playlist -->
+      <div class="watch-sidebar">
+        <div class="episodes-sidebar-card">
+          <div class="episodes-sidebar-header">
+            <span><i class="fa-solid fa-layer-group" style="color: var(--primary-light); margin-right: 6px;"></i> Daftar Episode</span>
+            <span id="sidebarCount" style="font-size: 0.8rem; color: var(--text-muted);">0 Ep</span>
+          </div>
+          <div id="sidebarEpisodesList" class="sidebar-ep-scroll">
+            <div class="spinner" style="margin: 20px auto;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">Stella<span>Nime</span></div>
+        <div class="footer-text">Aplikasi web streaming & unduh anime subtitle Indonesia. Sumber data dari Otakudesu.</div>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/schedule">Jadwal Rilis</a>
+        <a href="/genres">Genre</a>
+        <a href="/youtube">YouTube Anime</a>
+        <a href="/bookmarks">Library</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/watch.js"></script>
+</body>
+</html>

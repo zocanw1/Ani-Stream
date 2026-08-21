@@ -1,0 +1,69 @@
+{
+  "test_123": {
+    "id": "test_123",
+    "email": "test@gmail.com",
+    "name": "Test User",
+    "picture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80",
+    "createdAt": 1787320382353,
+    "lastLoginAt": 1787320382353,
+    "history": [
+      {
+        "animeSlug": "naruto",
+        "episodeTitle": "Naruto Ep 1"
+      }
+    ],
+    "bookmarks": [
+      {
+        "slug": "naruto",
+        "title": "Naruto"
+      }
+    ],
+    "updatedAt": 1787320382356
+  },
+  "google_dXNlci5hbmltZUBnbWFpbC5jb20": {
+    "id": "google_dXNlci5hbmltZUBnbWFpbC5jb20",
+    "email": "user.anime@gmail.com",
+    "name": "User Anime",
+    "picture": "https://api.dicebear.com/7.x/bottts/svg?seed=user.anime%40gmail.com",
+    "createdAt": 1787320531512,
+    "lastLoginAt": 1787320531512,
+    "history": [],
+    "bookmarks": [],
+    "updatedAt": 1787320531521
+  },
+  "google_bHVub3guaWQzM0BnbWFpbC5jb20": {
+    "id": "google_bHVub3guaWQzM0BnbWFpbC5jb20",
+    "email": "lunox.id33@gmail.com",
+    "name": "lunox.id33",
+    "picture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80",
+    "createdAt": 1787320772120,
+    "lastLoginAt": 1787320772120,
+    "history": [],
+    "bookmarks": [],
+    "updatedAt": 1787320772128
+  },
+  "user_823fe0ac83c1ceff": {
+    "id": "user_823fe0ac83c1ceff",
+    "username": "zocan",
+    "name": "Zocan Lunox",
+    "picture": "https://api.dicebear.com/7.x/bottts/svg?seed=zocan",
+    "salt": "6f876708a6f1695dc8b1197642659c79",
+    "password": "40220273ff159d341a2518e3210a543377f906a8bece577f6d993897c0e0590b58ad394a0a2f4474309c94a8eb572fd504d0fd504cee9f248271058e66224093",
+    "createdAt": 1787321129160,
+    "lastLoginAt": 1787321129163,
+    "history": [
+      {
+        "animeSlug": "jujutsu-kaisen",
+        "episodeSlug": "jujutsu-ep-1",
+        "episodeTitle": "Jujutsu Kaisen Ep 1"
+      }
+    ],
+    "bookmarks": [
+      {
+        "slug": "jujutsu-kaisen",
+        "title": "Jujutsu Kaisen"
+      }
+    ],
+    "updatedAt": 1787321129259
+  }
+}

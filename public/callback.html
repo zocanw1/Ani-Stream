@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menyelesaikan Login Google... | StellaNime</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      text-align: center;
+    }
+    .loading-card {
+      background: var(--bg-card);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      max-width: 400px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-card">
+    <div class="spinner" style="margin: 0 auto 18px;"></div>
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">Menghubungkan Akun Google...</h2>
+    <p style="font-size: 0.85rem; color: var(--text-muted);" id="statusText">Memproses otentikasi Google dan menyinkronkan riwayat anime Anda.</p>
+  </div>
+
+  <script src="/js/storage.js"></script>
+  <script>
+    async function handleGoogleCallback() {
+      const status = document.getElementById('statusText');
+
+      // 1. Check for access_token in URL hash (#access_token=...)
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+
+      // 2. Check for query param (?token=... or ?code=...)
+      const queryParams = new URLSearchParams(window.location.search);
+      const token = accessToken || queryParams.get('token');
+
+      if (token) {
+        try {
+          status.textContent = 'Mengambil data profil Google...';
+          const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const profile = await userInfoRes.json();
+
+          if (profile && (profile.email || profile.sub)) {
+            status.textContent = 'Menyimpan sesi pengguna...';
+            const serverRes = await fetch('/api/auth/google', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ profile })
+            });
+            const json = await serverRes.json();
+            if (json.success && json.data) {
+              localStorage.setItem('stella_nime_user', JSON.stringify(json.data));
+              window.location.href = '/';
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Callback error:', err);
+          status.textContent = 'Gagal memproses login: ' + err.message;
+        }
+      } else {
+        status.textContent = 'Tidak ada token otentikasi ditemukan. Mengalihkan ke beranda...';
+        setTimeout(() => { window.location.href = '/'; }, 2000);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', handleGoogleCallback);
+  </script>
+</body>
+</html>

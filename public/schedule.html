@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Jadwal Rilis Anime | StellaNime</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navbar -->
+  <header class="site-header">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-play"></i></div>
+        <div class="logo-text">Stella<span>Nime</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-item-link"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="/#ongoingSection" class="nav-item-link"><i class="fa-solid fa-fire"></i> Anime</a></li>
+          <li><a href="/#completeSection" class="nav-item-link"><i class="fa-solid fa-film"></i> Movie</a></li>
+          <li><a href="/schedule" class="nav-item-link active"><i class="fa-solid fa-calendar-days"></i> Jadwal</a></li>
+          <li><a href="/genres" class="nav-item-link"><i class="fa-solid fa-layer-group"></i> Genre</a></li>
+          <li><a href="/bookmarks" class="nav-item-link"><i class="fa-solid fa-bookmark"></i> Library</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-right">
+        <div class="search-capsule-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-capsule-icon"></i>
+          <input type="text" id="searchInput" class="search-capsule-input" placeholder="Search anime..." autocomplete="off">
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+
+        <a href="/genres" class="btn-icon-round" title="Filter Genre Anime">
+          <i class="fa-solid fa-sliders"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-icon-round" title="Anime Tersimpan">
+          <i class="fa-regular fa-bookmark"></i>
+        </a>
+
+        <a href="/bookmarks" class="btn-vivid-purple">
+          <i class="fa-solid fa-user"></i> Masuk
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 32px; padding-bottom: 60px;">
+    <div class="section-header-pro">
+      <h1 class="section-title-pro"><i class="fa-solid fa-calendar-days"></i> Jadwal Rilis Mingguan</h1>
+    </div>
+
+    <!-- Day Navigation Tabs -->
+    <div class="source-tabs-bar" id="dayTabs" style="margin-bottom: 24px;"></div>
+
+    <div id="scheduleLoading" style="text-align: center; padding: 60px 0;">
+      <div class="spinner" style="margin: 0 auto 16px;"></div>
+      <p style="color: var(--text-muted);">Memuat jadwal rilis anime...</p>
+    </div>
+
+    <!-- Anime List for Selected Day -->
+    <div id="scheduleGrid" class="ranked-anime-grid" style="display: none;"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">Stella<span>Nime</span></div>
+        <div class="footer-text">Aplikasi web streaming & unduh anime subtitle Indonesia.</div>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/schedule">Jadwal Rilis</a>
+        <a href="/genres">Genre</a>
+        <a href="/youtube">YouTube Anime</a>
+        <a href="/bookmarks">Library</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/schedule.js"></script>
+</body>
+</html>

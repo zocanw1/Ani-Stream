@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>StellaNime | Nonton Streaming Anime Sub Indo Gratis & Cepat</title>
+  <meta name="description" content="Streaming dan Nonton Anime Subtitle Indonesia kualitas HD multi-server dari Otakudesu, Kuronime, Samehadaku, dan YouTube Anime Resmi.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <!-- FontAwesome 6 for modern UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navbar (Reference Image 1 & 4 Style) -->
+  <header class="site-header">
+    <div class="container nav-content">
+      <a href="/" class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-play"></i></div>
+        <div class="logo-text">Stella<span>Nime</span></div>
+      </a>
+
+      <!-- Main Navigation Menu (Anime Themed) -->
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-item-link active"><i class="fa-solid fa-house"></i> Home</a></li>
+          <li><a href="#ongoingSection" class="nav-item-link"><i class="fa-solid fa-fire"></i> Anime</a></li>
+          <li><a href="#completeSection" class="nav-item-link"><i class="fa-solid fa-film"></i> Movie</a></li>
+          <li><a href="/schedule" class="nav-item-link"><i class="fa-solid fa-calendar-days"></i> Jadwal</a></li>
+          <li><a href="/genres" class="nav-item-link"><i class="fa-solid fa-layer-group"></i> Genre</a></li>
+          <li><a href="/bookmarks" class="nav-item-link"><i class="fa-solid fa-bookmark"></i> Library</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right Header Actions (Search Capsule, Filter, Bookmarks, Vivid Button) -->
+      <div class="nav-right">
+        <!-- Search Capsule Input -->
+        <div class="search-capsule-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-capsule-icon"></i>
+          <input type="text" id="searchInput" class="search-capsule-input" placeholder="Search anime..." autocomplete="off">
+          <span class="search-capsule-enter"><i class="fa-solid fa-arrow-turn-down"></i></span>
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+
+        <!-- Filter Icon Button -->
+        <a href="/genres" class="btn-icon-round" title="Filter Genre Anime">
+          <i class="fa-solid fa-sliders"></i>
+        </a>
+
+        <!-- Library Bookmark Icon Button -->
+        <a href="/bookmarks" class="btn-icon-round" title="Anime Tersimpan">
+          <i class="fa-regular fa-bookmark"></i>
+        </a>
+
+        <!-- Vivid Purple Action Button (Like 'Masuk' in reference images) -->
+        <a href="/bookmarks" class="btn-vivid-purple">
+          <i class="fa-solid fa-user"></i> Masuk
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="container">
+    
+    <!-- Hero Spotlight Banner -->
+    <section class="hero-spotlight" id="heroBanner">
+      <div class="hero-glow-blob"></div>
+      <div class="hero-spotlight-content">
+        <div class="hero-badge-pill"><i class="fa-solid fa-bolt"></i> Official Multi-Provider Anime Streaming</div>
+        <h1 class="hero-spotlight-title" id="heroTitle">Nonton Anime <span>Subtitle Indonesia</span> Cepat & Bersih</h1>
+        <p class="hero-spotlight-desc" id="heroDesc">Streaming anime terbaru kualitas HD multi-server dari Otakudesu, Kuronime, Samehadaku, YouTube Official & MyAnimeList Fun Zone.</p>
+        <div class="hero-actions-row">
+          <a href="#updateSection" class="btn btn-primary"><i class="fa-solid fa-play"></i> Update Terbaru</a>
+          <a href="#ongoingSection" class="btn btn-secondary"><i class="fa-solid fa-fire"></i> Anime Ongoing</a>
+          <a href="/schedule" class="btn btn-secondary"><i class="fa-solid fa-calendar-days"></i> Jadwal Rilis</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source Provider Switcher Bar -->
+    <section>
+      <div class="source-tabs-bar">
+        <button class="source-tab-btn active" id="btnSrcOtakudesu" onclick="switchSource('otakudesu')">
+          <i class="fa-solid fa-star"></i> Otakudesu (Utama)
+        </button>
+        <button class="source-tab-btn" id="btnSrcKuronime" onclick="switchSource('kuronime')">
+          <i class="fa-solid fa-paw"></i> Kuronime
+        </button>
+        <button class="source-tab-btn" id="btnSrcSamehadaku" onclick="switchSource('samehadaku')">
+          <i class="fa-solid fa-bolt"></i> Samehadaku
+        </button>
+        <a href="/youtube" class="source-tab-btn">
+          <i class="fa-brands fa-youtube" style="color: #ef4444;"></i> YouTube Anime Resmi
+        </a>
+        <a href="/fun" class="source-tab-btn">
+          <i class="fa-solid fa-trophy" style="color: var(--primary-light);"></i> MAL Zona Seru
+        </a>
+      </div>
+    </section>
+
+    <!-- Continue Watching / History Section -->
+    <section id="historySection" style="display: none; margin-bottom: 30px;">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro"><i class="fa-solid fa-clock-rotate-left"></i> Lanjutkan Menonton</h2>
+        <a href="/bookmarks" class="section-more-link">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      <div id="historyGrid" class="ranked-anime-grid"></div>
+    </section>
+
+    <!-- Search Results View (If Search is Submitted) -->
+    <section id="searchResultsSection" style="display: none; margin-bottom: 40px;">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro"><i class="fa-solid fa-magnifying-glass"></i> Hasil Pencarian "<span id="searchQueryText"></span>"</h2>
+        <button id="closeSearchBtn" class="source-tab-btn"><i class="fa-solid fa-xmark"></i> Tutup Pencarian</button>
+      </div>
+      <div id="searchResultsGrid" class="ranked-anime-grid"></div>
+    </section>
+
+    <!-- SECTION 1: Update Anime Terbaru (Reference Image 1 & 3: Wide Horizontal Cards) -->
+    <section id="updateSection">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro" id="updateSectionTitle">
+          <i class="fa-regular fa-clock"></i> Update Anime Terbaru
+        </h2>
+        <a href="#ongoingSection" class="section-more-link">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      
+      <div id="updateAnimeGrid" class="update-anime-grid">
+        <div class="spinner" style="grid-column: 1 / -1; margin: 40px auto;"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Anime Ongoing (Reference Image 3 & 4: Ranked Vertical Cards #1, #2...) -->
+    <section id="ongoingSection">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro" id="ongoingTitle">
+          <i class="fa-solid fa-fire"></i> Anime Ongoing Populer
+        </h2>
+        <a href="/schedule" class="section-more-link">Jadwal Rilis <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      
+      <div id="ongoingGrid" class="ranked-anime-grid">
+        <div class="spinner" style="grid-column: 1 / -1; margin: 40px auto;"></div>
+      </div>
+
+      <!-- View All Button -->
+      <div class="btn-view-all-center">
+        <a href="/schedule" class="btn-pill-outline">
+          <span>Lihat Semua Anime Ongoing</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Anime Tamat (Complete) & Movies -->
+    <section id="completeSection">
+      <div class="section-header-pro">
+        <h2 class="section-title-pro" id="completeTitle">
+          <i class="fa-solid fa-check-double"></i> Anime Tamat & Rekomendasi
+        </h2>
+        <a href="/genres" class="section-more-link">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      
+      <div id="completeGrid" class="ranked-anime-grid">
+        <div class="spinner" style="grid-column: 1 / -1; margin: 40px auto;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <div class="footer-brand">Stella<span>Nime</span></div>
+        <div class="footer-text">Platform streaming anime modern terintegrasi dengan Otakudesu, Kuronime, Samehadaku, YouTube Official & MyAnimeList.</div>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/schedule">Jadwal Rilis</a>
+        <a href="/genres">Genre</a>
+        <a href="/youtube">YouTube Anime</a>
+        <a href="/fun">Zona Seru</a>
+        <a href="/bookmarks">Library</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/storage.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
