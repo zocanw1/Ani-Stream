@@ -59,24 +59,43 @@ function loadHistoryView() {
     return;
   }
 
-  grid.innerHTML = history.map(item => `
-    <div class="anime-poster-card">
-      <a href="/watch/${item.episodeSlug}">
-        <div class="anime-poster-wrap">
-          <span class="card-badge-type">HISTORY</span>
-          <span class="card-badge-status">LANJUT</span>
-          <img src="${item.poster || DEFAULT_POSTER}" alt="${item.animeTitle}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${DEFAULT_POSTER}';">
-          <div class="card-bottom-overlay">
-            <div class="card-overlay-title" title="${item.animeTitle}">${item.animeTitle}</div>
-            <div class="card-overlay-meta">
-              <span class="card-ep-text">${item.episodeTitle || 'Episode'}</span>
-              <span class="card-rating-text"><i class="fa-solid fa-play"></i> Putar</span>
+  // Cross-fill missing posters from matching anime in history or bookmarks
+  const bookmarks = StorageManager.getBookmarks();
+  const posterMap = new Map();
+  [...bookmarks, ...history].forEach(item => {
+    const slug = item.animeSlug || item.slug;
+    const p = item.poster;
+    if (slug && p && !p.includes('unsplash') && !posterMap.has(slug)) {
+      posterMap.set(slug, p);
+    }
+  });
+
+  grid.innerHTML = history.map(item => {
+    const animeSlug = item.animeSlug || item.slug;
+    let posterUrl = item.poster;
+    if (!posterUrl || posterUrl.includes('unsplash')) {
+      posterUrl = posterMap.get(animeSlug) || DEFAULT_POSTER;
+    }
+
+    return `
+      <div class="anime-poster-card">
+        <a href="/watch/${item.episodeSlug}">
+          <div class="anime-poster-wrap">
+            <span class="card-badge-type">HISTORY</span>
+            <span class="card-badge-status">LANJUT</span>
+            <img src="${posterUrl}" alt="${item.animeTitle}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${DEFAULT_POSTER}';">
+            <div class="card-bottom-overlay">
+              <div class="card-overlay-title" title="${item.animeTitle}">${item.animeTitle}</div>
+              <div class="card-overlay-meta">
+                <span class="card-ep-text">${item.episodeTitle || 'Episode'}</span>
+                <span class="card-rating-text"><i class="fa-solid fa-play"></i> Putar</span>
+              </div>
             </div>
           </div>
-        </div>
-      </a>
-    </div>
-  `).join('');
+        </a>
+      </div>
+    `;
+  }).join('');
 }
 
 function initNavbarSearch() {
