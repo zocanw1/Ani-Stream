@@ -2,31 +2,75 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 
-const BASE_URL = 'https://otakudesu.blog';
+const OTAKUDESU_MIRRORS = [
+  'https://otakudesu.cc',
+  'https://otakudesu.blog',
+  'https://otakudesu.cloud',
+  'https://otakudesu.best',
+  'https://otakudesu.cam'
+];
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000,
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Referer': BASE_URL,
-    'Origin': BASE_URL
+let activeBaseUrl = OTAKUDESU_MIRRORS[0];
+
+const BROWSER_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Sec-Ch-Ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'same-origin',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1'
+};
+
+async function fetchFromMirrors(path = '', options = {}) {
+  let lastError = null;
+
+  // Try current activeBaseUrl first
+  const mirrors = [activeBaseUrl, ...OTAKUDESU_MIRRORS.filter(m => m !== activeBaseUrl)];
+
+  for (const mirror of mirrors) {
+    try {
+      const cleanPath = path.startsWith('/') ? path : '/' + path;
+      const url = mirror + cleanPath;
+
+      const res = await axios.get(url, {
+        timeout: 9000,
+        headers: {
+          ...BROWSER_HEADERS,
+          'Referer': mirror + '/',
+          'Origin': mirror,
+          ...(options.headers || {})
+        },
+        params: options.params
+      });
+
+      if (res.status === 200 && res.data) {
+        activeBaseUrl = mirror;
+        return { data: res.data, baseUrl: mirror };
+      }
+    } catch (err) {
+      lastError = err;
+    }
   }
-});
+
+  throw lastError || new Error('Gagal memuat data dari mirror Otakudesu');
+}
 
 function extractSlug(url) {
   if (!url) return '';
-  const match = url.match(/\/(?:anime|episode|genres)\/([^\/]+)\/?/);
-  return match ? match[1] : url.replace(BASE_URL, '').replace(/\//g, '');
+  const match = url.match(/\/(?:anime|episode|genres|lengkap)\/([^\/]+)\/?/);
+  return match ? match[1] : url.replace(/https?:\/\/[^\/]+\//, '').replace(/\//g, '');
 }
 
 /**
  * Get Home page data (Ongoing & Complete Anime)
  */
 async function getHome() {
-  const { data } = await client.get('/');
+  const { data } = await fetchFromMirrors('/');
   const $ = cheerio.load(data);
 
   const ongoing = [];
@@ -94,7 +138,7 @@ async function getHome() {
  */
 async function searchAnime(query) {
   if (!query || query.trim().length === 0) return [];
-  const { data } = await client.get('/', {
+  const { data } = await fetchFromMirrors('/', {
     params: {
       s: query.trim(),
       post_type: 'anime'
@@ -148,292 +192,228 @@ async function searchAnime(query) {
 }
 
 /**
- * Get Anime Detail & Episode List
+ * Get Anime Detail by slug
  */
 async function getAnimeDetail(slug) {
-  const url = `/anime/${slug}/`;
-  const { data } = await client.get(url);
+  const { data } = await fetchFromMirrors(`/anime/${slug}/`);
   const $ = cheerio.load(data);
 
+  const title = $('.infozingle .jdlcontent, .fotoanime .entry-title, h1.entry-title').first().text().trim() ||
+                $('.infozin .infozingle:contains("Judul") b').parent().text().replace('Judul:', '').trim();
+  const poster = $('.fotoanime img').attr('src') || '';
+  const synopsis = $('.sinopc').text().trim();
+
+  // Info details from .infozingle
   const info = {};
-  $('.infozingle > p').each((_, el) => {
-    const text = $(el).text();
-    const parts = text.split(':');
-    if (parts.length >= 2) {
-      const key = parts[0].trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
-      const val = parts.slice(1).join(':').trim();
-      info[key] = val;
+  $('.infozingle p, .infozin .infozingle').each((_, el) => {
+    const text = $(el).text().trim();
+    if (text.includes(':')) {
+      const [k, ...v] = text.split(':');
+      const key = k.trim().toLowerCase().replace(/\s+/g, '_');
+      const value = v.join(':').trim();
+      if (key && value) {
+        info[key] = value;
+      }
     }
   });
 
-  const title = $('.infozingle p:contains("Judul")').text().replace(/Judul\s*:\s*/i, '').trim() ||
-                $('.fotoanime h1').text().trim() ||
-                $('h1.entry-title').text().trim() ||
-                slug.replace(/-/g, ' ');
-  const poster = $('.fotoanime > img').attr('src') || $('.wp-post-image').attr('src') || '';
-  const synopsis = $('.sinopc > p').map((_, el) => $(el).text().trim()).get().join('\n\n') ||
-                   $('.entry-content p').first().text().trim();
-
-  // Extract Genres
+  // Genres
   const genres = [];
-  $('.infozingle p:contains("Genre") a').each((_, el) => {
+  $('.infozingle:contains("Genre") a, .infozin a[href*="/genres/"]').each((_, el) => {
     genres.push({
       name: $(el).text().trim(),
       slug: extractSlug($(el).attr('href'))
     });
   });
 
-  // Extract Episodes
+  // Episodes List
   const episodes = [];
-  $('.episodelist ul > li').each((_, el) => {
-    const item = $(el);
-    const epLink = item.find('a');
-    const epTitle = epLink.text().trim();
-    const epUrl = epLink.attr('href') || '';
+  $('.episodelist ul li').each((_, el) => {
+    const a = $(el).find('a').first();
+    const epTitle = a.text().trim();
+    const epUrl = a.attr('href') || '';
+    const epDate = $(el).find('.zeebr').text().trim();
     const epSlug = extractSlug(epUrl);
-    const releaseDate = item.find('.zee-date').text().trim() || item.text().replace(epTitle, '').trim();
 
-    if (epTitle && epSlug && epUrl.includes('/episode/')) {
-      const epNumMatch = epTitle.match(/Episode\s+(\d+(?:\.\d+)?)/i);
-      const epNumber = epNumMatch ? epNumMatch[1] : '';
-
+    if (epTitle && epSlug) {
       episodes.push({
         title: epTitle,
         slug: epSlug,
-        episode_number: epNumber,
-        release_date: releaseDate,
+        date: epDate,
         url: epUrl
       });
     }
   });
 
-  // Extract Batch link if exists
-  let batch = null;
-  const batchEl = $('.episodelist').find('ul li a[href*="/batch/"]').first();
-  if (batchEl.length > 0) {
-    batch = {
-      title: batchEl.text().trim(),
-      url: batchEl.attr('href')
-    };
-  }
+  // Batch download if available
+  const batch = [];
+  $('.batchlink ul li').each((_, el) => {
+    const quality = $(el).find('strong, b').text().trim();
+    const links = [];
+    $(el).find('a').each((_, aEl) => {
+      links.push({
+        name: $(aEl).text().trim(),
+        url: $(aEl).attr('href') || ''
+      });
+    });
+    if (quality && links.length > 0) {
+      batch.push({ quality, links });
+    }
+  });
 
   return {
     title,
-    japanese_title: info.japanese || '',
-    score: info.skor || info.score || '',
-    producer: info.produser || '',
-    type: info.tipe || '',
-    status: info.status || '',
-    total_episodes: info.total_episode || '',
-    duration: info.durasi || '',
-    release_date: info.tanggal_rilis || '',
-    studio: info.studio || '',
-    genres,
-    synopsis,
     poster,
+    synopsis,
+    info,
+    genres,
     episodes,
     batch
   };
 }
 
 /**
- * Get Episode Stream & Mirrors & Download Links
+ * Get Episode Data & Video Stream Embeds
  */
-async function getEpisodeDetail(episodeSlug) {
-  const url = `/episode/${episodeSlug}/`;
-  const response = await client.get(url);
-  const data = response.data;
-  const cookies = response.headers['set-cookie'] ? response.headers['set-cookie'].map(c => c.split(';')[0]).join('; ') : '';
+async function getEpisode(slug) {
+  const { data } = await fetchFromMirrors(`/episode/${slug}/`);
   const $ = cheerio.load(data);
 
-  const title = $('h1.posttl').text().trim() || $('h1').first().text().trim();
-  
-  // Navigation Links
-  const prevUrl = $('.flir a:contains("Previous")').attr('href') || '';
+  const title = $('.posttl, h1.entry-title').text().trim();
+  const animeTitle = $('.flir a[href*="/anime/"]').text().trim();
+  const animeUrl = $('.flir a[href*="/anime/"]').attr('href') || '';
+  const animeSlug = extractSlug(animeUrl);
+
+  // Default stream iframe
+  let defaultStream = $('.responsive-embed-stream iframe, .player-embed iframe, #pembed iframe').attr('src') || '';
+
+  // Previous & Next Episode Navigation
+  const prevUrl = $('.flir a:contains("Previous"), .flir a:contains("Prev")').attr('href') || '';
   const nextUrl = $('.flir a:contains("Next")').attr('href') || '';
-  const allEpisodesUrl = $('.flir a:contains("See All Episodes")').attr('href') || '';
+  const allEpUrl = $('.flir a:contains("See All"), .flir a:contains("Semua")').attr('href') || '';
 
-  const prevEpisodeSlug = prevUrl ? extractSlug(prevUrl) : null;
-  const nextEpisodeSlug = nextUrl ? extractSlug(nextUrl) : null;
-  const animeSlug = allEpisodesUrl ? extractSlug(allEpisodesUrl) : '';
+  const prevEpisode = extractSlug(prevUrl);
+  const nextEpisode = extractSlug(nextUrl);
 
-  // Default embed stream
-  let defaultStreamUrl = '';
-  const iframeMatch = data.match(/<div class="responsive-embed-stream"[\s\S]*?<iframe[^>]+src="([^">]+)"/i);
-  if (iframeMatch) {
-    defaultStreamUrl = iframeMatch[1];
-  } else {
-    const rawIframe = $('iframe').first().attr('src');
-    if (rawIframe) defaultStreamUrl = rawIframe;
-  }
+  // Mirror Stream Servers
+  const mirrors = [];
+  $('.mirrorstream ul').each((_, ul) => {
+    const qualityClass = $(ul).attr('class') || '';
+    const quality = qualityClass.replace('m', '').replace('p', 'p') || 'Stream';
 
-  // Extract action hashes from inline scripts
-  const nonceMatch = data.match(/action:\s*["']([a-f0-9]{32})["']\s*\}\}\)\.done\(\(\{\s*data:\s*a\s*\}\)\s*=>\s*\{\s*window\.__x__nonce\s*=\s*a/);
-  const streamMatch = data.match(/data:\s*\{\s*\.\.\.e,\s*nonce:\s*(?:window\.__x__nonce|a),\s*action:\s*["']([a-f0-9]{32})["']/);
-
-  const getNonceAction = nonceMatch ? nonceMatch[1] : 'aa1208d27f29ca340c92c66d1926f13f';
-  const getStreamAction = streamMatch ? streamMatch[1] : '2a3505c93b0035d3f455df82bf976b84';
-
-  // Extract Mirrors grouped by quality
-  const mirrors = {
-    m360p: [],
-    m480p: [],
-    m720p: []
-  };
-
-  $('.mirrorstream > ul').each((_, ulEl) => {
-    const className = $(ulEl).attr('class') || '';
-    const qualityMatch = className.match(/m(\d+p)/i);
-    const qualityKey = qualityMatch ? `m${qualityMatch[1].toLowerCase()}` : 'm360p';
-
-    $(ulEl).find('li a').each((_, aEl) => {
+    $(ul).find('li a').each((_, aEl) => {
       const serverName = $(aEl).text().trim();
-      const content = $(aEl).attr('data-content');
-      if (content) {
-        try {
-          const parsed = JSON.parse(Buffer.from(content, 'base64').toString('utf-8'));
-          if (!mirrors[qualityKey]) mirrors[qualityKey] = [];
-          mirrors[qualityKey].push({
-            name: serverName,
-            quality: parsed.q || (qualityMatch ? qualityMatch[1] : '360p'),
-            content: content,
-            data: parsed
-          });
-        } catch (e) {}
-      }
+      const rawData = $(aEl).attr('data-content') || '';
+      mirrors.push({
+        quality,
+        server: serverName,
+        data_content: rawData
+      });
     });
   });
 
-  // Extract Download Links
+  // Download Links
   const downloads = [];
-  $('.download ul > li').each((_, liEl) => {
-    const item = $(liEl);
-    const text = item.text();
-    const resolutionMatch = text.match(/(?:Mp4|MKV)\s+(\d+p)/i) || text.match(/(\d+p)/i);
-    const sizeMatch = text.match(/([\d\.]+\s*(?:MB|GB|KB))/i);
-
-    const format = text.includes('MKV') ? 'MKV' : 'MP4';
-    const quality = resolutionMatch ? resolutionMatch[1] : '';
-    const size = sizeMatch ? sizeMatch[1] : '';
-
+  $('.download ul li').each((_, el) => {
+    const quality = $(el).find('strong, b').text().trim();
+    const size = $(el).find('i').text().trim();
     const links = [];
-    item.find('a').each((_, aEl) => {
-      const server = $(aEl).text().trim();
-      const linkUrl = $(aEl).attr('href');
-      if (server && linkUrl && !linkUrl.startsWith('javascript:')) {
-        links.push({
-          server,
-          url: linkUrl
-        });
-      }
-    });
-
-    if (links.length > 0) {
-      downloads.push({
-        format,
-        quality: quality ? `${format} ${quality}` : format,
-        size,
-        links
+    $(el).find('a').each((_, aEl) => {
+      links.push({
+        name: $(aEl).text().trim(),
+        url: $(aEl).attr('href') || ''
       });
+    });
+    if (quality && links.length > 0) {
+      downloads.push({ quality, size, links });
     }
   });
 
   return {
     title,
+    anime_title: animeTitle,
     anime_slug: animeSlug,
-    prev_episode_slug: prevEpisodeSlug,
-    next_episode_slug: nextEpisodeSlug,
-    default_stream_url: defaultStreamUrl,
+    default_stream: defaultStream,
+    prev_episode: prevEpisode,
+    next_episode: nextEpisode,
     mirrors,
-    downloads,
-    actions: {
-      nonce_action: getNonceAction,
-      stream_action: getStreamAction
-    },
-    cookies
+    downloads
   };
 }
 
 /**
- * Resolve Mirror Stream Iframe
+ * Resolve Mirror Video Embed via AJAX
  */
-async function resolveMirrorStream(mirrorContent, nonceAction = 'aa1208d27f29ca340c92c66d1926f13f', streamAction = '2a3505c93b0035d3f455df82bf976b84', pageUrl = BASE_URL) {
-  let parsedContent;
+async function resolveMirror(dataContent, nonceAction = '2a3505c472', streamAction = 'aa1208d27f29ca340c92c66d19261cf5', episodeSlug = '') {
+  let content = dataContent;
   try {
-    parsedContent = JSON.parse(Buffer.from(mirrorContent, 'base64').toString('utf-8'));
-  } catch (e) {
-    throw new Error('Invalid mirror data-content payload');
-  }
+    const decoded = Buffer.from(dataContent, 'base64').toString('utf8');
+    content = JSON.parse(decoded);
+  } catch (e) {}
 
-  // 1. Get Nonce
-  const noncePost = querystring.stringify({ action: nonceAction });
-  const nonceResp = await axios.post(`${BASE_URL}/wp-admin/admin-ajax.php`, noncePost, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-      'X-Requested-With': 'XMLHttpRequest',
-      'Referer': pageUrl,
-      'Origin': BASE_URL
-    }
+  const postData = querystring.stringify({
+    action: streamAction,
+    data: typeof content === 'object' ? JSON.stringify(content) : content,
+    nonce: nonceAction
   });
 
-  const nonce = nonceResp.data?.data;
-  if (!nonce) {
-    throw new Error('Gagal mendapatkan sesi autentikasi stream (nonce)');
+  for (const mirror of OTAKUDESU_MIRRORS) {
+    try {
+      const res = await axios.post(`${mirror}/wp-admin/admin-ajax.php`, postData, {
+        timeout: 10000,
+        headers: {
+          ...BROWSER_HEADERS,
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Referer': `${mirror}/episode/${episodeSlug}/`,
+          'Origin': mirror
+        }
+      });
+
+      if (res.data) {
+        let streamUrl = '';
+        if (typeof res.data === 'string') {
+          const $ = cheerio.load(res.data);
+          streamUrl = $('iframe').attr('src') || res.data;
+        } else if (res.data.data) {
+          try {
+            const rawDecoded = Buffer.from(res.data.data, 'base64').toString('utf8');
+            const $ = cheerio.load(rawDecoded);
+            streamUrl = $('iframe').attr('src') || rawDecoded;
+          } catch (e) {
+            streamUrl = res.data.data;
+          }
+        }
+
+        if (streamUrl) {
+          return { stream_url: streamUrl };
+        }
+      }
+    } catch (err) {}
   }
 
-  // 2. Get Decrypted Stream
-  const streamPost = querystring.stringify({
-    ...parsedContent,
-    nonce: nonce,
-    action: streamAction
-  });
-
-  const streamResp = await axios.post(`${BASE_URL}/wp-admin/admin-ajax.php`, streamPost, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-      'X-Requested-With': 'XMLHttpRequest',
-      'Referer': pageUrl,
-      'Origin': BASE_URL
-    }
-  });
-
-  const encodedHtml = streamResp.data?.data;
-  if (!encodedHtml) {
-    throw new Error('Stream tidak tersedia untuk server ini');
-  }
-
-  const decodedHtml = Buffer.from(encodedHtml, 'base64').toString('utf-8');
-  const iframeSrcMatch = decodedHtml.match(/src=["']([^"']+)["']/i);
-  const streamUrl = iframeSrcMatch ? iframeSrcMatch[1] : '';
-
-  return {
-    raw_html: decodedHtml,
-    stream_url: streamUrl
-  };
+  throw new Error('Gagal mengurai video mirror');
 }
 
 /**
- * Get Weekly Release Schedule
+ * Get Release Schedule
  */
 async function getSchedule() {
-  const { data } = await client.get('/jadwal-rilis/');
+  const { data } = await fetchFromMirrors('/jadwal-rilis/');
   const $ = cheerio.load(data);
 
   const schedule = {};
-  $('.kgjdwl321 .kglist321, .kglist321').each((_, el) => {
+
+  $('.kglist321').each((_, el) => {
     const day = $(el).find('h2').text().trim();
     const animeList = [];
 
-    $(el).find('ul > li').each((_, li) => {
-      const a = $(li).find('a');
-      const title = a.text().trim();
-      const url = a.attr('href') || '';
-      const slug = extractSlug(url);
-      if (title && slug) {
-        animeList.push({ title, slug, url });
-      }
+    $(el).find('ul li a').each((_, aEl) => {
+      animeList.push({
+        title: $(aEl).text().trim(),
+        slug: extractSlug($(aEl).attr('href')),
+        url: $(aEl).attr('href') || ''
+      });
     });
 
     if (day && animeList.length > 0) {
@@ -447,64 +427,68 @@ async function getSchedule() {
 /**
  * Get Genre List
  */
-async function getGenreList() {
-  const { data } = await client.get('/genre-list/');
+async function getGenres() {
+  const { data } = await fetchFromMirrors('/genre-list/');
   const $ = cheerio.load(data);
 
   const genres = [];
-  $('.genres > li > a').each((_, el) => {
-    const title = $(el).text().trim();
-    const url = $(el).attr('href') || '';
-    const slug = extractSlug(url);
-    if (title && slug) {
-      genres.push({ title, slug, url });
-    }
+  $('.genres li a').each((_, el) => {
+    genres.push({
+      name: $(el).text().trim(),
+      slug: extractSlug($(el).attr('href')),
+      url: $(el).attr('href') || ''
+    });
   });
 
   return genres;
 }
 
 /**
- * Get Anime by Genre with pagination
+ * Get Anime by Genre Slug & Page
  */
-async function getAnimeByGenre(genreSlug, page = 1) {
-  const pagePath = page > 1 ? `/genres/${genreSlug}/page/${page}/` : `/genres/${genreSlug}/`;
-  const { data } = await client.get(pagePath);
+async function getAnimeByGenre(slug, page = 1) {
+  const pagePath = page > 1 ? `/genres/${slug}/page/${page}/` : `/genres/${slug}/`;
+  const { data } = await fetchFromMirrors(pagePath);
   const $ = cheerio.load(data);
 
-  const results = [];
+  const animeList = [];
   $('.col-anime').each((_, el) => {
-    const item = $(el);
-    const title = item.find('.col-anime-title a').text().trim();
-    const url = item.find('.col-anime-title a').attr('href') || '';
-    const slug = extractSlug(url);
-    const poster = item.find('.col-anime-cover img').attr('src') || '';
-    const studio = item.find('.col-anime-studio').text().trim();
-    const eps = item.find('.col-anime-eps').text().trim();
-    const rating = item.find('.col-anime-rating').text().trim();
-    const synopsis = item.find('.col-synopsis').text().trim();
+    const title = $(el).find('.col-anime-title a').text().trim();
+    const url = $(el).find('.col-anime-title a').attr('href') || '';
+    const slugEp = extractSlug(url);
+    const poster = $(el).find('.col-anime-cover img').attr('src') || '';
+    const rating = $(el).find('.col-anime-rating').text().trim();
+    const episodes = $(el).find('.col-anime-eps').text().trim();
 
-    if (title && slug) {
-      results.push({
+    const genres = [];
+    $(el).find('.col-anime-genre a').each((_, g) => {
+      genres.push({
+        name: $(g).text().trim(),
+        slug: extractSlug($(g).attr('href'))
+      });
+    });
+
+    if (title && slugEp) {
+      animeList.push({
         title,
-        slug,
+        slug: slugEp,
         poster,
-        studio,
-        episodes: eps,
         rating,
-        synopsis,
+        episodes,
+        genres,
         url
       });
     }
   });
 
   const hasNextPage = $('.pagination .next').length > 0;
+  const hasPrevPage = $('.pagination .prev').length > 0;
 
   return {
-    genre: genreSlug,
-    page: parseInt(page),
+    anime: animeList,
+    page,
     has_next: hasNextPage,
-    anime: results
+    has_prev: hasPrevPage
   };
 }
 
@@ -512,9 +496,9 @@ module.exports = {
   getHome,
   searchAnime,
   getAnimeDetail,
-  getEpisodeDetail,
-  resolveMirrorStream,
+  getEpisode,
+  resolveMirror,
   getSchedule,
-  getGenreList,
+  getGenres,
   getAnimeByGenre
 };

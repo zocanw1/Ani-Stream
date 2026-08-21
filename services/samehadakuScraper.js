@@ -1,29 +1,68 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const BASE_URL = 'https://samehadaku.me';
+const SAMEHADAKU_MIRRORS = [
+  'https://samehadaku.care',
+  'https://www.sankavollerei.com/anime/samehadaku',
+  'https://samehadaku.email',
+  'https://samehadaku.how'
+];
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000,
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8',
-    'Referer': BASE_URL,
-    'Origin': BASE_URL
+let activeBaseUrl = SAMEHADAKU_MIRRORS[0];
+
+const BROWSER_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8',
+  'Sec-Ch-Ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+  'Sec-Ch-Ua-Mobile': '?0',
+  'Sec-Ch-Ua-Platform': '"Windows"'
+};
+
+async function fetchSamehadaku(path = '') {
+  let lastError = null;
+  const mirrors = [activeBaseUrl, ...SAMEHADAKU_MIRRORS.filter(m => m !== activeBaseUrl)];
+
+  for (const mirror of mirrors) {
+    try {
+      const cleanPath = path.startsWith('/') ? path : '/' + path;
+      // SankaVollerei REST API format
+      if (mirror.includes('sankavollerei')) {
+        const apiPath = cleanPath === '/' ? '/home' : cleanPath;
+        const res = await axios.get(`${mirror}${apiPath}`, { timeout: 8000 });
+        if (res.status === 200 && res.data) {
+          activeBaseUrl = mirror;
+          return { isApi: true, data: res.data.data || res.data };
+        }
+      }
+
+      const res = await axios.get(`${mirror}${cleanPath}`, {
+        timeout: 8000,
+        headers: {
+          ...BROWSER_HEADERS,
+          'Referer': mirror,
+          'Origin': mirror
+        }
+      });
+
+      if (res.status === 200 && res.data) {
+        activeBaseUrl = mirror;
+        return { isApi: false, data: res.data };
+      }
+    } catch (err) {
+      lastError = err;
+    }
   }
-});
+
+  throw lastError || new Error('Gagal memuat data dari mirror Samehadaku');
+}
 
 function extractSlug(url) {
   if (!url) return '';
   const match = url.match(/\/(?:anime|episode|blog)\/([^\/]+)\/?/) || url.match(/\/([^\/]+)\/?$/);
-  return match ? match[1] : url.replace(BASE_URL, '').replace(/\//g, '');
+  return match ? match[1] : url.replace(/https?:\/\/[^\/]+\//, '').replace(/\//g, '');
 }
 
-/**
- * Clean messy scraped title
- */
 function cleanTitle(raw) {
   if (!raw) return '';
   return raw
@@ -36,12 +75,35 @@ function cleanTitle(raw) {
 }
 
 /**
- * Get Samehadaku Homepage (Latest Episode & Popular)
+ * Get Samehadaku Homepage
  */
 async function getHome() {
-  const { data } = await client.get('/');
-  const $ = cheerio.load(data);
+  const result = await fetchSamehadaku('/');
 
+  if (result.isApi) {
+    const apiData = result.data;
+    const latest = (apiData.recent?.anime || apiData.recent || []).map(item => ({
+      title: item.title || '',
+      slug: item.slug || item.animeId || '',
+      episode: item.episode ? `Episode ${item.episode}` : 'Episode Terbaru',
+      type: item.type || 'Anime',
+      poster: item.poster || item.thumbnail || '',
+      source: 'samehadaku'
+    }));
+
+    const popular = (apiData.top10?.anime || apiData.top10 || []).map(item => ({
+      title: item.title || '',
+      slug: item.slug || item.animeId || '',
+      rating: item.score ? `★ ${item.score}` : '8.5',
+      type: item.type || 'TV',
+      poster: item.poster || item.thumbnail || '',
+      source: 'samehadaku'
+    }));
+
+    return { latest, popular };
+  }
+
+  const $ = cheerio.load(result.data);
   const latest = [];
   const popular = [];
 
@@ -63,42 +125,38 @@ async function getHome() {
         episode,
         type,
         poster,
-        url: href
+        source: 'samehadaku'
       });
     }
   });
 
-  return {
-    latest: latest.slice(0, 24),
-    popular: latest.slice(0, 12)
-  };
+  return { latest: latest.slice(0, 18), popular: latest.slice(0, 10) };
 }
 
 /**
- * Search Samehadaku Anime
+ * Search Samehadaku
  */
 async function searchAnime(query) {
-  if (!query || query.trim().length === 0) return [];
-  const { data } = await client.get(`/?s=${encodeURIComponent(query.trim())}`);
-  const $ = cheerio.load(data);
+  if (!query) return [];
+  const result = await fetchSamehadaku(`/?s=${encodeURIComponent(query)}`);
+  if (result.isApi) return result.data || [];
 
+  const $ = cheerio.load(result.data);
   const results = [];
-  $('article, .animposx, .bsx, .post-show ul li').each((_, el) => {
-    const item = $(el);
-    const rawTitle = item.find('h2, .title, a').first().text().trim();
-    const title = cleanTitle(rawTitle) || rawTitle;
-    const href = item.find('a').first().attr('href') || '';
-    const slug = extractSlug(href);
-    const poster = item.find('img').attr('src') || item.find('img').attr('data-src') || '';
-    const rating = item.find('.score, .rating').text().trim();
 
-    if (title && slug && !results.some(r => r.slug === slug)) {
+  $('article, .animposx, .bsx').each((_, el) => {
+    const item = $(el);
+    const title = item.find('h2, .title').text().trim();
+    const url = item.find('a').first().attr('href') || '';
+    const slug = extractSlug(url);
+    const poster = item.find('img').attr('src') || item.find('img').attr('data-src') || '';
+
+    if (title && slug) {
       results.push({
-        title,
+        title: cleanTitle(title) || title,
         slug,
-        rating,
         poster,
-        url: href
+        source: 'samehadaku'
       });
     }
   });
@@ -106,46 +164,7 @@ async function searchAnime(query) {
   return results;
 }
 
-/**
- * Get Samehadaku Episode Detail
- */
-async function getEpisodeDetail(slug) {
-  const url = `/${slug}/`;
-  const { data } = await client.get(url);
-  const $ = cheerio.load(data);
-
-  const title = $('h1.entry-title, h1').first().text().trim();
-  const iframeSrc = $('.player-embed iframe, #pembed iframe, iframe').first().attr('src') || '';
-
-  // Extract downloads
-  const downloads = [];
-  $('.download-eps ul li, .download ul li').each((_, el) => {
-    const text = $(el).find('strong, b').text().trim() || $(el).text().split('-')[0].trim();
-    const links = [];
-    $(el).find('a').each((_, aEl) => {
-      links.push({
-        server: $(aEl).text().trim(),
-        url: $(aEl).attr('href')
-      });
-    });
-    if (links.length > 0) {
-      downloads.push({
-        quality: text,
-        links
-      });
-    }
-  });
-
-  return {
-    title,
-    slug,
-    default_stream_url: iframeSrc,
-    downloads
-  };
-}
-
 module.exports = {
   getHome,
-  searchAnime,
-  getEpisodeDetail
+  searchAnime
 };
