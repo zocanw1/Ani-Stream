@@ -272,7 +272,10 @@ async function loginUser({ username, password }) {
 
   if (sql) {
     await ensureTables();
-    const rows = await sql.query('SELECT * FROM users WHERE LOWER(email) = $1 LIMIT 1', [cleanIdentifier]);
+    const rows = await sql.query(
+      "SELECT * FROM users WHERE LOWER(email) = $1 OR LOWER(SPLIT_PART(email, '@', 1)) = $1 LIMIT 1",
+      [cleanIdentifier]
+    );
 
     if (!rows || rows.length === 0) {
       throw new Error('Akun tidak ditemukan. Silakan periksa kembali atau daftar akun baru.');
