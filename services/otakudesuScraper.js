@@ -2,67 +2,29 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 
-const OTAKUDESU_MIRRORS = [
-  'https://otakudesu.cc',
-  'https://otakudesu.blog',
-  'https://otakudesu.cloud',
-  'https://otakudesu.best',
-  'https://otakudesu.cam'
-];
+const BASE_URL = 'https://otakudesu.blog';
 
-let activeBaseUrl = OTAKUDESU_MIRRORS[0];
-
-const BROWSER_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-  'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-  'Sec-Ch-Ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
-  'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"Windows"',
-  'Sec-Fetch-Dest': 'document',
-  'Sec-Fetch-Mode': 'navigate',
-  'Sec-Fetch-Site': 'same-origin',
-  'Sec-Fetch-User': '?1',
-  'Upgrade-Insecure-Requests': '1'
-};
-
-async function fetchFromMirrors(path = '', options = {}) {
-  let lastError = null;
-
-  // Try current activeBaseUrl first
-  const mirrors = [activeBaseUrl, ...OTAKUDESU_MIRRORS.filter(m => m !== activeBaseUrl)];
-
-  for (const mirror of mirrors) {
-    try {
-      const cleanPath = path.startsWith('/') ? path : '/' + path;
-      const url = mirror + cleanPath;
-
-      const res = await axios.get(url, {
-        timeout: 9000,
-        headers: {
-          ...BROWSER_HEADERS,
-          'Referer': mirror + '/',
-          'Origin': mirror,
-          ...(options.headers || {})
-        },
-        params: options.params
-      });
-
-      if (res.status === 200 && res.data) {
-        activeBaseUrl = mirror;
-        return { data: res.data, baseUrl: mirror };
-      }
-    } catch (err) {
-      lastError = err;
-    }
+const client = axios.create({
+  baseURL: BASE_URL,
+  timeout: 12000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Sec-Ch-Ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'Sec-Ch-Ua-Platform': '"Windows"',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1'
   }
-
-  throw lastError || new Error('Gagal memuat data dari mirror Otakudesu');
-}
+});
 
 function extractSlug(url) {
   if (!url) return '';
-  const match = url.match(/\/(?:anime|episode|genres|lengkap)\/([^\/]+)\/?/);
+  const match = url.match(/\/(?:anime|episode|genres)\/([^\/]+)\/?/);
   return match ? match[1] : url.replace(/https?:\/\/[^\/]+\//, '').replace(/\//g, '');
 }
 
@@ -70,7 +32,7 @@ function extractSlug(url) {
  * Get Home page data (Ongoing & Complete Anime)
  */
 async function getHome() {
-  const { data } = await fetchFromMirrors('/');
+  const { data } = await client.get('/');
   const $ = cheerio.load(data);
 
   const ongoing = [];
@@ -138,7 +100,7 @@ async function getHome() {
  */
 async function searchAnime(query) {
   if (!query || query.trim().length === 0) return [];
-  const { data } = await fetchFromMirrors('/', {
+  const { data } = await client.get('/', {
     params: {
       s: query.trim(),
       post_type: 'anime'
@@ -195,7 +157,7 @@ async function searchAnime(query) {
  * Get Anime Detail by slug
  */
 async function getAnimeDetail(slug) {
-  const { data } = await fetchFromMirrors(`/anime/${slug}/`);
+  const { data } = await client.get(`/anime/${slug}/`);
   const $ = cheerio.load(data);
 
   const title = $('.infozingle .jdlcontent, .fotoanime .entry-title, h1.entry-title').first().text().trim() ||
@@ -276,7 +238,7 @@ async function getAnimeDetail(slug) {
  * Get Episode Data & Video Stream Embeds
  */
 async function getEpisode(slug) {
-  const { data } = await fetchFromMirrors(`/episode/${slug}/`);
+  const { data } = await client.get(`/episode/${slug}/`);
   const $ = cheerio.load(data);
 
   const title = $('.posttl, h1.entry-title').text().trim();
@@ -290,7 +252,6 @@ async function getEpisode(slug) {
   // Previous & Next Episode Navigation
   const prevUrl = $('.flir a:contains("Previous"), .flir a:contains("Prev")').attr('href') || '';
   const nextUrl = $('.flir a:contains("Next")').attr('href') || '';
-  const allEpUrl = $('.flir a:contains("See All"), .flir a:contains("Semua")').attr('href') || '';
 
   const prevEpisode = extractSlug(prevUrl);
   const nextEpisode = extractSlug(nextUrl);
@@ -357,39 +318,35 @@ async function resolveMirror(dataContent, nonceAction = '2a3505c472', streamActi
     nonce: nonceAction
   });
 
-  for (const mirror of OTAKUDESU_MIRRORS) {
-    try {
-      const res = await axios.post(`${mirror}/wp-admin/admin-ajax.php`, postData, {
-        timeout: 10000,
-        headers: {
-          ...BROWSER_HEADERS,
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'X-Requested-With': 'XMLHttpRequest',
-          'Referer': `${mirror}/episode/${episodeSlug}/`,
-          'Origin': mirror
-        }
-      });
+  const res = await axios.post(`${BASE_URL}/wp-admin/admin-ajax.php`, postData, {
+    timeout: 10000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Referer': `${BASE_URL}/episode/${episodeSlug}/`,
+      'Origin': BASE_URL
+    }
+  });
 
-      if (res.data) {
-        let streamUrl = '';
-        if (typeof res.data === 'string') {
-          const $ = cheerio.load(res.data);
-          streamUrl = $('iframe').attr('src') || res.data;
-        } else if (res.data.data) {
-          try {
-            const rawDecoded = Buffer.from(res.data.data, 'base64').toString('utf8');
-            const $ = cheerio.load(rawDecoded);
-            streamUrl = $('iframe').attr('src') || rawDecoded;
-          } catch (e) {
-            streamUrl = res.data.data;
-          }
-        }
-
-        if (streamUrl) {
-          return { stream_url: streamUrl };
-        }
+  if (res.data) {
+    let streamUrl = '';
+    if (typeof res.data === 'string') {
+      const $ = cheerio.load(res.data);
+      streamUrl = $('iframe').attr('src') || res.data;
+    } else if (res.data.data) {
+      try {
+        const rawDecoded = Buffer.from(res.data.data, 'base64').toString('utf8');
+        const $ = cheerio.load(rawDecoded);
+        streamUrl = $('iframe').attr('src') || rawDecoded;
+      } catch (e) {
+        streamUrl = res.data.data;
       }
-    } catch (err) {}
+    }
+
+    if (streamUrl) {
+      return { stream_url: streamUrl };
+    }
   }
 
   throw new Error('Gagal mengurai video mirror');
@@ -399,7 +356,7 @@ async function resolveMirror(dataContent, nonceAction = '2a3505c472', streamActi
  * Get Release Schedule
  */
 async function getSchedule() {
-  const { data } = await fetchFromMirrors('/jadwal-rilis/');
+  const { data } = await client.get('/jadwal-rilis/');
   const $ = cheerio.load(data);
 
   const schedule = {};
@@ -428,7 +385,7 @@ async function getSchedule() {
  * Get Genre List
  */
 async function getGenres() {
-  const { data } = await fetchFromMirrors('/genre-list/');
+  const { data } = await client.get('/genre-list/');
   const $ = cheerio.load(data);
 
   const genres = [];
@@ -448,7 +405,7 @@ async function getGenres() {
  */
 async function getAnimeByGenre(slug, page = 1) {
   const pagePath = page > 1 ? `/genres/${slug}/page/${page}/` : `/genres/${slug}/`;
-  const { data } = await fetchFromMirrors(pagePath);
+  const { data } = await client.get(pagePath);
   const $ = cheerio.load(data);
 
   const animeList = [];
