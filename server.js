@@ -64,8 +64,18 @@ app.get('/api/search', async (req, res) => {
     if (!query.trim()) {
       return res.json({ success: true, data: [] });
     }
-    const data = await scraper.searchAnime(query);
-    res.json({ success: true, data });
+    let data = [];
+    try {
+      data = await scraper.searchAnime(query);
+    } catch (e) {}
+
+    if (!data || data.length === 0) {
+      try {
+        data = await samehadaku.searchAnime(query);
+      } catch (e) {}
+    }
+
+    res.json({ success: true, data: data || [] });
   } catch (error) {
     console.error('Error in /api/search:', error.message);
     res.status(500).json({ success: false, message: error.message || 'Pencarian anime gagal' });
@@ -74,37 +84,73 @@ app.get('/api/search', async (req, res) => {
 
 // Anime Detail
 app.get('/api/anime/:slug', async (req, res) => {
+  const { slug } = req.params;
   try {
-    const { slug } = req.params;
-    const data = await scraper.getAnimeDetail(slug);
+    let data = null;
+    try {
+      data = await scraper.getAnimeDetail(slug);
+    } catch (e) {}
+
+    if (!data || !data.title) {
+      data = await samehadaku.getAnimeDetail(slug);
+    }
+
+    if (!data) {
+      return res.status(404).json({ success: false, message: 'Detail anime tidak ditemukan' });
+    }
+
     res.json({ success: true, data });
   } catch (error) {
-    console.error(`Error in /api/anime/${req.params.slug}:`, error.message);
+    console.error(`Error in /api/anime/${slug}:`, error.message);
     res.status(500).json({ success: false, message: error.message || 'Gagal memuat detail anime' });
   }
 });
 
 // Episode Detail (Stream + Mirrors + Downloads)
 app.get('/api/episode/:slug', async (req, res) => {
+  const { slug } = req.params;
   try {
-    const { slug } = req.params;
-    const data = await scraper.getEpisodeDetail(slug);
+    let data = null;
+    try {
+      data = await scraper.getEpisode(slug);
+    } catch (e) {}
+
+    if (!data || (!data.default_stream && (!data.mirrors || data.mirrors.length === 0))) {
+      data = await samehadaku.getEpisode(slug);
+    }
+
+    if (!data) {
+      return res.status(404).json({ success: false, message: 'Episode anime tidak ditemukan' });
+    }
+
     res.json({ success: true, data });
   } catch (error) {
-    console.error(`Error in /api/episode/${req.params.slug}:`, error.message);
+    console.error(`Error in /api/episode/${slug}:`, error.message);
     res.status(500).json({ success: false, message: error.message || 'Gagal memuat episode anime' });
   }
 });
 
-// Resolve Mirror Stream (AJAX Nonce Decryptor)
+// Resolve Mirror Stream / Server ID
 app.post('/api/mirror', async (req, res) => {
   try {
-    const { content, nonce_action, stream_action, episode_slug } = req.body;
-    if (!content) {
-      return res.status(400).json({ success: false, message: 'Parameter content wajib disertakan' });
+    const { content, nonce_action, stream_action, episode_slug, serverId } = req.body;
+    const targetServerId = serverId || content;
+
+    // Check if it's a Samehadaku server ID
+    if (targetServerId && !targetServerId.includes('action=')) {
+      try {
+        const sameResult = await samehadaku.resolveServer(targetServerId);
+        if (sameResult && sameResult.stream_url) {
+          return res.json({ success: true, data: sameResult });
+        }
+      } catch (e) {}
     }
-    const pageUrl = episode_slug ? `https://otakudesu.blog/episode/${episode_slug}/` : 'https://otakudesu.blog';
-    const data = await scraper.resolveMirrorStream(content, nonce_action, stream_action, pageUrl);
+
+    if (!content) {
+      return res.status(400).json({ success: false, message: 'Parameter content / serverId wajib disertakan' });
+    }
+
+    const data = await scraper.resolveMirror(content, nonce_action, stream_action, episode_slug);
     res.json({ success: true, data });
   } catch (error) {
     console.error('Error in /api/mirror:', error.message);
@@ -112,10 +158,29 @@ app.post('/api/mirror', async (req, res) => {
   }
 });
 
+// Samehadaku Server Resolution Direct
+app.get('/api/samehadaku/server/:serverId', async (req, res) => {
+  try {
+    const data = await samehadaku.resolveServer(req.params.serverId);
+    if (!data) return res.status(404).json({ success: false, message: 'Server tidak ditemukan' });
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Schedule
 app.get('/api/schedule', async (req, res) => {
   try {
-    const data = await scraper.getSchedule();
+    let data = null;
+    try {
+      data = await scraper.getSchedule();
+    } catch (e) {}
+
+    if (!data || Object.keys(data).length === 0) {
+      data = await samehadaku.getSchedule();
+    }
+
     res.json({ success: true, data });
   } catch (error) {
     console.error('Error in /api/schedule:', error.message);
@@ -126,7 +191,15 @@ app.get('/api/schedule', async (req, res) => {
 // Genres
 app.get('/api/genres', async (req, res) => {
   try {
-    const data = await scraper.getGenreList();
+    let data = [];
+    try {
+      data = await scraper.getGenres();
+    } catch (e) {}
+
+    if (!data || data.length === 0) {
+      data = await samehadaku.getGenres();
+    }
+
     res.json({ success: true, data });
   } catch (error) {
     console.error('Error in /api/genres:', error.message);
@@ -136,13 +209,21 @@ app.get('/api/genres', async (req, res) => {
 
 // Anime by Genre
 app.get('/api/genres/:slug', async (req, res) => {
+  const { slug } = req.params;
+  const page = parseInt(req.query.page) || 1;
   try {
-    const { slug } = req.params;
-    const page = parseInt(req.query.page) || 1;
-    const data = await scraper.getAnimeByGenre(slug, page);
+    let data = null;
+    try {
+      data = await scraper.getAnimeByGenre(slug, page);
+    } catch (e) {}
+
+    if (!data || !data.anime || data.anime.length === 0) {
+      data = await samehadaku.getAnimeByGenre(slug, page);
+    }
+
     res.json({ success: true, data });
   } catch (error) {
-    console.error(`Error in /api/genres/${req.params.slug}:`, error.message);
+    console.error(`Error in /api/genres/${slug}:`, error.message);
     res.status(500).json({ success: false, message: error.message || 'Gagal memuat anime berdasarkan genre' });
   }
 });

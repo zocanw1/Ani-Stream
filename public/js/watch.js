@@ -7,6 +7,9 @@ let currentEpisodeSlug = '';
 let currentQuality = '360p';
 let currentActiveServer = 'Default';
 
+// Normalized mirrors list: [{ quality: '360p', server: 'Blogger', content: '...', serverId: '...' }]
+let normalizedMirrors = [];
+
 document.addEventListener('DOMContentLoaded', () => {
   initNavbarSearch();
   const pathParts = window.location.pathname.split('/');
@@ -25,11 +28,14 @@ async function loadEpisode(slug) {
 
   try {
     episodeData = await API.getEpisode(slug);
-    document.title = `Nonton ${episodeData.title} Sub Indo | StellaNime`;
+    if (!episodeData) throw new Error('Data episode tidak ditemukan.');
+
+    const titleText = episodeData.title || slug;
+    document.title = `Nonton ${titleText} Sub Indo | StellaNime`;
 
     // Title & Header Links
-    document.getElementById('episodeTitle').textContent = episodeData.title;
-    const animeSlug = episodeData.anime_slug;
+    document.getElementById('episodeTitle').textContent = titleText;
+    const animeSlug = episodeData.anime_slug || episodeData.animeId;
 
     // Look up parent anime poster from bookmarks or history
     let parentPoster = '';
@@ -48,10 +54,10 @@ async function loadEpisode(slug) {
     // Save to Watch History
     StorageManager.saveHistory({
       episodeSlug: slug,
-      episodeTitle: episodeData.title,
+      episodeTitle: titleText,
       animeSlug: animeSlug || slug,
-      animeTitle: episodeData.title.split('Episode')[0].trim() || 'Anime',
-      poster: parentPoster || DEFAULT_POSTER
+      animeTitle: episodeData.anime_title || titleText.replace(/Episode\s+\d+.*$/i, '').trim() || 'Anime',
+      poster: parentPoster || episodeData.poster || DEFAULT_POSTER
     });
 
     if (animeSlug) {
@@ -67,16 +73,19 @@ async function loadEpisode(slug) {
     const prevBtn = document.getElementById('prevEpBtn');
     const nextBtn = document.getElementById('nextEpBtn');
 
-    if (episodeData.prev_episode_slug) {
-      prevBtn.href = `/watch/${episodeData.prev_episode_slug}`;
+    const prevSlug = episodeData.prev_episode || episodeData.prev_episode_slug || episodeData.prevEpisode?.episodeId;
+    const nextSlug = episodeData.next_episode || episodeData.next_episode_slug || episodeData.nextEpisode?.episodeId;
+
+    if (prevSlug) {
+      prevBtn.href = `/watch/${prevSlug}`;
       prevBtn.classList.remove('disabled');
     } else {
       prevBtn.classList.add('disabled');
       prevBtn.href = 'javascript:void(0)';
     }
 
-    if (episodeData.next_episode_slug) {
-      nextBtn.href = `/watch/${episodeData.next_episode_slug}`;
+    if (nextSlug) {
+      nextBtn.href = `/watch/${nextSlug}`;
       nextBtn.classList.remove('disabled');
     } else {
       nextBtn.classList.add('disabled');
@@ -85,15 +94,19 @@ async function loadEpisode(slug) {
 
     // Set Default Player Stream
     const player = document.getElementById('videoPlayer');
-    if (episodeData.default_stream_url) {
-      player.src = episodeData.default_stream_url;
+    const defaultStream = episodeData.default_stream || episodeData.default_stream_url || episodeData.defaultStreamingUrl;
+    if (defaultStream) {
+      player.src = defaultStream;
     }
+
+    // Normalize Mirrors
+    normalizeMirrorsData();
 
     // Render Quality Tabs & Server Mirrors
     initQualityAndServers();
 
     // Render Download Table
-    renderDownloads(episodeData.downloads);
+    renderDownloads(episodeData.downloads || episodeData.downloadUrl);
 
     loading.style.display = 'none';
     container.style.display = 'grid';
@@ -104,9 +117,40 @@ async function loadEpisode(slug) {
   }
 }
 
+function normalizeMirrorsData() {
+  normalizedMirrors = [];
+  const rawMirrors = episodeData.mirrors;
+
+  if (Array.isArray(rawMirrors)) {
+    rawMirrors.forEach(m => {
+      normalizedMirrors.push({
+        quality: m.quality || 'HD',
+        server: m.server || 'Server',
+        content: m.data_content || m.content || m.serverId || '',
+        serverId: m.serverId || ''
+      });
+    });
+  } else if (rawMirrors && typeof rawMirrors === 'object') {
+    Object.keys(rawMirrors).forEach(key => {
+      const qName = key.replace(/^m/, '');
+      const list = rawMirrors[key] || [];
+      list.forEach(s => {
+        normalizedMirrors.push({
+          quality: qName,
+          server: s.name || s.server || 'Server',
+          content: s.content || s.data_content || '',
+          serverId: s.serverId || ''
+        });
+      });
+    });
+  }
+}
+
 function initQualityAndServers() {
   const tabs = document.querySelectorAll('.quality-tab-btn');
-  const mirrors = episodeData.mirrors || {};
+
+  // Find available qualities
+  const availableQualities = new Set(normalizedMirrors.map(m => m.quality.toLowerCase()));
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -117,16 +161,13 @@ function initQualityAndServers() {
     });
   });
 
-  // Default to 360p or whatever is available
-  if (mirrors.m360p && mirrors.m360p.length > 0) {
-    currentQuality = '360p';
-  } else if (mirrors.m480p && mirrors.m480p.length > 0) {
-    currentQuality = '480p';
-  } else if (mirrors.m720p && mirrors.m720p.length > 0) {
-    currentQuality = '720p';
-  }
+  // Determine initial active quality
+  if (availableQualities.has('720p')) currentQuality = '720p';
+  else if (availableQualities.has('480p')) currentQuality = '480p';
+  else if (availableQualities.has('360p')) currentQuality = '360p';
+  else if (availableQualities.has('1080p')) currentQuality = '1080p';
 
-  // Set active tab
+  // Set active tab in UI
   tabs.forEach(t => {
     if (t.dataset.quality === currentQuality) t.classList.add('active');
     else t.classList.remove('active');
@@ -137,8 +178,7 @@ function initQualityAndServers() {
 
 function renderServerButtons(quality) {
   const serverGrid = document.getElementById('serverButtonsGrid');
-  const qualityKey = `m${quality}`;
-  const serverList = (episodeData.mirrors && episodeData.mirrors[qualityKey]) || [];
+  const matchingServers = normalizedMirrors.filter(m => m.quality.toLowerCase() === quality.toLowerCase());
 
   let html = `
     <button class="server-btn ${currentActiveServer === 'Default' ? 'active' : ''}" onclick="switchStreamDefault()">
@@ -146,12 +186,12 @@ function renderServerButtons(quality) {
     </button>
   `;
 
-  if (serverList.length > 0) {
-    serverList.forEach((s, idx) => {
-      const isSelected = currentActiveServer === `${quality}-${s.name}`;
+  if (matchingServers.length > 0) {
+    matchingServers.forEach((s, idx) => {
+      const isSelected = currentActiveServer === `${quality}-${s.server}`;
       html += `
-        <button class="server-btn ${isSelected ? 'active' : ''}" onclick="switchMirror('${quality}', ${idx}, '${s.name}')">
-          <i class="fa-solid fa-server"></i> ${s.name.toUpperCase()}
+        <button class="server-btn ${isSelected ? 'active' : ''}" onclick="switchMirror('${quality}', ${idx}, '${s.server}')">
+          <i class="fa-solid fa-server"></i> ${s.server.toUpperCase()}
         </button>
       `;
     });
@@ -165,18 +205,18 @@ function renderServerButtons(quality) {
 window.switchStreamDefault = function() {
   currentActiveServer = 'Default';
   const player = document.getElementById('videoPlayer');
-  if (episodeData.default_stream_url) {
-    player.src = episodeData.default_stream_url;
+  const defaultStream = episodeData.default_stream || episodeData.default_stream_url || episodeData.defaultStreamingUrl;
+  if (defaultStream) {
+    player.src = defaultStream;
   }
   renderServerButtons(currentQuality);
 };
 
 window.switchMirror = async function(quality, serverIndex, serverName) {
-  const qualityKey = `m${quality}`;
-  const serverList = episodeData.mirrors[qualityKey];
-  const targetServer = serverList[serverIndex];
+  const matchingServers = normalizedMirrors.filter(m => m.quality.toLowerCase() === quality.toLowerCase());
+  const targetServer = matchingServers[serverIndex];
 
-  if (!targetServer || !targetServer.content) return;
+  if (!targetServer) return;
 
   currentActiveServer = `${quality}-${serverName}`;
   renderServerButtons(quality);
@@ -191,7 +231,8 @@ window.switchMirror = async function(quality, serverIndex, serverName) {
       targetServer.content,
       episodeData.actions?.nonce_action,
       episodeData.actions?.stream_action,
-      currentEpisodeSlug
+      currentEpisodeSlug,
+      targetServer.serverId
     );
 
     if (res && res.stream_url) {
@@ -216,6 +257,10 @@ function renderDownloads(downloads) {
   }
 
   sec.style.display = 'block';
+
+  // Normalize download list
+  const list = Array.isArray(downloads) ? downloads : (downloads.qualities || []);
+
   grid.innerHTML = `
     <table class="batch-table">
       <thead>
@@ -226,12 +271,12 @@ function renderDownloads(downloads) {
         </tr>
       </thead>
       <tbody>
-        ${downloads.map(item => `
+        ${list.map(item => `
           <tr>
-            <td><strong>${item.quality}</strong></td>
+            <td><strong>${item.quality || item.title || 'HD'}</strong></td>
             <td>${item.size || '-'}</td>
             <td>
-              ${item.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="batch-link"><i class="fa-solid fa-cloud-arrow-down"></i> ${l.server}</a>`).join('')}
+              ${(item.links || item.serverList || []).map(l => `<a href="${l.url}" target="_blank" rel="noopener noreferrer" class="batch-link"><i class="fa-solid fa-cloud-arrow-down"></i> ${l.server || l.title || 'Download'}</a>`).join('')}
             </td>
           </tr>
         `).join('')}
@@ -251,7 +296,7 @@ async function loadSidebarEpisodes(animeSlug, activeEpSlug) {
         episodeSlug: currentEpisodeSlug,
         episodeTitle: (episodeData && episodeData.title) || 'Episode',
         animeSlug: animeSlug,
-        animeTitle: animeDetail.title || (episodeData && episodeData.title.split('Episode')[0].trim()) || 'Anime',
+        animeTitle: animeDetail.title || (episodeData && episodeData.title?.replace(/Episode\s+\d+.*$/i, '').trim()) || 'Anime',
         poster: animeDetail.poster
       });
     }
@@ -262,7 +307,7 @@ async function loadSidebarEpisodes(animeSlug, activeEpSlug) {
         return `
           <a href="/watch/${ep.slug}" class="sidebar-ep-item ${isActive ? 'active' : ''}">
             <span>${isActive ? '<i class="fa-solid fa-play" style="margin-right: 6px; color: var(--primary-light);"></i>' : ''}${ep.title}</span>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">${ep.release_date || ''}</span>
+            <span style="font-size: 0.72rem; color: var(--text-dim);">${ep.date || ''}</span>
           </a>
         `;
       }).join('');

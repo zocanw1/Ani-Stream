@@ -38,13 +38,21 @@ async function loadAnimeDetail(slug) {
     // Pills (Score, Type, Status, Episodes, Studio, etc.)
     const pillsContainer = document.getElementById('animePills');
     const pills = [];
-    if (data.score) pills.push(`<div class="meta-pill score-pill"><i class="fa-solid fa-star"></i> <strong>${data.score}</strong></div>`);
-    if (data.status) pills.push(`<div class="meta-pill"><i class="fa-solid fa-circle-info" style="color: var(--primary-light);"></i> <strong>${data.status}</strong></div>`);
-    if (data.type) pills.push(`<div class="meta-pill"><i class="fa-solid fa-film"></i> ${data.type}</div>`);
-    if (data.total_episodes) pills.push(`<div class="meta-pill"><i class="fa-solid fa-list-ol"></i> ${data.total_episodes} Ep</div>`);
-    if (data.duration) pills.push(`<div class="meta-pill"><i class="fa-solid fa-clock"></i> ${data.duration}</div>`);
-    if (data.studio) pills.push(`<div class="meta-pill"><i class="fa-solid fa-building"></i> ${data.studio}</div>`);
-    if (data.release_date) pills.push(`<div class="meta-pill"><i class="fa-solid fa-calendar"></i> ${data.release_date}</div>`);
+    const scoreVal = data.score || data.info?.score;
+    const statusVal = data.status || data.info?.status;
+    const typeVal = data.type || data.info?.type;
+    const epsVal = data.total_episodes || data.info?.total_episodes || (data.episodes ? `${data.episodes.length}` : '');
+    const durVal = data.duration || data.info?.duration;
+    const studioVal = data.studio || data.info?.studios;
+    const relVal = data.release_date || data.info?.released;
+
+    if (scoreVal) pills.push(`<div class="meta-pill score-pill"><i class="fa-solid fa-star"></i> <strong>${scoreVal}</strong></div>`);
+    if (statusVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-circle-info" style="color: var(--primary-light);"></i> <strong>${statusVal}</strong></div>`);
+    if (typeVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-film"></i> ${typeVal}</div>`);
+    if (epsVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-list-ol"></i> ${epsVal} Ep</div>`);
+    if (durVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-clock"></i> ${durVal}</div>`);
+    if (studioVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-building"></i> ${studioVal}</div>`);
+    if (relVal) pills.push(`<div class="meta-pill"><i class="fa-solid fa-calendar"></i> ${relVal}</div>`);
     pillsContainer.innerHTML = pills.join('');
 
     // Genres
