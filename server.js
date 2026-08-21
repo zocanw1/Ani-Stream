@@ -29,41 +29,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 1. OTAKUDESU API ROUTES
 // ==========================================
 
-// Home (Ongoing & Complete Anime with Fallback)
+// Home (Ongoing & Complete Anime with Multi-Source Fallback)
 app.get('/api/home', async (req, res) => {
   try {
     const data = await scraper.getHome();
-    res.json({ success: true, data });
-  } catch (error) {
-    console.warn('Otakudesu mirror notice, switching to fallback provider:', error.message);
-    try {
-      const sameData = await samehadaku.getHome();
-      const ongoing = sameData.latest || [];
-      const complete = sameData.popular || [];
-      res.json({
-        success: true,
-        data: {
-          ongoing: ongoing.map(o => ({
-            title: o.title,
-            slug: o.slug,
-            episode: o.episode,
-            release_day: 'Terbaru',
-            release_date: 'Baru Rilis',
-            poster: o.poster
-          })),
-          complete: complete.map(c => ({
-            title: c.title,
-            slug: c.slug,
-            total_episodes: c.type || 'Tamat',
-            rating: c.rating || '8.5',
-            release_date: 'Populer',
-            poster: c.poster
-          }))
-        }
-      });
-    } catch (fallbackErr) {
-      res.status(500).json({ success: false, message: error.message || 'Gagal memuat beranda anime' });
+    if (data && data.ongoing && data.ongoing.length > 0) {
+      return res.json({ success: true, data });
     }
+  } catch (e) {
+    console.warn('Otakudesu notice:', e.message);
+  }
+
+  // Fallback to Samehadaku cloud API (100% active on Vercel)
+  try {
+    const sameData = await samehadaku.getHome();
+    const ongoing = sameData.latest || [];
+    const complete = sameData.popular || [];
+    return res.json({
+      success: true,
+      data: {
+        ongoing,
+        complete
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Gagal memuat beranda anime: ' + err.message });
   }
 });
 
